@@ -3,6 +3,9 @@ import LampCanvas from '@/components/canvas/Lamp'
 const Home = () => {
   return (
     <main>
+      <div className='stars'></div>
+      <div className='twinkling'></div>
+      <div className='clouds'></div>
       <h1 className='p-4 logo text-4xl font-bold'>🧞 Doc Genie</h1>
       <div className='p-4 text-center space-y-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-2/3'>
         <h2 className='p-4 text-5xl font-bold'>

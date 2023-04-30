@@ -11,37 +11,36 @@ import {
 const CanvasLoader = () => {
   const { progress } = useProgress()
   return (
-    <Html>
-      <span className='canvas-load'></span>
-      <p
-        style={{
-          fontSize: 14,
-          color: 'f1f1f1',
-          fontWeight: 800,
-          marginTop: 40,
-        }}
-      >
-        {progress.toFixed(2)}
-      </p>
+    <Html center>
+      {progress < 100 ? <div className='spinner'></div> : null}
     </Html>
   )
 }
 
 const Lamp = () => {
   const lamp = useGLTF('/genie_lamp/scene.gltf')
-
   return (
     <mesh>
-      <hemisphereLight intensity={0.3} groundColor='black' />
-      <pointLight intensity={1.8} />
+      <hemisphereLight intensity={0.2} groundColor='black' />
+      <pointLight intensity={0.2} position={[0, 5, 0]} />
       <spotLight
-        position={[45, -32, -10]}
-        angle={0.12}
-        penumbra={1}
-        intensity={1.3}
+        position={[0, 50, 0]}
+        angle={0.2}
+        penumbra={0.1}
+        intensity={2}
         castShadow
-        shadow-mapSize={1024}
+        shadow-mapSize={2048}
       />
+      <rectAreaLight
+        intensity={1}
+        position={[0, -5, -5]}
+        width={15}
+        height={15}
+        color={'#ffffff'}
+      />
+      <directionalLight intensity={0.5} position={[50, -140, -30]} />
+      <directionalLight intensity={0.5} position={[-50, -140, -30]} />
+      <directionalLight intensity={0.5} position={[0, -140, 50]} />
       <primitive
         object={lamp.scene}
         scale={0.07}
