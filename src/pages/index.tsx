@@ -1,6 +1,19 @@
+import Article from '@/components/article/Article'
 import LampCanvas from '@/components/canvas/Lamp'
+import { useGenerateArticle } from '@/lib/useGenerateArticle'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 
 const Home = () => {
+  const [loading, setLoading] = useState<boolean>(false)
+  const router = useRouter()
+  const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    const formData = new FormData(e.currentTarget)
+    const text = formData.get('topic') as string
+    router.push(`/${text}`)
+  }
   return (
     <main>
       <div className='stars'></div>
@@ -21,18 +34,24 @@ const Home = () => {
           additional documentation generated to get as specific as you&#39;d
           like.
         </h3>
-        <div className='p-4 flex justify-center items-center space-x-4'>
-          <input
-            className='p-3 border-2 border-gray-300 rounded-lg w-full max-w-lg'
-            type='text'
-            placeholder='Ex. History of the World'
-          />
-          <button className='p-3 border-2 border-gray-300 rounded-lg gradient-button'>
-            Learn!
-          </button>
-        </div>
+        <form onSubmit={onFormSubmit}>
+          <div className='p-4 flex justify-center items-center space-x-4'>
+            <input
+              className='p-3 border-2 border-gray-300 rounded-lg w-full max-w-lg'
+              type='text'
+              name='topic'
+              placeholder='Ex. History of the World'
+            />
+            <button
+              className='p-3 border-2 border-gray-300 rounded-lg gradient-button'
+              type='submit'
+              disabled={loading}
+            >
+              {loading ? 'Generating...' : 'Learn'}
+            </button>
+          </div>
+        </form>
       </div>
-      {/* lamp 3d model behind hero text */}
       <div className='p-4 absolute top-0 left-0 w-full h-full -z-10'>
         <LampCanvas />
       </div>
