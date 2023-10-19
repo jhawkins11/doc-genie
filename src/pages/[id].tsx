@@ -1,20 +1,22 @@
 import Article from '@/components/article/Article'
+import { useFetchArticle } from '@/lib/useFetchArticle'
 import { useGenerateArticle } from '@/lib/useGenerateArticle'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState } from 'react'
 
 const ArticleView = () => {
   const router = useRouter()
-  const { id: text } = router.query
+  const { id } = router.query
+  const [childId, setChildId] = useState<number | null>(null)
 
-  const { article, loading, error, success } = useGenerateArticle(
-    text as string
+  const { article, loading, error } = useFetchArticle(
+    childId || Number(id),
+    childId ? Number(id) : null
   )
   if (loading) {
     return (
       <h1 className='text-3xl text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-        {/* generating with dots appearing one after the other */}
-        Generating...
+        Loading...
       </h1>
     )
   }
@@ -25,15 +27,22 @@ const ArticleView = () => {
       </h1>
     )
   }
-  if (!article) {
+  if (!article?.content) {
     return (
       <h1 className='text-3xl text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
         No article found
       </h1>
     )
   }
-  if (success) {
-    return <Article mdl={article} />
+  if (article) {
+    return (
+      <Article
+        mdl={article.content.trim()}
+        id={article.id}
+        parentid={Number(id)}
+        setChildId={setChildId}
+      />
+    )
   }
   return null
 }

@@ -5,15 +5,22 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 
 const Home = () => {
-  const [loading, setLoading] = useState<boolean>(false)
+  const [topic, setTopic] = useState<string | null>(null)
   const router = useRouter()
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
     const formData = new FormData(e.currentTarget)
     const text = formData.get('topic') as string
-    router.push(`/${text}`)
+    setTopic(text)
   }
+
+  const { article, error, success, loading } = useGenerateArticle(topic)
+
+  useEffect(() => {
+    if (success && article) {
+      router.push(`/${article.id}`)
+    }
+  }, [success, article])
   return (
     <main>
       <div className='stars'></div>

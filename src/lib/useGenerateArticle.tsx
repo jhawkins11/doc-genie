@@ -1,11 +1,20 @@
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 
+export type Article = {
+  id: number
+  parentid: number
+  title: string
+  content: string
+}
+
 export const useGenerateArticle = (
   topic: string | null,
-  subtopic?: string | null
+  subtopic?: string | null,
+  parentid?: number | null,
+  enabled: boolean = true
 ) => {
-  const [article, setArticle] = useState<string | null>(null)
+  const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,6 +29,7 @@ export const useGenerateArticle = (
             params: {
               topic,
               subtopic,
+              parentid,
             },
           }
         )
@@ -28,7 +38,7 @@ export const useGenerateArticle = (
         if (data.error) {
           throw new Error(data.error)
         }
-        setArticle(data)
+        setArticle(data as Article)
       } catch (err) {
         setError((err as any).message)
       } finally {
@@ -37,9 +47,9 @@ export const useGenerateArticle = (
       }
     }
 
-    if (topic) {
+    if (topic && enabled) {
       generateArticle()
     }
-  }, [topic])
+  }, [topic, subtopic, parentid, enabled])
   return { article, loading, error, success }
 }
