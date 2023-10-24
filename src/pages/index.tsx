@@ -23,7 +23,7 @@ const Home = () => {
     }
   }, [success, article])
   return (
-    <main>
+    <main className='text-white'>
       <div className='stars'></div>
       <div className='twinkling'></div>
       <div className='clouds'></div>

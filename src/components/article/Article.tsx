@@ -82,7 +82,10 @@ const Article = ({
       <div className={styles.sidebar}>
         <Logo />
         <ul className={styles.mainList}>
-          <li className={cn(styles.topic, !subtopic ? styles.active : '')}>
+          <li
+            className={cn(styles.topic, !subtopic ? styles.active : '')}
+            onClick={() => setSubtopic(null)}
+          >
             {' '}
             {topic}
           </li>
@@ -92,7 +95,7 @@ const Article = ({
                 onClick={() => setSubtopic(subTopic.text)}
                 className={subTopic.text === subtopic ? styles.active : ''}
               >
-                <a href={subTopic.route}>{subTopic.text}</a>
+                {subTopic.text}
               </li>
             </ul>
           ))}
