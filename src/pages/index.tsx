@@ -15,13 +15,13 @@ const Home = () => {
     setTopic(text)
   }
 
-  const { article, error, success, loading } = useGenerateArticle(topic)
-
-  useEffect(() => {
-    if (success && article) {
+  const { article, error, success, loading } = useGenerateArticle({
+    topic,
+    enabled: !!topic,
+    onSuccess: (article) => {
       router.push(`/${article.id}`)
-    }
-  }, [success, article])
+    },
+  })
   return (
     <main className='text-white'>
       <div className='stars'></div>

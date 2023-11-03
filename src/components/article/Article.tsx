@@ -24,6 +24,7 @@ const Article = ({
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
   )
+  console.log('selected', selected)
   const topic = article.title
   const {
     error,
@@ -35,8 +36,8 @@ const Article = ({
     parentid: selected.id,
     enabled: !!articleToGenerate,
     onSuccess: () => {
-      setArticleToGenerate(null)
       invalidate()
+      setArticleToGenerate(null)
     },
   })
 
@@ -67,33 +68,38 @@ const Article = ({
   }, [selected])
 
   const renderChildren = (children: Article[]) => {
-    console.log('rendering children', children)
     if (!children) {
       return null
     }
     return (
       <ul className={styles.subList}>
         {children?.map((childArticle, index) => (
-          <li
-            key={index}
-            className={childArticle.id === selected.id ? styles.active : ''}
-            onClick={() => {
-              setSelected(childArticle)
-            }}
-          >
-            {childArticle.title}
+          <React.Fragment key={index}>
+            <li
+              className={childArticle.id === selected.id ? styles.active : ''}
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelected(childArticle)
+              }}
+            >
+              {childArticle.title}
+            </li>
             {childArticle.childArticles &&
               renderChildren(childArticle.childArticles)}
-          </li>
+            <Skeleton
+              animation='wave'
+              sx={{
+                bgcolor: 'grey.800',
+                height: 40,
+                marginLeft: '1rem',
+                display:
+                  generating && childArticle.id === selected.id
+                    ? 'block'
+                    : 'none',
+              }}
+            />
+          </React.Fragment>
         ))}
-        <Skeleton
-          animation='wave'
-          sx={{
-            bgcolor: 'grey.800',
-            height: 40,
-            display: generating ? 'block' : 'none',
-          }}
-        />
       </ul>
     )
   }
@@ -144,6 +150,13 @@ const Article = ({
     )
   }
 
+  const formatMarkdown = (content: string) => {
+    // trim every line
+    const lines = content.split('\n')
+    const trimmedLines = lines.map((line) => line.trim())
+    return trimmedLines.join('\n')
+  }
+
   if (!article) {
     return null
   }
@@ -178,6 +191,18 @@ const Article = ({
                 {topic}
               </li>
               {article && renderChildren(article.childArticles || [])}
+              <Skeleton
+                animation='wave'
+                className={styles.topic}
+                sx={{
+                  bgcolor: 'grey.800',
+                  height: 40,
+                  width: '70%',
+                  marginLeft: '1rem',
+                  display:
+                    generating && selected.id === article.id ? 'block' : 'none',
+                }}
+              />
             </ul>
           </div>
         </ResponsiveDrawer>
@@ -185,7 +210,7 @@ const Article = ({
       <Box component={'article'}>
         <div className={styles.content}>
           <div className={styles.root} id='article'>
-            <ReactMarkdown>{selected.content}</ReactMarkdown>
+            <ReactMarkdown>{formatMarkdown(selected.content)}</ReactMarkdown>
           </div>
         </div>
       </Box>
