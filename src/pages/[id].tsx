@@ -9,12 +9,14 @@ const ArticleView = () => {
   const { id } = router.query
   const [childId, setChildId] = useState<number | null>(null)
 
-  const { article, loading, error } = useFetchArticle(
+  const { article, loading, error, invalidate } = useFetchArticle(
     childId || Number(id),
     childId ? Number(id) : null
   )
   if (article) {
-    return <Article article={article} loading={loading} />
+    return (
+      <Article article={article} loading={loading} invalidate={invalidate} />
+    )
   }
   return null
 }

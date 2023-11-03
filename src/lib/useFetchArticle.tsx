@@ -6,6 +6,7 @@ export const useFetchArticle = (id: number | null, parentid: number | null) => {
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [fetched, setFetched] = useState<boolean>(false)
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true)
@@ -26,11 +27,12 @@ export const useFetchArticle = (id: number | null, parentid: number | null) => {
       }
       setArticle(data as Article)
       setLoading(false)
+      setFetched(true)
     }
     if (id) {
       fetchArticle()
     }
-  }, [id])
+  }, [id, parentid, fetched])
 
-  return { article, loading, error }
+  return { article, loading, error, invalidate: () => setFetched(false) }
 }

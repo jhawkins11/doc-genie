@@ -9,12 +9,19 @@ export type Article = {
   childArticles?: Article[]
 }
 
-export const useGenerateArticle = (
-  topic: string | null,
-  subtopic?: string | null,
-  parentid?: number | null,
-  enabled: boolean = true
-) => {
+export const useGenerateArticle = ({
+  topic,
+  subtopic,
+  parentid,
+  enabled = true,
+  onSuccess,
+}: {
+  topic: string | null
+  subtopic?: string | null
+  parentid?: number | null
+  enabled: boolean
+  onSuccess?: (article: Article) => void
+}) => {
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
@@ -40,6 +47,9 @@ export const useGenerateArticle = (
           throw new Error(data.error)
         }
         setArticle(data as Article)
+        if (onSuccess) {
+          onSuccess(data as Article)
+        }
       } catch (err) {
         setError((err as any).message)
       } finally {
