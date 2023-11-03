@@ -6,6 +6,7 @@ export type Article = {
   parentid: number
   title: string
   content: string
+  childArticles?: Article[]
 }
 
 export const useGenerateArticle = (
