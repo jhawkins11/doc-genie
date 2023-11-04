@@ -24,7 +24,6 @@ const Article = ({
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
   )
-  console.log('selected', selected)
   const topic = article.title
   const {
     error,
@@ -37,9 +36,13 @@ const Article = ({
     enabled: !!articleToGenerate,
     onSuccess: () => {
       invalidate()
-      setArticleToGenerate(null)
     },
   })
+
+  useEffect(() => {
+    // when the article changes, set articleToGenerate to null to stop the loading animation
+    setArticleToGenerate(null)
+  }, [article])
 
   //   find all h2s within the content and add a button to copy the html of the h2 and its sibling p tags
   useEffect(() => {
@@ -93,7 +96,7 @@ const Article = ({
                 height: 40,
                 marginLeft: '1rem',
                 display:
-                  generating && childArticle.id === selected.id
+                  articleToGenerate && childArticle.id === selected.id
                     ? 'block'
                     : 'none',
               }}
@@ -200,7 +203,9 @@ const Article = ({
                   width: '70%',
                   marginLeft: '1rem',
                   display:
-                    generating && selected.id === article.id ? 'block' : 'none',
+                    articleToGenerate && selected.id === article.id
+                      ? 'block'
+                      : 'none',
                 }}
               />
             </ul>

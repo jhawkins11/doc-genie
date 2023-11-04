@@ -25,8 +25,8 @@ export const useFetchArticle = (id: number | null, parentid: number | null) => {
         setError(data.error)
         throw new Error(data.error)
       }
-      setArticle(data as Article)
       setLoading(false)
+      setArticle(data as Article)
       setFetched(true)
     }
     if (id) {
