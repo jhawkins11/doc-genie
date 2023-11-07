@@ -75,20 +75,18 @@ export default function ArticleList({
         ))}
       </Collapse>
       {isGenerating && (
-        <ListItemButton>
-          <Skeleton
-            animation='wave'
-            className={styles.topic}
-            sx={{
-              bgcolor: 'grey.800',
-              height: 40,
-              width: '70%',
-              marginLeft: '1rem',
-              display:
-                isGenerating && selected._id === article._id ? 'block' : 'none',
-            }}
-          />
-        </ListItemButton>
+        <Skeleton
+          animation='wave'
+          className={styles.topic}
+          sx={{
+            bgcolor: 'grey.800',
+            height: 50,
+            width: '90%',
+            margin: '0 auto',
+            display:
+              isGenerating && selected._id === article._id ? 'grid' : 'none',
+          }}
+        />
       )}
     </List>
   )

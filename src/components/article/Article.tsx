@@ -154,7 +154,10 @@ const Article = ({
         />
       </nav>
       <Box sx={{ width: { sm: 300 }, flexShrink: { sm: 0 } }} component={'nav'}>
-        <ResponsiveDrawer mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}>
+        <ResponsiveDrawer
+          mobileOpen={mobileOpen || !!articleToGenerate}
+          setMobileOpen={setMobileOpen}
+        >
           <div className={styles.sidebar}>
             <Logo />
             <ArticleList
