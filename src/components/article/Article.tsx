@@ -6,7 +6,9 @@ import ReactDOM from 'react-dom'
 import { useGenerateArticle } from '@/lib/useGenerateArticle'
 import Logo from '../Logo'
 import {
+  Backdrop,
   Box,
+  CircularProgress,
   Collapse,
   List,
   ListItemButton,
@@ -50,7 +52,7 @@ const Article = ({
     setArticleToGenerate(null)
   }, [article])
 
-  //   find all h2s within the content and add a button to copy the html of the h2 and its sibling p tags
+  //   find all h2s within the content and add a button to copy the html of the h2
   useEffect(() => {
     const h2s =
       typeof window !== 'undefined' ? document.querySelectorAll('h2') : null
@@ -140,11 +142,14 @@ const Article = ({
   }
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  if (!article) {
-    return null
-  }
   return (
     <div className={styles.container}>
+      <Backdrop
+        open={loading}
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
       <nav className={styles.mobileNav}>
         <Logo />
         <Menu
@@ -160,6 +165,9 @@ const Article = ({
         >
           <div className={styles.sidebar}>
             <Logo />
+            <p className='text-center text-gray-400 text-xs mb-4'>
+              Click the lamp to generate a sub-article
+            </p>
             <ArticleList
               article={article}
               setSelected={setSelected}
