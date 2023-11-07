@@ -15,10 +15,11 @@ import {
   ListItemText,
   Skeleton,
 } from '@mui/material'
-import { ExpandLess, ExpandMore, Menu } from '@mui/icons-material'
+import { ExpandLess, ExpandMore, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
 import ResponsiveDrawer from '../ResponsiveDrawer'
+import formatMarkdown from '@/utils/formatMarkdown'
 
 const Article = ({
   article,
@@ -78,65 +79,6 @@ const Article = ({
     })
   }, [selected])
 
-  const renderChildren = (children: Article[]) => {
-    if (!children) {
-      return null
-    }
-    const open = selected.childArticles?.some(
-      (childArticle) => childArticle._id === selected._id
-    )
-    return (
-      <Collapse
-        timeout='auto'
-        unmountOnExit
-        in={open}
-        className={styles.subList}
-      >
-        <List>
-          {children?.map((childArticle, index) => (
-            <React.Fragment key={index}>
-              <ListItemButton
-                className={
-                  childArticle._id === selected._id ? styles.active : ''
-                }
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelected(childArticle)
-                }}
-              >
-                <ListItemText primary={childArticle.title} />
-                {open ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-              {childArticle.childArticles &&
-                renderChildren(childArticle.childArticles)}
-              <Skeleton
-                animation='wave'
-                sx={{
-                  bgcolor: 'grey.800',
-                  height: 40,
-                  marginLeft: '1rem',
-                  display:
-                    articleToGenerate && childArticle._id === selected._id
-                      ? 'block'
-                      : 'none',
-                }}
-              />
-            </React.Fragment>
-          ))}
-        </List>
-      </Collapse>
-    )
-  }
-
-  const formatMarkdown = (content: string) => {
-    // trim every line
-    // this is because if there is whitespace at the beginning of a line,
-    // it will not render the markdown properly
-    const lines = content.split('\n')
-    const trimmedLines = lines.map((line) => line.trim())
-    return trimmedLines.join('\n')
-  }
-
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
   }
@@ -165,15 +107,18 @@ const Article = ({
         >
           <div className={styles.sidebar}>
             <Logo />
-            <p className='text-center text-gray-400 text-xs mb-4'>
-              Click the lamp to generate a sub-article
-            </p>
             <ArticleList
               article={article}
               setSelected={setSelected}
+              setArticleToGenerate={setArticleToGenerate}
               selected={selected}
               isGenerating={!!articleToGenerate}
             />
+            <p className='text-center text-gray-400 text-xs mt-4 w-4/5 mx-auto'>
+              {/* info icon */}
+              <Info className='inline-block mr-1' />
+              Click a lamp or + icon to generate a sub-article
+            </p>
           </div>
         </ResponsiveDrawer>
       </Box>
