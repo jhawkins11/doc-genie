@@ -3,13 +3,20 @@ import ReactMarkdown from 'react-markdown'
 import styles from './Article.module.css'
 import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
-import { useRouter } from 'next/router'
 import { useGenerateArticle } from '@/lib/useGenerateArticle'
 import Logo from '../Logo'
-import cn from 'classnames'
-import { Box, Drawer, Skeleton } from '@mui/material'
-import { Menu } from '@mui/icons-material'
+import {
+  Box,
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemText,
+  Skeleton,
+} from '@mui/material'
+import { ExpandLess, ExpandMore, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
+import ArticleList from '../ArticleList/ArticleList'
+import ResponsiveDrawer from '../ResponsiveDrawer'
 
 const Article = ({
   article,
@@ -24,13 +31,12 @@ const Article = ({
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
   )
-  const topic = article.title
   const {
     error,
     success,
     loading: generating,
   } = useGenerateArticle({
-    topic: selected.title,
+    topic: `${article.title}: ${selected.title}`,
     subtopic: articleToGenerate,
     parentid: selected._id,
     enabled: !!articleToGenerate,
@@ -74,91 +80,65 @@ const Article = ({
     if (!children) {
       return null
     }
-    return (
-      <ul className={styles.subList}>
-        {children?.map((childArticle, index) => (
-          <React.Fragment key={index}>
-            <li
-              className={childArticle._id === selected._id ? styles.active : ''}
-              onClick={(e) => {
-                e.stopPropagation()
-                setSelected(childArticle)
-              }}
-            >
-              {childArticle.title}
-            </li>
-            {childArticle.childArticles &&
-              renderChildren(childArticle.childArticles)}
-            <Skeleton
-              animation='wave'
-              sx={{
-                bgcolor: 'grey.800',
-                height: 40,
-                marginLeft: '1rem',
-                display:
-                  articleToGenerate && childArticle._id === selected._id
-                    ? 'block'
-                    : 'none',
-              }}
-            />
-          </React.Fragment>
-        ))}
-      </ul>
+    const open = selected.childArticles?.some(
+      (childArticle) => childArticle._id === selected._id
     )
-  }
-
-  const [mobileOpen, setMobileOpen] = React.useState(true)
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen)
-  }
-  const container =
-    window !== undefined ? () => window.document.body : undefined
-  const drawerWidth = 300
-  const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 900
-  const ResponsiveDrawer = ({ children }: { children: React.ReactNode }) => {
-    if (isSmallScreen) {
-      return (
-        <Drawer
-          container={container}
-          variant='temporary'
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
-          }}
-        >
-          {children}
-        </Drawer>
-      )
-    }
     return (
-      <Drawer
-        variant='permanent'
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { width: drawerWidth },
-        }}
-        open
+      <Collapse
+        timeout='auto'
+        unmountOnExit
+        in={open}
+        className={styles.subList}
       >
-        {children}
-      </Drawer>
+        <List>
+          {children?.map((childArticle, index) => (
+            <React.Fragment key={index}>
+              <ListItemButton
+                className={
+                  childArticle._id === selected._id ? styles.active : ''
+                }
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelected(childArticle)
+                }}
+              >
+                <ListItemText primary={childArticle.title} />
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+              {childArticle.childArticles &&
+                renderChildren(childArticle.childArticles)}
+              <Skeleton
+                animation='wave'
+                sx={{
+                  bgcolor: 'grey.800',
+                  height: 40,
+                  marginLeft: '1rem',
+                  display:
+                    articleToGenerate && childArticle._id === selected._id
+                      ? 'block'
+                      : 'none',
+                }}
+              />
+            </React.Fragment>
+          ))}
+        </List>
+      </Collapse>
     )
   }
 
   const formatMarkdown = (content: string) => {
     // trim every line
+    // this is because if there is whitespace at the beginning of a line,
+    // it will not render the markdown properly
     const lines = content.split('\n')
     const trimmedLines = lines.map((line) => line.trim())
     return trimmedLines.join('\n')
   }
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen)
+  }
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   if (!article) {
     return null
@@ -173,42 +153,16 @@ const Article = ({
           className={styles.menuIcon}
         />
       </nav>
-      <Box
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        component={'nav'}
-      >
-        <ResponsiveDrawer>
+      <Box sx={{ width: { sm: 300 }, flexShrink: { sm: 0 } }} component={'nav'}>
+        <ResponsiveDrawer mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}>
           <div className={styles.sidebar}>
             <Logo />
-            <ul className={styles.mainList}>
-              <li
-                className={cn(
-                  styles.topic,
-                  selected._id === article._id ? styles.active : ''
-                )}
-                onClick={() => {
-                  setSelected(article)
-                }}
-              >
-                {' '}
-                {topic}
-              </li>
-              {article && renderChildren(article.childArticles || [])}
-              <Skeleton
-                animation='wave'
-                className={styles.topic}
-                sx={{
-                  bgcolor: 'grey.800',
-                  height: 40,
-                  width: '70%',
-                  marginLeft: '1rem',
-                  display:
-                    articleToGenerate && selected._id === article._id
-                      ? 'block'
-                      : 'none',
-                }}
-              />
-            </ul>
+            <ArticleList
+              article={article}
+              setSelected={setSelected}
+              selected={selected}
+              isGenerating={!!articleToGenerate}
+            />
           </div>
         </ResponsiveDrawer>
       </Box>
