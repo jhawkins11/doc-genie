@@ -1,13 +1,7 @@
+import Article from '@/types/Article'
 import axios from 'axios'
+import mongoose from 'mongoose'
 import { useState, useEffect } from 'react'
-
-export type Article = {
-  id: number
-  parentid: number
-  title: string
-  content: string
-  childArticles?: Article[]
-}
 
 export const useGenerateArticle = ({
   topic,
@@ -18,7 +12,7 @@ export const useGenerateArticle = ({
 }: {
   topic: string | null
   subtopic?: string | null
-  parentid?: number | null
+  parentid?: mongoose.Types.ObjectId
   enabled: boolean
   onSuccess?: (article: Article) => void
 }) => {
@@ -31,18 +25,12 @@ export const useGenerateArticle = ({
       setLoading(true)
       setError(null)
       try {
-        const res = await axios.get(
-          'https://bqasbbolzxmk4zoyhwqavvde7u0jjvtk.lambda-url.us-east-1.on.aws/',
-          {
-            params: {
-              topic,
-              subtopic,
-              parentid,
-            },
-          }
-        )
+        const res = await axios.post('/api/generateArticle', {
+          topic,
+          subtopic,
+          parentid,
+        })
         const data = res.data
-        console.log(data)
         if (data.error) {
           throw new Error(data.error)
         }

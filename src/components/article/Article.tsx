@@ -4,11 +4,12 @@ import styles from './Article.module.css'
 import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
 import { useRouter } from 'next/router'
-import { Article, useGenerateArticle } from '@/lib/useGenerateArticle'
+import { useGenerateArticle } from '@/lib/useGenerateArticle'
 import Logo from '../Logo'
 import cn from 'classnames'
 import { Box, Drawer, Skeleton } from '@mui/material'
 import { Menu } from '@mui/icons-material'
+import Article from '@/types/Article'
 
 const Article = ({
   article,
@@ -19,7 +20,6 @@ const Article = ({
   loading: boolean
   invalidate: () => void
 }) => {
-  // const [mdl, setMdl] = useState<string>(article.content)
   const [selected, setSelected] = useState<Article>(article)
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
@@ -32,7 +32,7 @@ const Article = ({
   } = useGenerateArticle({
     topic: selected.title,
     subtopic: articleToGenerate,
-    parentid: selected.id,
+    parentid: selected._id,
     enabled: !!articleToGenerate,
     onSuccess: () => {
       invalidate()
@@ -47,7 +47,7 @@ const Article = ({
   //   find all h2s within the content and add a button to copy the html of the h2 and its sibling p tags
   useEffect(() => {
     const h2s =
-      typeof window !== 'undefined' ? document.querySelectorAll('h2') : []
+      typeof window !== 'undefined' ? document.querySelectorAll('h2') : null
     if (!selected) return
     if (h2s.length < 1) return
 
@@ -79,7 +79,7 @@ const Article = ({
         {children?.map((childArticle, index) => (
           <React.Fragment key={index}>
             <li
-              className={childArticle.id === selected.id ? styles.active : ''}
+              className={childArticle._id === selected._id ? styles.active : ''}
               onClick={(e) => {
                 e.stopPropagation()
                 setSelected(childArticle)
@@ -96,7 +96,7 @@ const Article = ({
                 height: 40,
                 marginLeft: '1rem',
                 display:
-                  articleToGenerate && childArticle.id === selected.id
+                  articleToGenerate && childArticle._id === selected._id
                     ? 'block'
                     : 'none',
               }}
@@ -184,7 +184,7 @@ const Article = ({
               <li
                 className={cn(
                   styles.topic,
-                  selected.id === article.id ? styles.active : ''
+                  selected._id === article._id ? styles.active : ''
                 )}
                 onClick={() => {
                   setSelected(article)
@@ -203,7 +203,7 @@ const Article = ({
                   width: '70%',
                   marginLeft: '1rem',
                   display:
-                    articleToGenerate && selected.id === article.id
+                    articleToGenerate && selected._id === article._id
                       ? 'block'
                       : 'none',
                 }}

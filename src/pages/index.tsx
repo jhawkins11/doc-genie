@@ -19,7 +19,7 @@ const Home = () => {
     topic,
     enabled: !!topic,
     onSuccess: (article) => {
-      router.push(`/${article.id}`)
+      router.push(`/${article.slug}`)
     },
   })
   return (

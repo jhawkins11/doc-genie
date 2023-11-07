@@ -1,8 +1,8 @@
+import Article from '@/types/Article'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Article } from './useGenerateArticle'
 
-export const useFetchArticle = (id: number | null, parentid: number | null) => {
+export const useFetchArticle = (slug: string | null) => {
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -10,17 +10,12 @@ export const useFetchArticle = (id: number | null, parentid: number | null) => {
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true)
-      const res = await axios.get(
-        'https://6qmmcazyacyt5bla7r7fxvpasm0kpyyh.lambda-url.us-east-1.on.aws/',
-        {
-          params: {
-            id,
-            parentid: parentid || undefined,
-          },
-        }
-      )
+      const res = await axios.get('/api/getArticle', {
+        params: {
+          slug,
+        },
+      })
       const data = res.data
-      console.log(data)
       if (data.error) {
         setError(data.error)
         throw new Error(data.error)
@@ -29,10 +24,10 @@ export const useFetchArticle = (id: number | null, parentid: number | null) => {
       setArticle(data as Article)
       setFetched(true)
     }
-    if (id) {
+    if (slug) {
       fetchArticle()
     }
-  }, [id, parentid, fetched])
+  }, [slug, fetched])
 
   return { article, loading, error, invalidate: () => setFetched(false) }
 }
