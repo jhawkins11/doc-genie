@@ -28,22 +28,22 @@ const Home = () => {
       <div className='twinkling'></div>
       <div className='clouds'></div>
       <Logo />
-      <div className='p-4 text-center space-y-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-2/3'>
-        <h2 className='p-4 text-5xl font-bold'>
+      <div className='sm:p-4 text-center space-y-4 absolute top-1/2 left-1/2 transform sm:-translate-x-1/2 sm:-translate-y-2/3 -translate-x-1/2 -translate-y-1/2'>
+        <h2 className='sm:p-4 lg:text-5xl sm:text-4xl text-3xl font-bold'>
           Become an expert on any subject in{' '}
           <span className='bg-white px-1 bg-opacity-30 leading-normal'>
             minutes
           </span>
           .
         </h2>
-        <h3 className='p-4 text-base font-bold'>
+        <p className='sm:p-4 sm:text-base text-sm font-bold'>
           Harness the power of GPT-4 and generate documentation on any topic.
           Simply enter a topic below to get started. Each subtopic can then have
           additional documentation generated to get as specific as you&#39;d
           like.
-        </h3>
+        </p>
         <form onSubmit={onFormSubmit}>
-          <div className='p-4 flex justify-center items-center space-x-4'>
+          <div className='sm:p-4 flex justify-left md:justify-center md:flex-row flex-col items-center md:space-x-4 space-y-4 md:space-y-0'>
             <input
               className='p-3 border-2 border-gray-300 rounded-lg w-full max-w-lg'
               type='text'
@@ -51,7 +51,7 @@ const Home = () => {
               placeholder='Ex. History of the World'
             />
             <button
-              className='p-3 border-2 border-gray-300 rounded-lg gradient-button'
+              className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full'
               type='submit'
               disabled={loading}
             >

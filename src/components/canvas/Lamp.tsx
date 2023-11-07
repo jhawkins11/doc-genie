@@ -19,6 +19,26 @@ const CanvasLoader = () => {
 
 const Lamp = () => {
   const lamp = useGLTF('/genie_lamp/scene.gltf')
+  const screenSize = typeof window !== 'undefined' && window.innerWidth
+  const props =
+    screenSize < 900
+      ? {
+          position: [0, -1.5, -1],
+          rotation: [-0.01, -0.2, 0],
+          scale: 0.03,
+        }
+      : screenSize < 1200
+      ? {
+          position: [0, -1.8, -1.8],
+          rotation: [-0.01, -0.2, 0],
+          scale: 0.04,
+        }
+      : {
+          position: [0, -3, -3.2],
+          rotation: [-0.01, -0.2, 0],
+          scale: 0.07,
+        }
+
   return (
     <mesh>
       <hemisphereLight intensity={0.2} groundColor='black' />
@@ -41,12 +61,7 @@ const Lamp = () => {
       <directionalLight intensity={0.5} position={[50, -140, -30]} />
       <directionalLight intensity={0.5} position={[-50, -140, -30]} />
       <directionalLight intensity={0.5} position={[0, -140, 50]} />
-      <primitive
-        object={lamp.scene}
-        scale={0.07}
-        position={[0, -3, -3.2]}
-        rotation={[-0.01, -0.2, 0]}
-      />
+      <primitive object={lamp.scene} {...props} />
     </mesh>
   )
 }
