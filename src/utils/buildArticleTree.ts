@@ -12,13 +12,17 @@ const buildArticleTree = async (
     // fetch child articles
     const childArticles = await ArticleModel.find({ parentid: article._id })
 
-    // add childArticles to new article object
-    updatedArticle.childArticles = childArticles
-
+    let updatedChildArticles = []
     // recursively fetch grandchild articles
     for (let childArticle of childArticles) {
-      await buildArticleTree(childArticle)
+      const updatedChild = await buildArticleTree(childArticle)
+      if (updatedChild) {
+        updatedChildArticles.push(updatedChild)
+      }
     }
+
+    // add childArticles to new article object
+    updatedArticle.childArticles = updatedChildArticles
   } catch (error) {
     console.log('error getting child articles', error)
   }
