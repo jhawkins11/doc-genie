@@ -88,9 +88,7 @@ input {
   font-weight: bold;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
-  animation: pulse 2s infinite, gradient 10s ease infinite;
   background-image: linear-gradient(to right, #ff416c, #ff4b2b);
-  background-size: 200% auto;
   color: #fff;
   transition: all 0.4s ease-in-out;
 }
@@ -98,6 +96,11 @@ input {
 .gradient-button:hover {
   transform: translateY(-2px);
   box-shadow: 0px 3px 10px rgba(255, 75, 43, 0.5);
+}
+
+.animated-button {
+  animation: pulse 2s infinite, gradient 10s ease infinite;
+  background-size: 200% auto;
 }
 
 .spinner {

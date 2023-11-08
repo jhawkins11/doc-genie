@@ -1,9 +1,7 @@
-import Article from '@/components/article/Article'
+import Article from '@/components/Article/Article'
 import { useFetchArticle } from '@/hooks/useFetchArticle'
-import { useGenerateArticle } from '@/hooks/useGenerateArticle'
-import axios from 'axios'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React from 'react'
 
 const ArticleView = () => {
   const router = useRouter()

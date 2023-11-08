@@ -4,7 +4,7 @@ import styles from './Article.module.css'
 import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
-import Logo from '../Logo'
+import Logo from '../common/Logo'
 import {
   Backdrop,
   Box,
@@ -16,11 +16,12 @@ import {
 import { Check, Close, Edit, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
-import ResponsiveDrawer from '../ResponsiveDrawer'
+import ResponsiveDrawer from '../common/ResponsiveDrawer'
 import formatMarkdown from '@/utils/formatMarkdown'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useEditArticle } from '@/hooks/useEditArticle'
+import LoadingBackdrop from '../common/LoadingBackdrop'
 
 const Article = ({
   article,
@@ -114,12 +115,7 @@ const Article = ({
 
   return (
     <div className={styles.container}>
-      <Backdrop
-        open={loading}
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
-        <CircularProgress color='inherit' />
-      </Backdrop>
+      <LoadingBackdrop loading={loading} />
       <nav className={styles.mobileNav}>
         <Logo />
         <Menu
