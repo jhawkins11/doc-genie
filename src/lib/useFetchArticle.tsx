@@ -24,7 +24,7 @@ export const useFetchArticle = (slug: string | null) => {
       setArticle(data as Article)
       setFetched(true)
     }
-    if (slug) {
+    if (slug && !fetched) {
       fetchArticle()
     }
   }, [slug, fetched])

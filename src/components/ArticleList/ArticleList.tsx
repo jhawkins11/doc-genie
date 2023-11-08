@@ -9,7 +9,12 @@ import ExpandMore from '@mui/icons-material/ExpandMore'
 import Article from '@/types/Article'
 import styles from './ArticleList.module.css'
 import cn from 'classnames'
-import { InputAdornment, Skeleton, TextField } from '@mui/material'
+import {
+  CircularProgress,
+  InputAdornment,
+  Skeleton,
+  TextField,
+} from '@mui/material'
 import { Add, Check, Close } from '@mui/icons-material'
 
 export default function ArticleList({
@@ -20,6 +25,7 @@ export default function ArticleList({
   isGenerating,
   level = 1,
   setArticleToGenerate,
+  articleToEdit,
 }: {
   article: Article
   selected: Article
@@ -28,6 +34,7 @@ export default function ArticleList({
   isGenerating?: boolean
   level?: number
   setArticleToGenerate: (subtopic: string | null) => void
+  articleToEdit: Article | null
 }) {
   const [open, setOpen] = React.useState<boolean>(true)
   const [customTopic, setCustomTopic] = React.useState<string>('')
@@ -67,6 +74,9 @@ export default function ArticleList({
           <Add onClick={() => setIsAddingArticle(true)} />
         </ListItemIcon>
         <ListItemText primary={article.title} />
+        {articleToEdit?._id === article._id && (
+          <CircularProgress size={20} className='mx-2' color='inherit' />
+        )}
         {open && article.childArticles?.length ? (
           <ExpandLess
             onClick={(e) => handleDropdownClick(e, false)}
@@ -90,6 +100,7 @@ export default function ArticleList({
             isGenerating={isGenerating}
             level={level + 1}
             setArticleToGenerate={setArticleToGenerate}
+            articleToEdit={articleToEdit}
           />
         ))}
       </Collapse>
@@ -126,7 +137,7 @@ export default function ArticleList({
                   sx={{ color: 'grey.500', cursor: 'pointer' }}
                 />
                 <Check
-                  sx={{ color: 'black', cursor: 'pointer' }}
+                  sx={{ color: 'white', cursor: 'pointer' }}
                   onClick={() => {
                     handleAddArticle()
                   }}

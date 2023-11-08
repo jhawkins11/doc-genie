@@ -4,27 +4,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-export const generateAIArticle = async (
-  topic: string,
-  subtopic?: string
-): Promise<{ title: string; text: string }> => {
-  const prompt = subtopic
-    ? `
-      Generate MDL Subarticle in a format that works with react-markdown. Don't use any special characters that will not be formatted correctly.
-      Parent Topic for context: ${topic}
-      Article Title: ${subtopic}
-      Format: 1 h1/2+ h2s
-    `
-    : `
-    Generate MDL Article in a format that works with react-markdown: ${topic}
-    Format: 1 h1/2+ h2s
-  `
-
+export const generateAIArticle = async (prompt: string): Promise<string> => {
   let completions
   try {
     // generate completions
     completions = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4-1106-preview',
       messages: [
         {
           role: 'user',
@@ -42,10 +27,5 @@ export const generateAIArticle = async (
 
   const text = completions.choices[0].message.content as string
 
-  //  title is the generated heading
-  const title = text.match(/# (.*)\n/)
-    ? text.match(/# (.*)\n/)?.[1]
-    : subtopic || topic
-
-  return { title, text }
+  return text
 }

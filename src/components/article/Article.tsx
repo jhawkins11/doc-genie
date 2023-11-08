@@ -8,18 +8,19 @@ import Logo from '../Logo'
 import {
   Backdrop,
   Box,
+  Button,
   CircularProgress,
-  Collapse,
-  List,
-  ListItemButton,
-  ListItemText,
-  Skeleton,
+  InputAdornment,
+  TextField,
 } from '@mui/material'
-import { ExpandLess, ExpandMore, Info, Menu } from '@mui/icons-material'
+import { Check, Close, Edit, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
 import ResponsiveDrawer from '../ResponsiveDrawer'
 import formatMarkdown from '@/utils/formatMarkdown'
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
+import { useEditArticle } from '@/lib/useEditArticle'
 
 const Article = ({
   article,
@@ -31,6 +32,9 @@ const Article = ({
   invalidate: () => void
 }) => {
   const [selected, setSelected] = useState<Article>(article)
+  const [editPrompt, setEditPrompt] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [articleToEdit, setArticleToEdit] = useState<Article | null>(null)
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
   )
@@ -39,7 +43,10 @@ const Article = ({
     success,
     loading: generating,
   } = useGenerateArticle({
-    topic: `${article.title}: ${selected.title}`,
+    topic:
+      selected._id === article._id
+        ? article.title
+        : `${article.title}: ${selected.title}`,
     subtopic: articleToGenerate,
     parentid: selected._id,
     enabled: !!articleToGenerate,
@@ -47,10 +54,31 @@ const Article = ({
       invalidate()
     },
   })
+  const { loading: editing } = useEditArticle({
+    _id: articleToEdit?._id,
+    editPrompt,
+    onSuccess: () => {
+      invalidate()
+    },
+    enabled: !!articleToEdit,
+  })
 
   useEffect(() => {
     // when the article changes, set articleToGenerate to null to stop the loading animation
     setArticleToGenerate(null)
+    setArticleToEdit(null)
+    // find selected article in the article tree so the content will up to date
+    const findSelected = (article: Article) => {
+      if (article._id === selected._id) {
+        setSelected(article)
+      }
+      if (article.childArticles.length > 0) {
+        article.childArticles.forEach((subarticle) => {
+          findSelected(subarticle)
+        })
+      }
+    }
+    findSelected(article)
   }, [article])
 
   //   find all h2s within the content and add a button to copy the html of the h2
@@ -113,6 +141,7 @@ const Article = ({
               setArticleToGenerate={setArticleToGenerate}
               selected={selected}
               isGenerating={!!articleToGenerate}
+              articleToEdit={articleToEdit}
             />
             <p className='text-center text-gray-400 text-xs mt-4 w-4/5 mx-auto'>
               {/* info icon */}
@@ -125,7 +154,98 @@ const Article = ({
       <Box component={'article'}>
         <div className={styles.content}>
           <div className={styles.root} id='article'>
-            <ReactMarkdown>{formatMarkdown(selected.content)}</ReactMarkdown>
+            <ReactMarkdown
+              components={{
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '')
+                  return !inline && match ? (
+                    <SyntaxHighlighter
+                      style={atomOneDark as any}
+                      language={match[1]}
+                      PreTag='div'
+                      className='p-15 w-full'
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  )
+                },
+              }}
+              className='grid grid-cols-1 gap-4 w-full'
+            >
+              {formatMarkdown(selected.content)}
+            </ReactMarkdown>
+            {isEditing ? (
+              <TextField
+                variant='filled'
+                label='Edit prompt'
+                sx={{
+                  width: '100%',
+                  mt: 4,
+                  display: isEditing ? 'grid' : 'none',
+                  bgcolor: 'grey.800',
+                  '& .MuiFilledInput-root': {
+                    color: 'white',
+                  },
+                  // placeholder text color
+                  '& .MuiFormLabel-root': {
+                    color: 'grey.500',
+                  },
+                }}
+                value={editPrompt}
+                onChange={(e) => setEditPrompt(e.target.value)}
+                // add check to end of input
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsEditing(false)
+                    setArticleToEdit(selected)
+                  }
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <Close
+                        onClick={() => {
+                          setEditPrompt(null)
+                          setIsEditing(false)
+                        }}
+                        sx={{ color: 'grey.500', cursor: 'pointer' }}
+                      />
+                      <Check
+                        sx={{ color: 'white', cursor: 'pointer' }}
+                        onClick={() => {
+                          setIsEditing(false)
+                          setArticleToEdit(selected)
+                        }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            ) : (
+              <div className={styles.edit}>
+                <Button
+                  variant='contained'
+                  sx={{
+                    color: 'white',
+                    bgcolor: 'grey.800',
+                    '&:hover': {
+                      bgcolor: 'grey.900',
+                    },
+                    mt: 4,
+                  }}
+                  onClick={() => {
+                    setIsEditing(true)
+                  }}
+                >
+                  <Edit />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </Box>

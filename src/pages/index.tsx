@@ -30,17 +30,18 @@ const Home = () => {
       <Logo />
       <div className='sm:p-4 text-center space-y-4 absolute top-1/2 left-1/2 transform sm:-translate-x-1/2 sm:-translate-y-2/3 -translate-x-1/2 -translate-y-1/2'>
         <h2 className='sm:p-4 lg:text-5xl sm:text-4xl text-3xl font-bold'>
-          Become an expert on any subject in{' '}
+          Generate expert documentation in{' '}
           <span className='bg-white px-1 bg-opacity-30 leading-normal'>
             minutes
           </span>
           .
-        </h2>
+        </h2>{' '}
         <p className='sm:p-4 sm:text-base text-sm font-bold'>
-          Harness the power of GPT-4 and generate documentation on any topic.
-          Simply enter a topic below to get started. Each subtopic can then have
-          additional documentation generated to get as specific as you&#39;d
-          like.
+          Harness the power of GPT-4 to co-create a custom knowledge base.
+          Simply enter a topic and let the AI generate an initial document. Then
+          collaborate with GPT-4 to refine and expand the content. Add new
+          subarticles to build out a complete tree of in-depth, high-quality
+          information tailored to your needs.
         </p>
         <form onSubmit={onFormSubmit}>
           <div className='sm:p-4 flex justify-left md:justify-center md:flex-row flex-col items-center md:space-x-4 space-y-4 md:space-y-0'>
@@ -48,14 +49,14 @@ const Home = () => {
               className='p-3 border-2 border-gray-300 rounded-lg w-full max-w-lg'
               type='text'
               name='topic'
-              placeholder='Ex. History of the World'
+              placeholder='Ex. JavaScript Arrays'
             />
             <button
               className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full'
               type='submit'
               disabled={loading}
             >
-              {loading ? 'Generating...' : 'Learn'}
+              {loading ? 'Generating...' : 'Go!'}
             </button>
           </div>
         </form>
