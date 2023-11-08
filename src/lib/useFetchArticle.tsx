@@ -10,11 +10,7 @@ export const useFetchArticle = (slug: string | null) => {
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true)
-      const res = await axios.get('/api/getArticle', {
-        params: {
-          slug,
-        },
-      })
+      const res = await axios.get(`/api/articles/${slug}`)
       const data = res.data
       if (data.error) {
         setError(data.error)

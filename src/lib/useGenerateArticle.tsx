@@ -25,7 +25,7 @@ export const useGenerateArticle = ({
       setLoading(true)
       setError(null)
       try {
-        const res = await axios.post('/api/generateArticle', {
+        const res = await axios.post('/api/articles/generate', {
           topic,
           subtopic,
           parentid,

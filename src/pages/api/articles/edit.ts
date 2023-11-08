@@ -23,7 +23,7 @@ export default async function handler(
     // edit article with GPT
     const text = await generateAIArticle(prompt)
     // create a unique slug for the article
-    // if the article is a child article, we don't need to create a slug=
+    // if the article is a child article, we don't need to create a slug
     // save edited article to mongoDb
     const edited = await ArticleModel.updateOne(
       { _id },

@@ -22,7 +22,7 @@ export const useEditArticle = ({
       setLoading(true)
       setError(null)
       try {
-        const res = await axios.post('/api/editArticle', {
+        const res = await axios.post('/api/articles/edit', {
           _id: _id,
           editPrompt,
         })
