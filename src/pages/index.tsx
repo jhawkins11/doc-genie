@@ -1,7 +1,7 @@
 import Logo from '@/components/Logo'
 import Article from '@/components/article/Article'
 import LampCanvas from '@/components/canvas/Lamp'
-import { useGenerateArticle } from '@/lib/useGenerateArticle'
+import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 

@@ -1,6 +1,6 @@
 import Article from '@/components/article/Article'
-import { useFetchArticle } from '@/lib/useFetchArticle'
-import { useGenerateArticle } from '@/lib/useGenerateArticle'
+import { useFetchArticle } from '@/hooks/useFetchArticle'
+import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'

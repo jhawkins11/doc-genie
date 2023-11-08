@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import styles from './Article.module.css'
 import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
-import { useGenerateArticle } from '@/lib/useGenerateArticle'
+import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../Logo'
 import {
   Backdrop,
@@ -20,7 +20,7 @@ import ResponsiveDrawer from '../ResponsiveDrawer'
 import formatMarkdown from '@/utils/formatMarkdown'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import { useEditArticle } from '@/lib/useEditArticle'
+import { useEditArticle } from '@/hooks/useEditArticle'
 
 const Article = ({
   article,
