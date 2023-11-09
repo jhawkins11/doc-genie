@@ -5,6 +5,7 @@ const Logo = () => {
   const router = useRouter()
   return (
     <h1
+      aria-label='logo'
       className='p-4 logo text-4xl font-bold cursor-pointer'
       onClick={() => {
         router.push('/')

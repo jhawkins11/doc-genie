@@ -27,7 +27,7 @@ const StyledButton = ({
     }
     if (theme === 'dark') {
       classNames += ' bg-black text-white'
-      hoverClassNames = 'hover:bg-grey-800'
+      hoverClassNames = 'hover:bg-black hover:bg-opacity-80'
     }
     if (theme === 'gradient') {
       classNames += ' gradient-button'
@@ -43,9 +43,10 @@ const StyledButton = ({
   return (
     <Button
       aria-label={text}
-      className={getClassNames()}
       variant={variant}
       onClick={onClick}
+      // make sure tw classes override mui classes
+      className={getClassNames()}
       sx={sx}
     >
       {text}
