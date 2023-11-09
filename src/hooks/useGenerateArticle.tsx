@@ -9,12 +9,14 @@ export const useGenerateArticle = ({
   parentid,
   enabled = true,
   onSuccess,
+  userId = null,
 }: {
   topic: string | null
   subtopic?: string | null
   parentid?: mongoose.Types.ObjectId
   enabled: boolean
   onSuccess?: (article: Article) => void
+  userId?: string
 }) => {
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
@@ -29,6 +31,7 @@ export const useGenerateArticle = ({
           topic,
           subtopic,
           parentid,
+          uid: userId,
         })
         const data = res.data
         if (data.error) {

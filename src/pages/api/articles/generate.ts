@@ -11,7 +11,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Article | { message: string }>
 ): Promise<void> {
-  const { parentid, topic, subtopic } = req.body
+  const { parentid, topic, subtopic, uid } = req.body
   try {
     // connect to mongoDb
     await connectToDb()
@@ -46,6 +46,7 @@ export default async function handler(
       title,
       content: text,
       slug,
+      uid,
     })
     return res.status(200).json(created as any)
   } catch (error) {

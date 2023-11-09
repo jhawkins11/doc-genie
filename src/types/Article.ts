@@ -6,6 +6,7 @@ type Article = {
   title: string
   content: string
   slug: string
+  uid: string
   childArticles?: Article[]
 }
 

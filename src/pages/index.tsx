@@ -5,10 +5,14 @@ import { ThemeProvider, createTheme } from '@mui/material'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import LoginModal from '@/components/auth/AuthModal'
+import { auth } from '@/lib/initializeFirebaseApp'
+import { useAuthState } from 'react-firebase-hooks/auth'
 
 const Home = () => {
   const [topic, setTopic] = useState<string | null>(null)
   const router = useRouter()
+  const [user] = useAuthState(auth)
+
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -16,9 +20,10 @@ const Home = () => {
     setTopic(text)
   }
 
-  const { article, error, success, loading } = useGenerateArticle({
+  const { loading } = useGenerateArticle({
     topic,
     enabled: !!topic,
+    userId: user?.uid,
     onSuccess: (article) => {
       router.push(`/${article.slug}`)
     },

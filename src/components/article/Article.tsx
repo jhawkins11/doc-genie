@@ -22,6 +22,10 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useEditArticle } from '@/hooks/useEditArticle'
 import LoadingBackdrop from '../common/LoadingBackdrop'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '@/lib/initializeFirebaseApp'
+import StyledButton from '../common/StyledButton'
+import AuthModal from '../auth/AuthModal'
 
 const Article = ({
   article,
@@ -39,6 +43,7 @@ const Article = ({
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
   )
+  const [user] = useAuthState(auth)
   const {
     error,
     success,
@@ -51,6 +56,7 @@ const Article = ({
     subtopic: articleToGenerate,
     parentid: selected._id,
     enabled: !!articleToGenerate,
+    userId: user?.uid,
     onSuccess: () => {
       invalidate()
     },
@@ -115,6 +121,7 @@ const Article = ({
 
   return (
     <div className={styles.container}>
+      <AuthModal />
       <LoadingBackdrop loading={loading} />
       <nav className={styles.mobileNav}>
         <Logo />
@@ -224,22 +231,12 @@ const Article = ({
               />
             ) : (
               <div className={styles.edit}>
-                <Button
+                <StyledButton
+                  onClick={() => setIsEditing(true)}
+                  text='Edit With GPT'
+                  theme='light'
                   variant='contained'
-                  sx={{
-                    color: 'white',
-                    bgcolor: 'grey.800',
-                    '&:hover': {
-                      bgcolor: 'grey.900',
-                    },
-                    mt: 4,
-                  }}
-                  onClick={() => {
-                    setIsEditing(true)
-                  }}
-                >
-                  <Edit />
-                </Button>
+                />
               </div>
             )}
           </div>

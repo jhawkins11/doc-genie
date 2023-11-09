@@ -9,7 +9,7 @@ import {
 } from '@/utils/firebaseUtils'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '@/lib/initializeFirebaseApp'
-import LoginButton from './AuthButton'
+import AuthButton from './AuthButton'
 import tryCatch from '@/utils/tryCatch'
 import LoadingBackdrop from '../common/LoadingBackdrop'
 import StyledButton from '../common/StyledButton'
@@ -191,7 +191,7 @@ function AuthModal() {
 
   return (
     <>
-      <LoginButton onClick={() => setView('login')} />
+      <AuthButton onClick={() => setView('login')} />
       <LoadingBackdrop loading={loading} />
       {getView()}
     </>

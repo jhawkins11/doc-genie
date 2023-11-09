@@ -12,8 +12,8 @@ const AuthButton = ({ onClick }: { onClick: () => void }) => {
       sx={{ '&:hover': { backgroundColor: 'lightgrey' } }}
       onClick={onClick}
     >
-      <Person className='mr-2' />
-      Login
+      <Person />
+      {!loading && user ? '' : 'Login'}
     </Button>
   )
 }
