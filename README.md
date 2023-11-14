@@ -3,7 +3,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/jhawkins11/doc-genie">
-    <img src="public/logo.png" alt="Logo">
+    <img src="public/logo.png" alt="Logo" style="background-color: black; padding: 5px; border-radius: 10px;">
   </a>
 
 <h3 align="center">Doc Genie</h3>
@@ -138,8 +138,6 @@ Doc Genie allows you to quickly generate extensive documentation using AI. Follo
 [![Doc Genie Screen Shot 2][product-screenshot-2]](https://doc-genie.netlify.app)
 
 7. Access your generated docs anytime by clicking the profile icon in the top right corner and selecting "My Docs".
-
-8. Export docs to markdown or PDF when ready to download.
 
 Some key features:
 
