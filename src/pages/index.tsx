@@ -3,7 +3,7 @@ import LampCanvas from '@/components/Lamp/Lamp'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import LoginModal from '@/components/auth/AuthModal'
+import AuthModal from '@/components/auth/AuthModal'
 import { auth } from '@/lib/initializeFirebaseApp'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
@@ -34,7 +34,7 @@ const Home = () => {
       <div className='twinkling'></div>
       <div className='clouds'></div>
       <Logo />
-      <LoginModal />
+      <AuthModal />
       <div
         className={`sm:p-4 text-center space-y-4 absolute top-1/2 left-1/2 
         transform sm:-translate-x-1/2 sm:-translate-y-2/3 -translate-x-1/2 -translate-y-1/2 

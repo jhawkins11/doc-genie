@@ -1,5 +1,13 @@
 import React, { useState } from 'react'
-import { Divider } from '@mui/material'
+import {
+  Box,
+  Divider,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Popover,
+} from '@mui/material'
 import {
   loginWithGoogle,
   loginWithEmail,
@@ -21,6 +29,7 @@ function AuthModal() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [view, setView] = useState<'login' | 'signup' | 'forgotPassword'>(null)
   const clear = () => {
     setEmail('')
@@ -54,6 +63,44 @@ function AuthModal() {
   const [user, loading] = useAuthState(auth)
 
   const getView = () => {
+    if (user && anchorEl) {
+      // Display dropdown for logged-in user
+      return (
+        <div className='relative'>
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={() => setAnchorEl(null)}
+            disableEnforceFocus
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            container={anchorEl.parentElement}
+          >
+            <Box>
+              <List>
+                <ListItem className='p-0'>
+                  <ListItemButton className='px-6 py-3'>
+                    <ListItemText primary='My Docs' />
+                  </ListItemButton>
+                </ListItem>
+                <Divider />
+                <ListItem onClick={handleLogout} className='p-0'>
+                  <ListItemButton className='px-6 py-3'>
+                    <ListItemText primary='Log Out' />
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </Box>
+          </Popover>
+        </div>
+      )
+    }
     if (view === 'forgotPassword') {
       return (
         <Modal
@@ -191,7 +238,14 @@ function AuthModal() {
 
   return (
     <>
-      <AuthButton onClick={() => setView('login')} />
+      <AuthButton
+        onClick={
+          user
+            ? (e: React.MouseEvent<HTMLButtonElement>) =>
+                setAnchorEl(e.currentTarget)
+            : () => setView('login')
+        }
+      />
       <LoadingBackdrop loading={loading} />
       {getView()}
     </>

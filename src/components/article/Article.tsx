@@ -5,15 +5,8 @@ import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../common/Logo'
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  InputAdornment,
-  TextField,
-} from '@mui/material'
-import { Check, Close, Edit, Info, Menu } from '@mui/icons-material'
+import { Box, InputAdornment, TextField } from '@mui/material'
+import { Check, Close, CopyAll, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
 import ResponsiveDrawer from '../common/ResponsiveDrawer'
@@ -88,32 +81,6 @@ const Article = ({
     findSelected(article)
   }, [article])
 
-  //   find all h2s within the content and add a button to copy the html of the h2
-  useEffect(() => {
-    const h2s =
-      typeof window !== 'undefined' ? document.querySelectorAll('h2') : null
-    if (!selected) return
-    if (h2s.length < 1) return
-
-    h2s.forEach((h2) => {
-      const hasButton = h2.querySelector('button')
-      if (hasButton) {
-        return
-      }
-      const id = Math.random().toString(36).substring(7)
-      const button = document.createElement('button')
-      button.id = id
-      button.classList.add(styles.lampSVG)
-      button.addEventListener('click', () => {
-        const subArticlePrompt = h2.textContent
-        setArticleToGenerate(subArticlePrompt)
-      })
-      h2.appendChild(button)
-      if (!document.getElementById(id)) return
-      ReactDOM.render(<LampSVG />, document.getElementById(id))
-    })
-  }, [selected])
-
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
   }
@@ -166,7 +133,7 @@ const Article = ({
                       style={atomOneDark as any}
                       language={match[1]}
                       PreTag='div'
-                      className='p-15 w-full'
+                      className='p-15 w-full rounded-sm'
                       {...props}
                     >
                       {String(children).replace(/\n$/, '')}
@@ -175,6 +142,27 @@ const Article = ({
                     <code className={className} {...props}>
                       {children}
                     </code>
+                  )
+                },
+                h2({ node, className, children, ...props }) {
+                  return (
+                    <span className='flex flex-row items-start gap-3 w-full mt-4'>
+                      <h2 className={className} {...props}>
+                        {children}
+                      </h2>
+                      <button
+                        className={styles.lampSVG}
+                        title='Generate sub-article'
+                        onClick={(e) => {
+                          const text =
+                            e.currentTarget.parentElement.children[0]
+                              .textContent
+                          setArticleToGenerate(text)
+                        }}
+                      >
+                        <LampSVG />
+                      </button>
+                    </span>
                   )
                 },
               }}
@@ -191,13 +179,6 @@ const Article = ({
                   mt: 4,
                   display: isEditing ? 'grid' : 'none',
                   bgcolor: 'grey.800',
-                  '& .MuiFilledInput-root': {
-                    color: 'white',
-                  },
-                  // placeholder text color
-                  '& .MuiFormLabel-root': {
-                    color: 'grey.500',
-                  },
                 }}
                 value={editPrompt}
                 onChange={(e) => setEditPrompt(e.target.value)}

@@ -71,7 +71,11 @@ export default function ArticleList({
           sx={{ minWidth: 0, color: 'grey.500', width: 'auto', mr: 1 }}
           className={cn(styles.icon)}
         >
-          <Add onClick={() => setIsAddingArticle(true)} />
+          <Add
+            onClick={() => setIsAddingArticle(true)}
+            className='m-auto'
+            titleAccess='Add subtopic'
+          />
         </ListItemIcon>
         <ListItemText primary={article.title} />
         {articleToEdit?._id === article._id && (
@@ -111,15 +115,7 @@ export default function ArticleList({
           sx={{
             width: '100%',
             margin: '0 auto',
-            display: isAddingArticle ? 'grid' : 'none',
             bgcolor: 'grey.800',
-            '& .MuiFilledInput-root': {
-              color: 'white',
-            },
-            // placeholder text color
-            '& .MuiFormLabel-root': {
-              color: 'grey.500',
-            },
           }}
           value={customTopic}
           onChange={(e) => setCustomTopic(e.target.value)}

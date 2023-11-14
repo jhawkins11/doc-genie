@@ -2,6 +2,7 @@ import { Backdrop, CircularProgress } from '@mui/material'
 import React from 'react'
 
 const LoadingBackdrop = ({ loading }: { loading: boolean }) => {
+  if (!loading) return null
   return (
     <Backdrop
       open={loading}
