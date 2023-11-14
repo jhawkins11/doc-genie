@@ -200,6 +200,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - [Material UI](https://material-ui.com/)
 - [Firebase](https://firebase.google.com/)
 - [MongoDB](https://www.mongodb.com/)
+- [RafaelScopel](https://sketchfab.com/RafaelScopel)
 
 [contributors-shield]: https://img.shields.io/github/contributors/jhawkins11/doc-genie.svg?style=for-the-badge
 [contributors-url]: https://github.com/jhawkins11/doc-genie/graphs/contributors
