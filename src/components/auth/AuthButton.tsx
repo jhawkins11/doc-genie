@@ -6,14 +6,24 @@ import { auth } from '@/lib/initializeFirebaseApp'
 
 const AuthButton = ({
   onClick,
+  fixed = true,
 }: {
   onClick: (e: React.MouseEvent<HTMLButtonElement> | null) => void
+  fixed?: boolean
 }) => {
   const [user, loading] = useAuthState(auth)
 
+  const getClassNames = () => {
+    const classNames = 'bg-white text-black px-4 py-2 rounded flex items-center'
+    if (fixed) {
+      return `${classNames} fixed top-0 right-0 m-6 shadow-md z-50`
+    }
+    return `${classNames} mt-auto m-6`
+  }
+
   return (
     <Button
-      className='bg-white text-black px-4 py-2 rounded flex items-center fixed top-0 right-0 m-6 shadow-md z-50'
+      className={getClassNames()}
       sx={{ '&:hover': { backgroundColor: 'lightgrey' } }}
       onClick={onClick}
       aria-label='login'

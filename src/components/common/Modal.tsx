@@ -11,8 +11,15 @@ const Modal = ({
   title: string
   children: React.ReactNode
 }) => {
+  const container =
+    window !== undefined ? () => window.document.body : undefined
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      container={container}
+      disableScrollLock
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent className='p-4'>{children}</DialogContent>
     </Dialog>

@@ -5,7 +5,7 @@ import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../common/Logo'
-import { Box, InputAdornment, TextField } from '@mui/material'
+import { Box, InputAdornment, TextField, useMediaQuery } from '@mui/material'
 import { Check, Close, CopyAll, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
@@ -37,6 +37,7 @@ const Article = ({
     null
   )
   const [user] = useAuthState(auth)
+  const isSmallScreen = useMediaQuery('(max-width:900px)')
   const {
     error,
     success,
@@ -88,7 +89,6 @@ const Article = ({
 
   return (
     <div className={styles.container}>
-      <AuthModal />
       <LoadingBackdrop loading={loading} />
       <nav className={styles.mobileNav}>
         <Logo />
@@ -118,6 +118,7 @@ const Article = ({
               <Info className='inline-block mr-1' />
               Click a lamp or + icon to generate a sub-article
             </p>
+            <AuthModal fixedButton={!isSmallScreen} />
           </div>
         </ResponsiveDrawer>
       </Box>

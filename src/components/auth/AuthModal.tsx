@@ -25,7 +25,7 @@ import ErrorMessage from '../ErrorMessage'
 import Modal from '../common/Modal'
 import FormInput from '../common/FormInput'
 
-function AuthModal() {
+function AuthModal({ fixedButton = true }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
@@ -239,6 +239,7 @@ function AuthModal() {
   return (
     <>
       <AuthButton
+        fixed={fixedButton}
         onClick={
           user
             ? (e: React.MouseEvent<HTMLButtonElement>) =>
