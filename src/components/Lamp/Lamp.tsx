@@ -17,27 +17,48 @@ const CanvasLoader = () => {
   )
 }
 
+const getLampProps = (screenSize: number) => {
+  if (screenSize < 900) {
+    return {
+      position: [0, -1.5, -1],
+      rotation: [-0.01, -0.2, 0],
+      scale: 0.03,
+    }
+  } else if (screenSize < 1200) {
+    return {
+      position: [0, -1.8, -1.8],
+      rotation: [-0.01, -0.2, 0],
+      scale: 0.04,
+    }
+  } else {
+    return {
+      position: [0, -3, -3.2],
+      rotation: [-0.01, -0.2, 0],
+      scale: 0.07,
+    }
+  }
+}
+
 const Lamp = () => {
   const lamp = useGLTF('/genie_lamp/scene.gltf')
-  const screenSize = typeof window !== 'undefined' && window.innerWidth
-  const props =
-    screenSize < 900
-      ? {
-          position: [0, -1.5, -1],
-          rotation: [-0.01, -0.2, 0],
-          scale: 0.03,
-        }
-      : screenSize < 1200
-      ? {
-          position: [0, -1.8, -1.8],
-          rotation: [-0.01, -0.2, 0],
-          scale: 0.04,
-        }
-      : {
-          position: [0, -3, -3.2],
-          rotation: [-0.01, -0.2, 0],
-          scale: 0.07,
-        }
+  const [lampProps, setLampProps] = useState<{
+    position: number[]
+    rotation: number[]
+    scale: number
+  }>(getLampProps(window.innerWidth))
+
+  useEffect(() => {
+    const handleResize = () => {
+      const screenSize = window.innerWidth
+      setLampProps(getLampProps(screenSize))
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    handleResize()
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   return (
     <mesh>
@@ -61,7 +82,7 @@ const Lamp = () => {
       <directionalLight intensity={0.5} position={[50, -140, -30]} />
       <directionalLight intensity={0.5} position={[-50, -140, -30]} />
       <directionalLight intensity={0.5} position={[0, -140, 50]} />
-      <primitive object={lamp.scene} {...props} />
+      <primitive object={lamp.scene} {...lampProps} />
     </mesh>
   )
 }
