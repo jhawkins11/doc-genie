@@ -1,3 +1,4 @@
+import { useErrorContext } from '@/lib/contexts/ErrorContext'
 import Article from '@/types/Article'
 import axios from 'axios'
 import mongoose from 'mongoose'
@@ -16,7 +17,7 @@ export const useEditArticle = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const { error, setError } = useErrorContext()
   useEffect(() => {
     const generateArticle = async () => {
       setLoading(true)
@@ -33,11 +34,11 @@ export const useEditArticle = ({
         if (onSuccess) {
           onSuccess(data as Article)
         }
-      } catch (err) {
-        setError((err as any).message)
-      } finally {
         setLoading(false)
         setSuccess(true)
+      } catch (err) {
+        setError(err as any)
+        setLoading(false)
       }
     }
 
@@ -45,5 +46,5 @@ export const useEditArticle = ({
       generateArticle()
     }
   }, [editPrompt, _id, enabled])
-  return { loading, error, success }
+  return { loading, success }
 }

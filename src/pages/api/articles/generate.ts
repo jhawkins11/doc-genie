@@ -52,6 +52,8 @@ export default async function handler(
     return res.status(200).json(created as any)
   } catch (error) {
     console.log(error)
-    return res.status(500).json({ message: 'Error generating article' })
+    return res
+      .status(500)
+      .json({ message: `Error generating article: ${(error as any).message}` })
   }
 }

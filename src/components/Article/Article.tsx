@@ -38,11 +38,7 @@ const Article = ({
   )
   const [user] = useAuthState(auth)
   const isSmallScreen = useMediaQuery('(max-width:900px)')
-  const {
-    error,
-    success,
-    loading: generating,
-  } = useGenerateArticle({
+  const { loading: generating } = useGenerateArticle({
     topic:
       selected._id === article._id
         ? article.title

@@ -34,6 +34,8 @@ export default async function handler(
 
     return res.status(200).json(edited as any)
   } catch (error) {
-    return res.status(500).json({ message: 'Error generating article' })
+    return res
+      .status(500)
+      .json({ message: `Error generating article: ${(error as any).message}` })
   }
 }
