@@ -13,7 +13,7 @@
     <br />
     <br />
     <br />
-    <a href="https://doc-genie.netlify.app">View Demo</a>
+    <a href="https://doc-genie-6b615.web.app/">View Demo</a>
     ·
     <a href="https://github.com/jhawkins11/doc-genie/issues">Report Bug</a>
     ·
@@ -127,7 +127,7 @@ Doc Genie allows you to quickly generate extensive documentation using AI. Follo
 
 2. On the homepage, enter a high-level topic to generate the initial doc.
 
-[![Doc Genie Screen Shot][product-screenshot]](https://doc-genie.netlify.app)
+[![Doc Genie Screen Shot][product-screenshot]](https://doc-genie-6b615.web.app/)
 
 3. Review the generated parent doc. If needed, click "Edit with GPT" at the bottom of the doc to prompt GPT to edit the doc.
 
@@ -135,7 +135,7 @@ Doc Genie allows you to quickly generate extensive documentation using AI. Follo
 
 5. The child doc will be added to the document tree. Repeat steps 4-5 to keep building out the tree.
 
-[![Doc Genie Screen Shot 2][product-screenshot-2]](https://doc-genie.netlify.app)
+[![Doc Genie Screen Shot 2][product-screenshot-2]](https://doc-genie-6b615.web.app/)
 
 7. Access your generated docs anytime by clicking the profile icon in the top right corner and selecting "My Docs".
 
