@@ -152,8 +152,8 @@ Some key features:
 
 ## Roadmap
 
-- [ ] View all generated article trees
-- [ ] Edit/View mode
+- [x] View all generated article trees
+- [x] Edit/View mode
 - [ ] Manual article editing
 - [ ] Delete articles
 - [ ] Subscription model
