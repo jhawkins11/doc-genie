@@ -1,5 +1,6 @@
 import { Drawer, useMediaQuery } from '@mui/material'
 import { useEffect, useState } from 'react'
+import styles from './ResponsiveDrawer.module.css'
 
 const ResponsiveDrawer = ({
   children,
@@ -23,7 +24,7 @@ const ResponsiveDrawer = ({
       }}
       open={!isSmallScreen || mobileOpen}
     >
-      {children}
+      <div className={styles.sidebar}>{children}</div>
     </Drawer>
   )
 }

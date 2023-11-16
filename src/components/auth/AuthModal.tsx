@@ -24,6 +24,7 @@ import StyledButton from '../common/StyledButton'
 import ErrorMessage from '../ErrorMessage'
 import Modal from '../common/Modal'
 import FormInput from '../common/FormInput'
+import { useRouter } from 'next/router'
 
 function AuthModal({ fixedButton = true }) {
   const [email, setEmail] = useState('')
@@ -31,6 +32,7 @@ function AuthModal({ fixedButton = true }) {
   const [error, setError] = useState<Error | null>(null)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [view, setView] = useState<'login' | 'signup' | 'forgotPassword'>(null)
+  const router = useRouter()
   const clear = () => {
     setEmail('')
     setPassword('')
@@ -86,7 +88,13 @@ function AuthModal({ fixedButton = true }) {
               <List>
                 <ListItem className='p-0'>
                   <ListItemButton className='px-6 py-3'>
-                    <ListItemText primary='My Docs' />
+                    <ListItemText
+                      primary='My Docs'
+                      onClick={() => {
+                        router.push('/docs')
+                        setAnchorEl(null)
+                      }}
+                    />
                   </ListItemButton>
                 </ListItem>
                 <Divider />

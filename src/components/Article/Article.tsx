@@ -5,11 +5,19 @@ import LampSVG from '../LampSVG'
 import ReactDOM from 'react-dom'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../common/Logo'
-import { Box, InputAdornment, TextField, useMediaQuery } from '@mui/material'
+import {
+  Box,
+  InputAdornment,
+  List,
+  ListItem,
+  ListItemButton,
+  TextField,
+  useMediaQuery,
+} from '@mui/material'
 import { Check, Close, CopyAll, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
-import ResponsiveDrawer from '../common/ResponsiveDrawer'
+import ResponsiveDrawer from '../common/ResponsiveDrawer/ResponsiveDrawer'
 import formatMarkdown from '@/utils/formatMarkdown'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
@@ -19,17 +27,18 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '@/lib/initializeFirebaseApp'
 import StyledButton from '../common/StyledButton'
 import AuthModal from '../auth/AuthModal'
+import ArticleContent from '../common/ArticleContent/ArticleContent'
 
 const Article = ({
-  article,
+  articles,
   loading,
   invalidate,
 }: {
-  article: Article
+  articles: Article[]
   loading: boolean
   invalidate: () => void
 }) => {
-  const [selected, setSelected] = useState<Article>(article)
+  const [selected, setSelected] = useState<Article>(articles?.[0])
   const [editPrompt, setEditPrompt] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null)
@@ -38,20 +47,20 @@ const Article = ({
   )
   const [user] = useAuthState(auth)
   const isSmallScreen = useMediaQuery('(max-width:900px)')
-  const { loading: generating } = useGenerateArticle({
+  useGenerateArticle({
     topic:
-      selected._id === article._id
-        ? article.title
-        : `${article.title}: ${selected.title}`,
+      selected?._id === articles?.[0]?._id
+        ? articles?.[0]?.title
+        : `${articles?.[0]?.title}: ${selected?.title}`,
     subtopic: articleToGenerate,
-    parentid: selected._id,
+    parentid: selected?._id,
     enabled: !!articleToGenerate,
     userId: user?.uid,
     onSuccess: () => {
       invalidate()
     },
   })
-  const { loading: editing } = useEditArticle({
+  useEditArticle({
     _id: articleToEdit?._id,
     editPrompt,
     onSuccess: () => {
@@ -66,7 +75,7 @@ const Article = ({
     setArticleToEdit(null)
     // find selected article in the article tree so the content will up to date
     const findSelected = (article: Article) => {
-      if (article._id === selected._id) {
+      if (article._id === selected?._id) {
         setSelected(article)
       }
       if (article.childArticles.length > 0) {
@@ -75,8 +84,12 @@ const Article = ({
         })
       }
     }
-    findSelected(article)
-  }, [article])
+    if (articles?.length > 0 && selected) {
+      findSelected(articles?.[0])
+    } else if (articles?.length > 0) {
+      setSelected(articles?.[0])
+    }
+  }, [articles])
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -99,74 +112,42 @@ const Article = ({
           mobileOpen={mobileOpen || !!articleToGenerate}
           setMobileOpen={setMobileOpen}
         >
-          <div className={styles.sidebar}>
-            <Logo />
-            <ArticleList
-              article={article}
-              setSelected={setSelected}
-              setArticleToGenerate={setArticleToGenerate}
-              selected={selected}
-              isGenerating={!!articleToGenerate}
-              articleToEdit={articleToEdit}
-            />
+          <Logo />
+          {articles.length > 1 && selected && (
+            <List>
+              {articles.map((article) => (
+                <ArticleList
+                  key={article._id as unknown as string}
+                  article={article}
+                  setSelected={setSelected}
+                  setArticleToGenerate={setArticleToGenerate}
+                  selected={selected}
+                  isGenerating={!!articleToGenerate}
+                  articleToEdit={articleToEdit}
+                  mode={articles.length > 1 ? 'preview' : 'edit'}
+                />
+              ))}
+            </List>
+          )}
+          {articles?.length === 1 && (
             <p className='text-center text-gray-400 text-xs mt-4 w-4/5 mx-auto'>
               {/* info icon */}
               <Info className='inline-block mr-1' />
               Click a lamp or + icon to generate a sub-article
             </p>
-            <AuthModal fixedButton={!isSmallScreen} />
-          </div>
+          )}
+          <AuthModal fixedButton={!isSmallScreen} />
         </ResponsiveDrawer>
       </Box>
-      <Box component={'article'}>
+      <Box component={'article'} sx={{ minHeight: '100vh' }}>
         <div className={styles.content}>
           <div className={styles.root} id='article'>
-            <ReactMarkdown
-              components={{
-                code({ node, inline, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '')
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={atomOneDark as any}
-                      language={match[1]}
-                      PreTag='div'
-                      className='p-15 w-full rounded-sm'
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  )
-                },
-                h2({ node, className, children, ...props }) {
-                  return (
-                    <span className='flex flex-row items-start gap-3 w-full mt-4'>
-                      <h2 className={className} {...props}>
-                        {children}
-                      </h2>
-                      <button
-                        className={styles.lampSVG}
-                        title='Generate sub-article'
-                        onClick={(e) => {
-                          const text =
-                            e.currentTarget.parentElement.children[0]
-                              .textContent
-                          setArticleToGenerate(text)
-                        }}
-                      >
-                        <LampSVG />
-                      </button>
-                    </span>
-                  )
-                },
-              }}
-              className='grid grid-cols-1 gap-4 w-full'
-            >
-              {formatMarkdown(selected.content)}
-            </ReactMarkdown>
+            <ArticleContent
+              selected={selected}
+              setArticleToGenerate={setArticleToGenerate}
+              viewOnly={articles.length > 1}
+              showLink={articles.length > 1}
+            />
             {isEditing ? (
               <TextField
                 variant='filled'
@@ -207,7 +188,7 @@ const Article = ({
                   ),
                 }}
               />
-            ) : (
+            ) : selected ? (
               <div className={styles.edit}>
                 <StyledButton
                   onClick={() => setIsEditing(true)}
@@ -216,7 +197,7 @@ const Article = ({
                   variant='contained'
                 />
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </Box>

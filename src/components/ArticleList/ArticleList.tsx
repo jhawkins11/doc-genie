@@ -15,7 +15,7 @@ import {
   Skeleton,
   TextField,
 } from '@mui/material'
-import { Add, Check, Close } from '@mui/icons-material'
+import { Add, Check, Close, ViewAgenda, Visibility } from '@mui/icons-material'
 
 export default function ArticleList({
   article,
@@ -26,6 +26,7 @@ export default function ArticleList({
   level = 1,
   setArticleToGenerate,
   articleToEdit,
+  mode = 'edit',
 }: {
   article: Article
   selected: Article
@@ -35,6 +36,7 @@ export default function ArticleList({
   level?: number
   setArticleToGenerate: (subtopic: string | null) => void
   articleToEdit: Article | null
+  mode?: 'edit' | 'view' | 'preview'
 }) {
   const [open, setOpen] = React.useState<boolean>(true)
   const [customTopic, setCustomTopic] = React.useState<string>('')
@@ -61,53 +63,64 @@ export default function ArticleList({
   }
 
   return (
-    <List sx={{ width: '100%' }} className={cn(styles.root, className)}>
+    <span className={cn(styles.root, className)}>
       <ListItemButton
         onClick={handleClick}
         className={cn(selected._id === article._id ? styles.active : '')}
         style={{ paddingLeft: `${level * 1}rem` }}
       >
-        <ListItemIcon
-          sx={{ minWidth: 0, color: 'grey.500', width: 'auto', mr: 1 }}
-          className={cn(styles.icon)}
-        >
-          <Add
-            onClick={() => setIsAddingArticle(true)}
-            className='m-auto'
-            titleAccess='Add subtopic'
-          />
-        </ListItemIcon>
-        <ListItemText primary={article.title} />
+        {mode === 'edit' && (
+          <ListItemIcon
+            sx={{ minWidth: 0, color: 'grey.500', width: 'auto', mr: 1 }}
+            className={cn(styles.icon)}
+          >
+            <Add
+              onClick={() => setIsAddingArticle(true)}
+              className='m-auto'
+              titleAccess='Add subtopic'
+            />
+          </ListItemIcon>
+        )}
+        <ListItemText
+          primary={article.title}
+          className={mode === 'preview' ? 'ml-2' : ''}
+        />
         {articleToEdit?._id === article._id && (
           <CircularProgress size={20} className='mx-2' color='inherit' />
         )}
-        {open && article.childArticles?.length ? (
-          <ExpandLess
-            onClick={(e) => handleDropdownClick(e, false)}
-            className={styles.icon}
-          />
-        ) : article.childArticles?.length ? (
-          <ExpandMore
-            onClick={(e) => handleDropdownClick(e, true)}
-            className={styles.icon}
-          />
-        ) : null}
+        {mode === 'edit' && (
+          <>
+            {open && article.childArticles?.length ? (
+              <ExpandLess
+                onClick={(e) => handleDropdownClick(e, false)}
+                className={styles.icon}
+              />
+            ) : article.childArticles?.length ? (
+              <ExpandMore
+                onClick={(e) => handleDropdownClick(e, true)}
+                className={styles.icon}
+              />
+            ) : null}
+          </>
+        )}
       </ListItemButton>
-      <Collapse in={open} unmountOnExit>
-        {article.childArticles?.map((childArticle) => (
-          <ArticleList
-            selected={selected}
-            setSelected={setSelected}
-            article={childArticle}
-            key={childArticle._id as unknown as string}
-            className={styles.child}
-            isGenerating={isGenerating}
-            level={level + 1}
-            setArticleToGenerate={setArticleToGenerate}
-            articleToEdit={articleToEdit}
-          />
-        ))}
-      </Collapse>
+      {mode !== 'preview' && (
+        <Collapse in={open} unmountOnExit>
+          {article.childArticles?.map((childArticle) => (
+            <ArticleList
+              selected={selected}
+              setSelected={setSelected}
+              article={childArticle}
+              key={childArticle._id as unknown as string}
+              className={styles.child}
+              isGenerating={isGenerating}
+              level={level + 1}
+              setArticleToGenerate={setArticleToGenerate}
+              articleToEdit={articleToEdit}
+            />
+          ))}
+        </Collapse>
+      )}
       {isAddingArticle && (
         <TextField
           variant='filled'
@@ -157,6 +170,6 @@ export default function ArticleList({
           }}
         />
       )}
-    </List>
+    </span>
   )
 }

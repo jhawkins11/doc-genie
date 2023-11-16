@@ -1,15 +1,19 @@
-import Article from '@/components/Article/Article'
+import React from 'react'
 import { useFetchArticles } from '@/hooks/useFetchArticles'
 import { useRouter } from 'next/router'
-import React from 'react'
+import Article from '@/components/Article/Article'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '@/lib/initializeFirebaseApp'
 
-const ArticleView = () => {
+const AllArticlesView = () => {
   const router = useRouter()
   const { slug } = router.query
+  const [user] = useAuthState(auth)
   const { articles, loading, error, invalidate } = useFetchArticles(
-    slug as string,
-    null
+    null,
+    user?.uid
   )
+
   return (
     <Article
       articles={articles || []}
@@ -19,4 +23,4 @@ const ArticleView = () => {
   )
 }
 
-export default ArticleView
+export default AllArticlesView
