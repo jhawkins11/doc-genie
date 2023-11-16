@@ -4,6 +4,7 @@ import '@/styles/globals.css'
 import { ThemeProvider } from '@emotion/react'
 import { StyledEngineProvider, CssBaseline, createTheme } from '@mui/material'
 import type { AppProps } from 'next/app'
+import Head from 'next/head'
 import { useState } from 'react'
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -18,6 +19,9 @@ export default function App({ Component, pageProps }: AppProps) {
         <CssBaseline />
         <ThemeProvider theme={theme}>
           <ErrorAlert />
+          <Head>
+            <title>Doc Genie</title>
+          </Head>
           <Component {...pageProps} />
         </ThemeProvider>
       </StyledEngineProvider>
