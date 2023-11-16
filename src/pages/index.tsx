@@ -51,9 +51,9 @@ const Home = () => {
           .
         </h2>{' '}
         <p className='sm:p-4 sm:text-base text-sm' aria-label='description'>
-          Harness the power of GPT-4 to co-create a custom knowledge base.
-          Simply enter a topic and let the AI generate an initial document. Then
-          collaborate with GPT-4 to refine and expand the content. Add new
+          Harness the power of GPT to co-create a custom knowledge base. Simply
+          enter a topic and let the AI generate an initial document. Then
+          collaborate with GPT to refine and expand the content. Add new
           subarticles to build out a complete tree of in-depth, high-quality
           information tailored to your needs.
         </p>
@@ -71,7 +71,7 @@ const Home = () => {
               type='submit'
               disabled={loading}
             >
-              {topic ? 'Generating...' : 'Go!'}
+              {loading ? 'Generating...' : 'Go!'}
             </button>
           </div>
         </form>

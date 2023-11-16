@@ -9,7 +9,7 @@ export const generateAIArticle = async (prompt: string): Promise<string> => {
   try {
     // generate completions
     completions = await openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
+      model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'user',
