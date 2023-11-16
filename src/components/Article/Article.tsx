@@ -14,7 +14,15 @@ import {
   TextField,
   useMediaQuery,
 } from '@mui/material'
-import { Check, Close, CopyAll, Info, Menu } from '@mui/icons-material'
+import {
+  Check,
+  Close,
+  CopyAll,
+  Edit,
+  Info,
+  Menu,
+  Visibility,
+} from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
 import ResponsiveDrawer from '../common/ResponsiveDrawer/ResponsiveDrawer'
@@ -41,6 +49,7 @@ const Article = ({
   const [selected, setSelected] = useState<Article>(articles?.[0])
   const [editPrompt, setEditPrompt] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [isViewMode, setIsViewMode] = useState<boolean>(false)
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null)
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
@@ -113,7 +122,7 @@ const Article = ({
           setMobileOpen={setMobileOpen}
         >
           <Logo />
-          {articles.length > 1 && selected && (
+          {articles.length > 0 && selected && (
             <List>
               {articles.map((article) => (
                 <ArticleList
@@ -124,19 +133,48 @@ const Article = ({
                   selected={selected}
                   isGenerating={!!articleToGenerate}
                   articleToEdit={articleToEdit}
-                  mode={articles.length > 1 ? 'preview' : 'edit'}
+                  mode={
+                    articles.length > 1
+                      ? 'preview'
+                      : isViewMode
+                      ? 'view'
+                      : 'edit'
+                  }
                 />
               ))}
             </List>
           )}
-          {articles?.length === 1 && (
+          {articles?.length === 1 && !isViewMode && (
             <p className='text-center text-gray-400 text-xs mt-4 w-4/5 mx-auto'>
               {/* info icon */}
               <Info className='inline-block mr-1' />
               Click a lamp or + icon to generate a sub-article
             </p>
           )}
-          <AuthModal fixedButton={!isSmallScreen} />
+          <div className='grid grid-cols-2 gap-2 px-4 mb-5 h-full content-end w-full'>
+            {isViewMode && articles.length === 1 ? (
+              <StyledButton
+                text='Edit Mode'
+                theme='gradient'
+                className='!text-sm h-full'
+                variant='contained'
+                onClick={() => {
+                  setIsViewMode(false)
+                }}
+              />
+            ) : (
+              <StyledButton
+                text='View Mode'
+                theme='gradient'
+                variant='contained'
+                className='!text-sm h-full'
+                onClick={() => {
+                  setIsViewMode(true)
+                }}
+              />
+            )}
+            <AuthModal fixedButton={!isSmallScreen} />
+          </div>
         </ResponsiveDrawer>
       </Box>
       <Box component={'article'} sx={{ minHeight: '100vh' }}>
@@ -145,7 +183,7 @@ const Article = ({
             <ArticleContent
               selected={selected}
               setArticleToGenerate={setArticleToGenerate}
-              viewOnly={articles.length > 1}
+              viewOnly={articles.length > 1 || isViewMode}
               showLink={articles.length > 1}
             />
             {isEditing ? (
@@ -188,7 +226,7 @@ const Article = ({
                   ),
                 }}
               />
-            ) : selected ? (
+            ) : selected && !isViewMode ? (
               <div className={styles.edit}>
                 <StyledButton
                   onClick={() => setIsEditing(true)}

@@ -26,7 +26,7 @@ const ArticleContent = ({
         <a
           href={`/${selected.slug}`}
           rel='noopener noreferrer'
-          className='text-gray-400 flex flex-row items-center gap-2'
+          className='text-blue-500 flex flex-row items-center'
         >
           <span>View article tree</span>
           <ArrowRight />

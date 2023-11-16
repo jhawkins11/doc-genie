@@ -58,10 +58,6 @@ export default function ArticleList({
     setCustomTopic('')
   }
 
-  if (!article) {
-    return null
-  }
-
   return (
     <span className={cn(styles.root, className)}>
       <ListItemButton
@@ -88,21 +84,18 @@ export default function ArticleList({
         {articleToEdit?._id === article._id && (
           <CircularProgress size={20} className='mx-2' color='inherit' />
         )}
-        {mode === 'edit' && (
-          <>
-            {open && article.childArticles?.length ? (
-              <ExpandLess
-                onClick={(e) => handleDropdownClick(e, false)}
-                className={styles.icon}
-              />
-            ) : article.childArticles?.length ? (
-              <ExpandMore
-                onClick={(e) => handleDropdownClick(e, true)}
-                className={styles.icon}
-              />
-            ) : null}
-          </>
-        )}
+
+        {open && article.childArticles?.length ? (
+          <ExpandLess
+            onClick={(e) => handleDropdownClick(e, false)}
+            className={styles.icon}
+          />
+        ) : article.childArticles?.length ? (
+          <ExpandMore
+            onClick={(e) => handleDropdownClick(e, true)}
+            className={styles.icon}
+          />
+        ) : null}
       </ListItemButton>
       {mode !== 'preview' && (
         <Collapse in={open} unmountOnExit>
@@ -117,6 +110,7 @@ export default function ArticleList({
               level={level + 1}
               setArticleToGenerate={setArticleToGenerate}
               articleToEdit={articleToEdit}
+              mode={mode}
             />
           ))}
         </Collapse>
