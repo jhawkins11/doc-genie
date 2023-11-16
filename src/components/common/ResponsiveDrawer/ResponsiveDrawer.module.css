@@ -3,6 +3,10 @@
   overflow: auto;
   background-color: #2b2b2b;
   color: #fff;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-columns: 1fr;
+  align-items: start;
+  justify-content: start;
+  width: 100%;
 }

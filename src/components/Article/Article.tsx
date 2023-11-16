@@ -1,34 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
 import styles from './Article.module.css'
-import LampSVG from '../LampSVG'
-import ReactDOM from 'react-dom'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../common/Logo'
 import {
   Box,
   InputAdornment,
   List,
-  ListItem,
-  ListItemButton,
+  Skeleton,
   TextField,
   useMediaQuery,
 } from '@mui/material'
-import {
-  Check,
-  Close,
-  CopyAll,
-  Edit,
-  Info,
-  Menu,
-  Visibility,
-} from '@mui/icons-material'
+import { Check, Close, Info, Menu } from '@mui/icons-material'
 import Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
 import ResponsiveDrawer from '../common/ResponsiveDrawer/ResponsiveDrawer'
-import formatMarkdown from '@/utils/formatMarkdown'
-import SyntaxHighlighter from 'react-syntax-highlighter'
-import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useEditArticle } from '@/hooks/useEditArticle'
 import LoadingBackdrop from '../common/LoadingBackdrop'
 import { useAuthState } from 'react-firebase-hooks/auth'
@@ -122,7 +107,7 @@ const Article = ({
           setMobileOpen={setMobileOpen}
         >
           <Logo />
-          {articles.length > 0 && selected && (
+          {articles.length > 0 && selected ? (
             <List>
               {articles.map((article) => (
                 <ArticleList
@@ -143,15 +128,28 @@ const Article = ({
                 />
               ))}
             </List>
+          ) : (
+            // placeholder
+            <Skeleton
+              variant='rectangular'
+              height={100}
+              width={230}
+              sx={{
+                margin: '0 auto',
+                borderRadius: '10px',
+              }}
+            />
           )}
-          {articles?.length === 1 && !isViewMode && (
+          {articles?.length < 2 && !isViewMode ? (
             <p className='text-center text-gray-400 text-xs mt-4 w-4/5 mx-auto'>
               {/* info icon */}
               <Info className='inline-block mr-1' />
               Click a lamp or + icon to generate a sub-article
             </p>
+          ) : (
+            <p></p>
           )}
-          <div className='grid grid-cols-2 gap-2 px-4 mb-5 h-full content-end w-full'>
+          <div className='grid grid-cols-2 gap-2 px-4 mb-5 h-auto content-end w-full self-end'>
             {isViewMode && articles.length === 1 ? (
               <StyledButton
                 text='Edit Mode'
@@ -177,7 +175,12 @@ const Article = ({
           </div>
         </ResponsiveDrawer>
       </Box>
-      <Box component={'article'} sx={{ minHeight: '100vh' }}>
+      <Box
+        component={'article'}
+        sx={{
+          minHeight: '100vh',
+        }}
+      >
         <div className={styles.content}>
           <div className={styles.root} id='article'>
             <ArticleContent
