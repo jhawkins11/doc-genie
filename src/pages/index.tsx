@@ -37,8 +37,8 @@ const Home = () => {
       <AuthModal />
       <div
         className={`sm:p-4 text-center space-y-4 absolute top-1/2 left-1/2 
-        transform sm:-translate-x-1/2 sm:-translate-y-2/3 -translate-x-1/2 -translate-y-1/2 
-       bg-black bg-opacity-50 rounded-lg max-w-3xl`}
+        transform sm:-translate-x-1/2 sm:-translate-y-1/2 -translate-x-1/2 -translate-y-1/2 
+   bg-black bg-opacity-50 rounded-lg max-w-3xl w-full p-6 sm:p-8 lg:p-12`}
       >
         <h2
           className='sm:p-4 lg:text-5xl sm:text-4xl text-3xl font-bold'
@@ -67,7 +67,7 @@ const Home = () => {
               placeholder='Ex. JavaScript Arrays'
             />
             <button
-              className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full animated-button'
+              className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full animated-button max-w-lg'
               type='submit'
               disabled={loading}
             >
