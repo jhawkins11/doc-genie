@@ -3,6 +3,9 @@
 
 name: Deploy to Firebase Hosting on PR
 'on': pull_request
+env:
+  NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+  FIREBASE_SERVICE_ACCOUNT_DOC_GENIE_6B615: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DOC_GENIE_6B615 }}
 jobs:
   build_and_preview:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
