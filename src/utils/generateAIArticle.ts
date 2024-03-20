@@ -9,7 +9,7 @@ export const generateAIArticle = async (prompt: string): Promise<string> => {
   try {
     // generate completions
     completions = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: process.env.OPENAI_MODEL,
       messages: [
         {
           role: 'user',
@@ -18,7 +18,7 @@ export const generateAIArticle = async (prompt: string): Promise<string> => {
       ],
       max_tokens: 2048,
       n: 1,
-      temperature: 0.3,
+      temperature: 0.5,
     })
   } catch (error) {
     console.log('error generating completions', error)
