@@ -162,7 +162,7 @@ const Article = ({
               text={isViewMode ? 'Edit' : 'View'}
               theme='gradient'
               variant='contained'
-              className='!text-sm mt-0 h-full w-20'
+              className='!text-sm !mt-0 h-full w-20'
               onClick={() => {
                 setIsViewMode(!isViewMode)
               }}
