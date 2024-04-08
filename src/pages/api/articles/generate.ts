@@ -11,26 +11,26 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Article | { message: string }>
 ): Promise<void> {
-  const { parentid, topic, subtopic, uid } = req.body
+  const { parentid, topic, subtopic, uid, model } = req.body
   try {
     // connect to mongoDb
     await connectToDb()
 
     const prompt = subtopic
       ? `
-      Generate MDL Subarticle in a format that works with react-markdown.
+      Generate MDL Subarticle in markdown format.
       Parent Topic for context: ${topic}
       Article Title: ${subtopic}
       Format: 1 h1/2+ h2s
       `
       : `
-        Generate MDL Article in a format that works with react-markdown.
+        Generate MDL Article in markdown format.
         Article Title: ${topic}
         Format: 1 h1/2+ h2s
         `
 
     // generate article with GPT
-    const text = await generateAIArticle(prompt)
+    const text = await generateAIArticle(prompt, model)
     //  title is the generated heading
     const title = text.match(/# (.*)\n/)
       ? text.match(/# (.*)\n/)?.[1]

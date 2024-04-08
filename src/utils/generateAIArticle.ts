@@ -4,12 +4,15 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-export const generateAIArticle = async (prompt: string): Promise<string> => {
+export const generateAIArticle = async (
+  prompt: string,
+  model: string
+): Promise<string> => {
   let completions
   try {
     // generate completions
     completions = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL,
+      model,
       messages: [
         {
           role: 'user',

@@ -21,6 +21,8 @@ import { auth } from '@/lib/initializeFirebaseApp'
 import StyledButton from '../common/StyledButton'
 import AuthModal from '../auth/AuthModal'
 import ArticleContent from '../common/ArticleContent/ArticleContent'
+import { useSyncWithLocalStorage } from '@/hooks/useSyncWithLocalStorage'
+import ModelSelect from '../common/ModelSelect'
 
 const Article = ({
   articles,
@@ -39,6 +41,10 @@ const Article = ({
   const [articleToGenerate, setArticleToGenerate] = useState<string | null>(
     null
   )
+  const [model, setModel] = useSyncWithLocalStorage<string>(
+    'model',
+    'gpt-3.5-turbo'
+  )
   const [user] = useAuthState(auth)
   const isSmallScreen = useMediaQuery('(max-width:900px)')
   useGenerateArticle({
@@ -50,6 +56,7 @@ const Article = ({
     parentid: selected?._id,
     enabled: !!articleToGenerate,
     userId: user?.uid,
+    model,
     onSuccess: () => {
       invalidate()
     },
@@ -61,6 +68,7 @@ const Article = ({
       invalidate()
     },
     enabled: !!articleToEdit,
+    model,
   })
 
   useEffect(() => {
@@ -149,28 +157,17 @@ const Article = ({
           ) : (
             <p></p>
           )}
-          <div className='grid grid-cols-2 gap-2 px-4 mb-5 h-auto content-end w-full self-end'>
-            {isViewMode && articles.length === 1 ? (
-              <StyledButton
-                text='Edit Mode'
-                theme='gradient'
-                className='!text-sm h-full'
-                variant='contained'
-                onClick={() => {
-                  setIsViewMode(false)
-                }}
-              />
-            ) : (
-              <StyledButton
-                text='View Mode'
-                theme='gradient'
-                variant='contained'
-                className='!text-sm h-full'
-                onClick={() => {
-                  setIsViewMode(true)
-                }}
-              />
-            )}
+          <div className='grid grid-cols-3 gap-2 px-4 mb-5 h-auto content-end w-full self-end'>
+            <StyledButton
+              text={isViewMode ? 'Edit' : 'View'}
+              theme='gradient'
+              variant='contained'
+              className='!text-sm mt-0 h-full w-20'
+              onClick={() => {
+                setIsViewMode(!isViewMode)
+              }}
+            />
+            <ModelSelect model={model} setModel={setModel} />
             <AuthModal fixedButton={!isSmallScreen} />
           </div>
         </ResponsiveDrawer>

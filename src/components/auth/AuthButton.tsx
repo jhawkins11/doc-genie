@@ -18,7 +18,7 @@ const AuthButton = ({
     if (fixed) {
       return `${classNames} fixed top-0 right-0 m-6 shadow-md z-50`
     }
-    return `${classNames} mt-2 h-full w-full`
+    return `${classNames} mt-2 h-full w-full col-span-full`
   }
 
   return (

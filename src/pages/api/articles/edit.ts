@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Article | { message: string }>
 ): Promise<void> {
-  const { editPrompt, _id } = req.body
+  const { editPrompt, _id, model } = req.body
   try {
     // connect to mongoDb
     await connectToDb()
@@ -21,7 +21,7 @@ export default async function handler(
         `
 
     // edit article with GPT
-    const text = await generateAIArticle(prompt)
+    const text = await generateAIArticle(prompt, model)
     // create a unique slug for the article
     // if the article is a child article, we don't need to create a slug
     // save edited article to mongoDb

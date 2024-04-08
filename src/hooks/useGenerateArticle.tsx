@@ -11,8 +11,10 @@ export const useGenerateArticle = ({
   enabled = true,
   onSuccess,
   userId = null,
+  model = 'gpt-3.5-turbo',
 }: {
   topic: string | null
+  model?: string
   subtopic?: string | null
   parentid?: mongoose.Types.ObjectId
   enabled: boolean
@@ -30,6 +32,7 @@ export const useGenerateArticle = ({
       try {
         const res = await axios.post('/api/articles/generate', {
           topic,
+          model,
           subtopic,
           parentid,
           uid: userId,

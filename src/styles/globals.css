@@ -17,7 +17,8 @@ body {
   background: #d6d6d6;
 }
 
-input {
+input,
+select {
   background-color: #ffffffe1;
   color: #000;
 }

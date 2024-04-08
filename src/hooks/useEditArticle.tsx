@@ -9,11 +9,13 @@ export const useEditArticle = ({
   editPrompt,
   enabled = true,
   onSuccess,
+  model = 'gpt-3.5-turbo',
 }: {
   _id?: mongoose.Types.ObjectId
   editPrompt?: string
   enabled: boolean
   onSuccess?: (article: Article) => void
+  model?: string
 }) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
@@ -26,6 +28,7 @@ export const useEditArticle = ({
         const res = await axios.post('/api/articles/edit', {
           _id: _id,
           editPrompt,
+          model,
         })
         const data = res.data
         if (data.error) {

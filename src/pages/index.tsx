@@ -2,13 +2,21 @@ import Logo from '@/components/common/Logo'
 import LampCanvas from '@/components/Lamp/Lamp'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AuthModal from '@/components/auth/AuthModal'
 import { auth } from '@/lib/initializeFirebaseApp'
 import { useAuthState } from 'react-firebase-hooks/auth'
+import { CircularProgress, LinearProgress } from '@mui/material'
+import { useSyncWithLocalStorage } from '@/hooks/useSyncWithLocalStorage'
+import ModelSelect from '@/components/common/ModelSelect'
 
 const Home = () => {
   const [topic, setTopic] = useState<string | null>(null)
+  const [model, setModel] = useSyncWithLocalStorage<string>(
+    'model',
+    'gpt-3.5-turbo'
+  )
+  const [secondsLeft, setSecondsLeft] = useState(0)
   const router = useRouter()
   const [user] = useAuthState(auth)
 
@@ -17,16 +25,29 @@ const Home = () => {
     const formData = new FormData(e.currentTarget)
     const text = formData.get('topic') as string
     setTopic(text)
+    setSecondsLeft(model === 'gpt-3.5-turbo' ? 5 : 30)
   }
 
   const { loading } = useGenerateArticle({
     topic,
     enabled: !!topic,
+    model,
     userId: user?.uid,
     onSuccess: (article) => {
       router.push(`/${article.slug}`)
     },
   })
+
+  // countdown timer for loading button
+  // updates every tenth of a second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (secondsLeft > 0) {
+        setSecondsLeft(secondsLeft - 0.1)
+      }
+    }, 100)
+    return () => clearInterval(interval)
+  }, [secondsLeft])
 
   return (
     <main className='text-white'>
@@ -66,13 +87,41 @@ const Home = () => {
               name='topic'
               placeholder='Ex. JavaScript Arrays'
             />
-            <button
-              className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full animated-button max-w-lg'
-              type='submit'
-              disabled={loading}
-            >
-              {loading ? 'Generating...' : 'Go!'}
-            </button>
+            <div className='grid grid-cols-3 gap-4 w-full grid-template-columns max-w-lg'>
+              <ModelSelect model={model} setModel={setModel} />
+              <button
+                className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full animated-button max-w-lg'
+                type='submit'
+                disabled={loading}
+              >
+                {loading && (
+                  <LinearProgress
+                    variant='determinate'
+                    // value is determined by the time since the form was submitted and the model selected
+                    // if the model is gpt-3.5-turbo, the value is 100% after 5 seconds
+                    // if the model is gpt-4-turbo-preview, the value is 100% after 30 seconds
+                    value={
+                      model === 'gpt-3.5-turbo'
+                        ? ((5 - secondsLeft) / 5) * 100
+                        : ((30 - secondsLeft) / 30) * 100
+                    }
+                    className='absolute top-0 left-0 w-full h-full bg-black opacity-50'
+                    color='inherit'
+                  />
+                )}
+                {loading ? (
+                  <span className='flex items-center justify-center -z-50'>
+                    <CircularProgress
+                      size={20}
+                      color='inherit'
+                      className='mr-2'
+                    />
+                  </span>
+                ) : (
+                  'Go!'
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
