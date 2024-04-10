@@ -27,7 +27,7 @@ const Home = () => {
     const formData = new FormData(e.currentTarget)
     const text = formData.get('topic') as string
     setTopic(text)
-    setSecondsLeft(model === 'gpt-3.5-turbo' ? 5 : 30)
+    setSecondsLeft(model === 'gpt-3.5-turbo' ? 10 : 45)
   }
 
   const { loading } = useGenerateArticle({
