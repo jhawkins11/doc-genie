@@ -25,8 +25,8 @@ const ModelSelect = ({
         } as React.CSSProperties
       }
     >
-      <option value='gpt-3.5-turbo'>GPT-3.5 (5s)</option>
-      <option value='gpt-4-turbo-preview'>GPT-4.0 (30s)</option>
+      <option value='gpt-3.5-turbo'>GPT-3.5 (10s)</option>
+      <option value='gpt-4-turbo-preview'>GPT-4.0 (45s)</option>
     </select>
   )
 }
