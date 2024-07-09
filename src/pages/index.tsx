@@ -13,10 +13,7 @@ import { Check } from '@mui/icons-material'
 
 const Home = () => {
   const [topic, setTopic] = useState<string | null>(null)
-  const [model, setModel] = useSyncWithLocalStorage<string>(
-    'model',
-    'gpt-3.5-turbo'
-  )
+  const [model, setModel] = useSyncWithLocalStorage<string>('model', 'gpt-4o')
   const [secondsLeft, setSecondsLeft] = useState(0)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
@@ -27,7 +24,7 @@ const Home = () => {
     const formData = new FormData(e.currentTarget)
     const text = formData.get('topic') as string
     setTopic(text)
-    setSecondsLeft(model === 'gpt-3.5-turbo' ? 10 : 45)
+    setSecondsLeft(model === 'gpt-3.5-turbo' || model === 'gpt-4o' ? 10 : 45)
   }
 
   const { loading } = useGenerateArticle({
@@ -108,7 +105,7 @@ const Home = () => {
                     value={
                       success
                         ? 100
-                        : model === 'gpt-3.5-turbo'
+                        : model === 'gpt-3.5-turbo' || model === 'gpt-4o'
                         ? ((10 - secondsLeft) / 5) * 100
                         : ((45 - secondsLeft) / 30) * 100
                     }
