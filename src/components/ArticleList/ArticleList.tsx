@@ -62,7 +62,11 @@ export default function ArticleList({
     <span className={cn(styles.root, className)}>
       <ListItemButton
         onClick={handleClick}
-        className={cn(selected._id === article._id ? styles.active : '')}
+        className={cn(
+          selected._id === article._id
+            ? `${styles.active} text-accent-gold`
+            : ''
+        )}
         style={{ paddingLeft: `${level * 1}rem` }}
       >
         {mode === 'edit' && (

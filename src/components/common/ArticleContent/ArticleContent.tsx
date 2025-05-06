@@ -30,7 +30,7 @@ const ArticleContent = ({
         <a
           href={`/${selected.slug}`}
           rel='noopener noreferrer'
-          className='text-blue-500 dark:text-blue-400 flex flex-row items-center'
+          className='text-blue-500 dark:text-blue-400 hover:text-accent-gold dark:hover:text-accent-gold flex flex-row items-center'
         >
           <span>View article tree</span>
           <ArrowRight />
@@ -96,7 +96,9 @@ const ArticleContent = ({
           a({ node, className, children, ...props }) {
             return (
               <a
-                className={`${className} dark:text-blue-400 dark:hover:text-blue-300`}
+                className={`${
+                  className || ''
+                } dark:text-blue-400 hover:text-accent-gold dark:hover:text-accent-gold`}
                 {...props}
               >
                 {children}

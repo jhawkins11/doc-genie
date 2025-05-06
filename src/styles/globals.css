@@ -13,6 +13,7 @@
   --card-bg: #ffffff;
   --code-bg: #f3f4f6;
   --code-text: #1f1f1f;
+  --accent-gold: #c09c09;
 }
 
 .dark {
@@ -26,6 +27,7 @@
   --card-bg: #1e1e1e;
   --code-bg: #2d3748;
   --code-text: #f5f5f5;
+  --accent-gold: #c09c09;
 }
 
 .logo {
@@ -53,7 +55,7 @@ a {
 }
 
 a:hover {
-  color: var(--link-hover);
+  color: var(--accent-gold);
 }
 
 code:not([class*='language-']) {
@@ -129,14 +131,14 @@ code:not([class*='language-']) {
   font-weight: bold;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
-  background-image: linear-gradient(to right, #ff416c, #ff4b2b);
+  background-image: linear-gradient(to right, var(--accent-gold), #ff4b2b);
   color: #fff;
   transition: all 0.4s ease-in-out;
 }
 
 .gradient-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0px 3px 10px rgba(255, 75, 43, 0.5);
+  box-shadow: 0px 3px 10px rgba(192, 156, 9, 0.5);
 }
 
 .animated-button {

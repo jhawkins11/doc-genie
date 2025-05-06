@@ -138,7 +138,12 @@ const Home = () => {
         <p>Made by josiah hawkins</p>
         <p>
           3D model by{' '}
-          <a href='https://sketchfab.com/RafaelScopel'>RafaelScopel</a>
+          <a
+            href='https://sketchfab.com/RafaelScopel'
+            className='hover:text-accent-gold'
+          >
+            RafaelScopel
+          </a>
         </p>
       </footer>
     </main>

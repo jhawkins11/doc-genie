@@ -10,7 +10,7 @@
 }
 .lampSVG:hover svg {
   /* hover effect */
-  fill: #c09c09;
+  fill: var(--accent-gold);
   animation: candleFlicker 0.5s infinite;
 }
 

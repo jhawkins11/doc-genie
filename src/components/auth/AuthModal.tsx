@@ -90,7 +90,7 @@ function AuthModal({ fixedButton = true, isDarkMode = false }) {
             <Box>
               <List>
                 <ListItem className='p-0'>
-                  <ListItemButton className='px-6 py-3 dark:text-gray-200 dark:hover:bg-gray-700'>
+                  <ListItemButton className='px-6 py-3 dark:text-gray-200 dark:hover:bg-gray-700 hover:text-accent-gold dark:hover:text-accent-gold'>
                     <ListItemText
                       primary='My Docs'
                       onClick={() => {
@@ -102,7 +102,7 @@ function AuthModal({ fixedButton = true, isDarkMode = false }) {
                 </ListItem>
                 <Divider className='dark:bg-gray-600' />
                 <ListItem onClick={handleLogout} className='p-0'>
-                  <ListItemButton className='px-6 py-3 dark:text-gray-200 dark:hover:bg-gray-700'>
+                  <ListItemButton className='px-6 py-3 dark:text-gray-200 dark:hover:bg-gray-700 hover:text-accent-gold dark:hover:text-accent-gold'>
                     <ListItemText primary='Log Out' />
                   </ListItemButton>
                 </ListItem>
@@ -217,7 +217,7 @@ function AuthModal({ fixedButton = true, isDarkMode = false }) {
           />
           <p className='text-right'>
             <a
-              className='text-white hover:underline cursor-pointer text-sm dark:text-gray-300'
+              className='text-white hover:underline hover:text-accent-gold cursor-pointer text-sm dark:text-gray-300 dark:hover:text-accent-gold'
               onClick={() => setView('forgotPassword')}
             >
               Forgot Password?

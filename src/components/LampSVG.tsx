@@ -1,9 +1,18 @@
 import React from 'react'
 
-const GenieLamp = () => {
+interface GenieLampProps {
+  className?: string
+  useAccentColor?: boolean
+}
+
+const GenieLamp: React.FC<GenieLampProps> = ({
+  className = '',
+  useAccentColor = false,
+}) => {
   return (
     <svg
-      fill='currentColor'
+      fill={useAccentColor ? 'var(--accent-gold)' : 'currentColor'}
+      className={className}
       version='1.1'
       id='Capa_1'
       xmlns='http://www.w3.org/2000/svg'
