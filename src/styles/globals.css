@@ -185,3 +185,210 @@ code:not([class*='language-']) {
     background-position: 0% 50%;
   }
 }
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatUp {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes subtlePulse {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation Utility Classes */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-float {
+  animation: floatUp 4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-staggered-children > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.animate-staggered-children > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.animate-staggered-children > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.animate-staggered-children > *:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.animate-staggered-children > *:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.animate-pulse-subtle {
+  animation: subtlePulse 3s ease-in-out infinite;
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--accent-gold), #ff4b2b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* Additional Animation Keyframes */
+@keyframes glow {
+  0%,
+  100% {
+    text-shadow: 0 0 5px rgba(192, 156, 9, 0.5), 0 0 10px rgba(192, 156, 9, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(192, 156, 9, 0.8),
+      0 0 30px rgba(192, 156, 9, 0.5);
+  }
+}
+
+@keyframes borderPulse {
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(192, 156, 9, 0.1);
+  }
+  50% {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(192, 156, 9, 0.3);
+  }
+}
+
+@keyframes bgPan {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced Utility Classes */
+.animate-glow {
+  animation: glow 4s ease-in-out infinite;
+}
+
+.animate-border-pulse {
+  animation: borderPulse 4s ease-in-out infinite;
+}
+
+.bg-pan {
+  background-size: 200% 100%;
+  animation: bgPan 15s linear infinite alternate;
+}
+
+.text-shadow-sm {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.text-shadow-md {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.text-shadow-lg {
+  text-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+}
+
+.gradient-overlay {
+  position: relative;
+}
+
+.gradient-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(192, 156, 9, 0.1), transparent);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Enhanced Gradient Text */
+.gradient-text {
+  background: linear-gradient(90deg, var(--accent-gold), #ff4b2b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+  text-shadow: 0 2px 10px rgba(192, 156, 9, 0.3);
+}
+
+/* Glass Morphism */
+.glass {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}

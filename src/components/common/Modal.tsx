@@ -22,11 +22,14 @@ const Modal = ({
       container={container}
       disableScrollLock
       PaperProps={{
-        className: isDarkMode ? 'dark:bg-gray-800 dark:text-white' : '',
+        className: 'bg-gray-900 text-white',
+        style: { borderRadius: '8px', boxShadow: '0 8px 16px rgba(0,0,0,0.3)' },
       }}
     >
-      <DialogTitle className='dark:text-gray-100'>{title}</DialogTitle>
-      <DialogContent className='p-4 dark:bg-gray-800'>{children}</DialogContent>
+      <DialogTitle className='text-white border-b border-gray-700'>
+        {title}
+      </DialogTitle>
+      <DialogContent className='p-4 bg-gray-900'>{children}</DialogContent>
     </Dialog>
   )
 }

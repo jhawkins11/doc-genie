@@ -51,96 +51,114 @@ const Home = () => {
   }, [secondsLeft])
 
   return (
-    <main className='text-white'>
+    <main className='text-white min-h-screen relative overflow-hidden'>
       <div className='stars'></div>
       <div className='twinkling'></div>
       <div className='clouds'></div>
-      <Logo />
-      <AuthModal />
-      <div
-        className={`sm:p-4 text-center space-y-4 absolute top-1/2 left-1/2 
-        transform sm:-translate-x-1/2 sm:-translate-y-1/2 -translate-x-1/2 -translate-y-1/2 
-   bg-black bg-opacity-50 rounded-lg max-w-3xl w-full p-6 sm:p-8 lg:p-12`}
-      >
-        <h2
-          className='sm:p-4 lg:text-5xl sm:text-4xl text-3xl font-bold'
-          aria-label='title'
-        >
-          Generate expert documentation in{' '}
-          <span className='bg-white px-1 bg-opacity-30 leading-normal'>
-            minutes
-          </span>
-          .
-        </h2>{' '}
-        <p className='sm:p-4 sm:text-base text-sm' aria-label='description'>
-          Harness the power of GPT to co-create a custom knowledge base. Simply
-          enter a topic and let the AI generate an initial document. Then
-          collaborate with GPT to refine and expand the content. Add new
-          subarticles to build out a complete tree of in-depth, high-quality
-          information tailored to your needs.
-        </p>
-        <form onSubmit={onFormSubmit}>
-          <div className='sm:p-4 flex justify-left md:justify-center md:flex-row flex-col items-center md:space-x-4 space-y-4 md:space-y-0'>
-            <input
-              aria-label='topic'
-              className='p-3 border-2 border-gray-300 rounded-lg w-full max-w-lg'
-              type='text'
-              name='topic'
-              placeholder='Ex. JavaScript Arrays'
-            />
-            <div className='grid grid-cols-3 gap-4 w-full grid-template-columns max-w-lg'>
-              <ModelSelect model={model} setModel={setModel} />
-              <button
-                className='p-3 border-2 border-gray-300 rounded-lg gradient-button md:w-auto w-full animated-button max-w-lg'
-                type='submit'
-                title='Generate'
-                disabled={loading}
-              >
-                {(loading || success) && (
-                  <LinearProgress
-                    variant='determinate'
-                    // value is determined by the time since the form was submitted and the model selected
-                    // if the model is gpt-3.5-turbo, the value is 100% after 5 seconds
-                    // if the model is gpt-4-turbo-preview, the value is 100% after 30 seconds
-                    value={
-                      success
-                        ? 100
-                        : model === 'gpt-3.5-turbo' || model === 'gpt-4o'
-                        ? ((10 - secondsLeft) / 5) * 100
-                        : ((45 - secondsLeft) / 30) * 100
-                    }
-                    className='absolute top-0 left-0 w-full h-full bg-black opacity-50'
-                    color='inherit'
-                  />
-                )}
-                {loading ? (
-                  <span className='flex items-center justify-center -z-50'>
-                    <CircularProgress
-                      size={20}
-                      color='inherit'
-                      className='mr-2'
-                    />
-                  </span>
-                ) : success ? (
-                  <Check />
-                ) : (
-                  'Go!'
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
+      <div className='absolute top-0 left-0 z-10'>
+        <Logo />
       </div>
-      <div className='p-4 absolute top-0 left-0 w-full h-full -z-10'>
+      <AuthModal />
+      <div className='flex items-center justify-center min-h-screen'>
+        <div
+          className={`sm:p-6 text-center space-y-6 glass rounded-xl max-w-3xl w-full p-8 sm:p-10 lg:p-12 animate-scale-in z-10 border border-white border-opacity-10 shadow-2xl animate-border-pulse gradient-overlay`}
+        >
+          <h2
+            className='sm:p-4 lg:text-5xl sm:text-4xl text-3xl font-bold animate-staggered-children tracking-tight text-shadow-md'
+            aria-label='title'
+          >
+            <span className='title-word animate-fade-in opacity-0 inline-block text-white'>
+              Generate
+            </span>{' '}
+            <span className='title-word animate-fade-in opacity-0 inline-block'>
+              expert
+            </span>{' '}
+            <span className='title-word animate-fade-in opacity-0 inline-block'>
+              documentation
+            </span>{' '}
+            <span className='title-word animate-fade-in opacity-0 inline-block'>
+              in
+            </span>{' '}
+            <span className='bg-white px-2 py-1 bg-opacity-20 rounded-md leading-normal title-word animate-fade-in opacity-0 inline-block shadow-lg'>
+              minutes
+            </span>
+            <span className='text-accent-gold animate-glow'>.</span>
+          </h2>{' '}
+          <p
+            className='sm:p-4 sm:text-lg text-base animate-fade-in opacity-0 text-gray-200 leading-relaxed max-w-2xl mx-auto text-shadow-sm'
+            style={{ animationDelay: '0.6s' }}
+            aria-label='description'
+          >
+            Harness the power of GPT to co-create a custom knowledge base.
+            Simply enter a topic and let the AI generate an initial document.
+            Then collaborate with GPT to refine and expand the content. Add new
+            subarticles to build out a complete tree of in-depth, high-quality
+            information tailored to your needs.
+          </p>
+          <form
+            onSubmit={onFormSubmit}
+            className='animate-fade-in opacity-0'
+            style={{ animationDelay: '0.8s' }}
+          >
+            <div className='sm:p-4 flex justify-left md:justify-center md:flex-row flex-col items-center md:space-x-6 space-y-4 md:space-y-0'>
+              <input
+                aria-label='topic'
+                className='p-4 border-2 border-gray-600 rounded-lg w-full max-w-lg hover-lift focus:border-accent-gold transition-all duration-300 glass text-white placeholder-gray-400 shadow-inner'
+                type='text'
+                name='topic'
+                placeholder='Ex. JavaScript Arrays'
+              />
+              <div className='grid grid-cols-3 gap-4 w-full grid-template-columns max-w-lg'>
+                <ModelSelect model={model} setModel={setModel} />
+                <button
+                  className='p-4 border-none rounded-lg gradient-button md:w-auto w-full animated-button max-w-lg hover:scale-105 transition-transform duration-300 shadow-lg text-lg font-semibold bg-pan text-shadow-sm'
+                  type='submit'
+                  title='Generate'
+                  disabled={loading}
+                >
+                  {(loading || success) && (
+                    <LinearProgress
+                      variant='determinate'
+                      value={
+                        success
+                          ? 100
+                          : model === 'gpt-3.5-turbo' || model === 'gpt-4o'
+                          ? ((10 - secondsLeft) / 5) * 100
+                          : ((45 - secondsLeft) / 30) * 100
+                      }
+                      className='absolute top-0 left-0 w-full h-full bg-black opacity-50 rounded-lg'
+                      color='inherit'
+                    />
+                  )}
+                  {loading ? (
+                    <span className='flex items-center justify-center -z-50'>
+                      <CircularProgress
+                        size={20}
+                        color='inherit'
+                        className='mr-2'
+                      />
+                    </span>
+                  ) : success ? (
+                    <Check />
+                  ) : (
+                    'Go!'
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div className='fixed inset-0 -z-10'>
         <LampCanvas />
       </div>
-      <footer className='p-4 text-xs font-bold absolute bottom-0'>
+      <footer className='p-4 text-xs font-bold absolute bottom-0 left-0 animate-pulse-subtle text-gray-300 text-shadow-sm'>
         <p>Made by josiah hawkins</p>
         <p>
           3D model by{' '}
           <a
             href='https://sketchfab.com/RafaelScopel'
-            className='hover:text-accent-gold'
+            className='hover:text-accent-gold transition-colors duration-300'
           >
             RafaelScopel
           </a>

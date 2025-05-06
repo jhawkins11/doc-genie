@@ -32,12 +32,31 @@ const FormInput = ({
           }
         }
       }}
-      className='dark:text-gray-200'
+      className='hover-lift'
       InputLabelProps={{
-        className: 'dark:text-gray-300',
+        className: 'text-gray-300',
+        style: { color: '#cbd5e1' },
       }}
       InputProps={{
-        className: 'dark:text-gray-200 dark:border-gray-700',
+        className: 'text-white',
+        style: {
+          backgroundColor: '#1e293b',
+          borderColor: '#475569',
+          color: 'white',
+        },
+      }}
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': {
+            borderColor: '#475569',
+          },
+          '&:hover fieldset': {
+            borderColor: '#64748b',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: '#60a5fa',
+          },
+        },
       }}
     />
   )
