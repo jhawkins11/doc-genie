@@ -72,7 +72,7 @@ export default function ArticleList({
           >
             <Add
               onClick={() => setIsAddingArticle(true)}
-              className='m-auto'
+              className='m-auto dark:text-gray-300'
               titleAccess='Add subtopic'
             />
           </ListItemIcon>
@@ -80,6 +80,9 @@ export default function ArticleList({
         <ListItemText
           primary={article.title}
           className={mode === 'preview' ? 'ml-2' : ''}
+          primaryTypographyProps={{
+            className: 'dark:text-gray-200',
+          }}
         />
         {articleToEdit?._id === article._id && (
           <CircularProgress size={20} className='mx-2' color='inherit' />
@@ -87,13 +90,13 @@ export default function ArticleList({
 
         {open && article.childArticles?.length ? (
           <ExpandLess
-            onClick={(e) => handleDropdownClick(e, false)}
-            className={styles.icon}
+            onClick={(e: React.MouseEvent) => handleDropdownClick(e, false)}
+            className={`${styles.icon} dark:text-gray-300`}
           />
         ) : article.childArticles?.length ? (
           <ExpandMore
-            onClick={(e) => handleDropdownClick(e, true)}
-            className={styles.icon}
+            onClick={(e: React.MouseEvent) => handleDropdownClick(e, true)}
+            className={`${styles.icon} dark:text-gray-300`}
           />
         ) : null}
       </ListItemButton>
@@ -127,20 +130,27 @@ export default function ArticleList({
           value={customTopic}
           onChange={(e) => setCustomTopic(e.target.value)}
           // add check to end of input
-          onKeyDown={(e) => {
+          onKeyDown={(e: React.KeyboardEvent) => {
             if (e.key === 'Enter') {
               handleAddArticle()
             }
           }}
+          className='dark:bg-gray-700'
+          InputLabelProps={{
+            className: 'dark:text-gray-300',
+          }}
           InputProps={{
+            className: 'dark:text-gray-200',
             endAdornment: (
               <InputAdornment position='end'>
                 <Close
                   onClick={() => setIsAddingArticle(false)}
                   sx={{ color: 'grey.500', cursor: 'pointer' }}
+                  className='dark:text-gray-400'
                 />
                 <Check
                   sx={{ color: 'white', cursor: 'pointer' }}
+                  className='dark:text-gray-100'
                   onClick={() => {
                     handleAddArticle()
                   }}

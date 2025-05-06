@@ -34,9 +34,28 @@
   background: #ebebeb;
 }
 
+.darkContainer {
+  background: #1e1e1e;
+}
+
 .content {
   padding: 2rem 4rem;
   max-width: 1300px;
+  background: transparent;
+}
+
+.darkMode {
+  background-color: transparent;
+  color: #f5f5f5;
+}
+
+.darkMode a {
+  color: #90caf9;
+}
+
+.darkMode code:not([class*='language-']) {
+  background-color: #333;
+  color: #f5f5f5;
 }
 
 .mainList {

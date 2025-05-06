@@ -10,8 +10,15 @@ import {
   TextField,
   useMediaQuery,
 } from '@mui/material'
-import { Check, Close, Info, Menu } from '@mui/icons-material'
-import Article from '@/types/Article'
+import {
+  Check,
+  Close,
+  Info,
+  Menu,
+  DarkMode,
+  LightMode,
+} from '@mui/icons-material'
+import type Article from '@/types/Article'
 import ArticleList from '../ArticleList/ArticleList'
 import ResponsiveDrawer from '../common/ResponsiveDrawer/ResponsiveDrawer'
 import { useEditArticle } from '@/hooks/useEditArticle'
@@ -23,6 +30,7 @@ import AuthModal from '../auth/AuthModal'
 import ArticleContent from '../common/ArticleContent/ArticleContent'
 import { useSyncWithLocalStorage } from '@/hooks/useSyncWithLocalStorage'
 import ModelSelect from '../common/ModelSelect'
+import { useDarkMode } from '@/contexts/DarkModeContext'
 
 const Article = ({
   articles,
@@ -45,6 +53,9 @@ const Article = ({
     'model',
     'gpt-3.5-turbo'
   )
+
+  const { isDarkMode, toggleDarkMode } = useDarkMode()
+
   const [user] = useAuthState(auth)
   const isSmallScreen = useMediaQuery('(max-width:900px)')
   useGenerateArticle({
@@ -99,7 +110,11 @@ const Article = ({
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className={styles.container}>
+    <div
+      className={`${styles.container} ${
+        isDarkMode ? styles.darkContainer : ''
+      }`}
+    >
       <LoadingBackdrop loading={loading} />
       <nav className={styles.mobileNav}>
         <Logo />
@@ -113,6 +128,7 @@ const Article = ({
         <ResponsiveDrawer
           mobileOpen={mobileOpen || !!articleToGenerate}
           setMobileOpen={setMobileOpen}
+          isDarkMode={isDarkMode}
         >
           <Logo />
           {articles.length > 0 && selected ? (
@@ -149,7 +165,7 @@ const Article = ({
             />
           )}
           {articles?.length < 2 && !isViewMode ? (
-            <p className='text-center text-gray-400 text-xs mt-4 w-4/5 mx-auto'>
+            <p className='text-center text-gray-400 dark:text-gray-300 text-xs mt-4 w-4/5 mx-auto'>
               {/* info icon */}
               <Info className='inline-block mr-1' />
               Click a lamp or + icon to generate a sub-article
@@ -167,8 +183,23 @@ const Article = ({
                 setIsViewMode(!isViewMode)
               }}
             />
-            <ModelSelect model={model} setModel={setModel} />
-            <AuthModal fixedButton={!isSmallScreen} />
+            <ModelSelect
+              model={model}
+              setModel={setModel}
+              className='text-gray-600 dark:text-gray-300'
+            />
+            <AuthModal fixedButton={!isSmallScreen} isDarkMode={isDarkMode} />
+          </div>
+          <div className='px-4 pb-2 w-full'>
+            <StyledButton
+              text={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+              theme={isDarkMode ? 'light' : 'dark'}
+              variant='contained'
+              className='!text-sm !mt-0 w-full'
+              startIcon={isDarkMode ? <LightMode /> : <DarkMode />}
+              onClick={toggleDarkMode}
+              title='Toggle between light and dark mode. '
+            />
           </div>
         </ResponsiveDrawer>
       </Box>
@@ -176,10 +207,14 @@ const Article = ({
         component={'article'}
         sx={{
           minHeight: '100vh',
+          bgcolor: isDarkMode ? '#1e1e1e' : 'inherit',
         }}
       >
         <div className={styles.content}>
-          <div className={styles.root} id='article'>
+          <div
+            className={`${styles.root} ${isDarkMode ? styles.darkMode : ''}`}
+            id='article'
+          >
             <ArticleContent
               selected={selected}
               setArticleToGenerate={setArticleToGenerate}

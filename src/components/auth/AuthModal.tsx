@@ -26,7 +26,7 @@ import Modal from '../common/Modal'
 import FormInput from '../common/FormInput'
 import { useRouter } from 'next/router'
 
-function AuthModal({ fixedButton = true }) {
+function AuthModal({ fixedButton = true, isDarkMode = false }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
@@ -83,11 +83,14 @@ function AuthModal({ fixedButton = true }) {
               horizontal: 'right',
             }}
             container={anchorEl.parentElement}
+            PaperProps={{
+              className: 'dark:bg-gray-800',
+            }}
           >
             <Box>
               <List>
                 <ListItem className='p-0'>
-                  <ListItemButton className='px-6 py-3'>
+                  <ListItemButton className='px-6 py-3 dark:text-gray-200 dark:hover:bg-gray-700'>
                     <ListItemText
                       primary='My Docs'
                       onClick={() => {
@@ -97,9 +100,9 @@ function AuthModal({ fixedButton = true }) {
                     />
                   </ListItemButton>
                 </ListItem>
-                <Divider />
+                <Divider className='dark:bg-gray-600' />
                 <ListItem onClick={handleLogout} className='p-0'>
-                  <ListItemButton className='px-6 py-3'>
+                  <ListItemButton className='px-6 py-3 dark:text-gray-200 dark:hover:bg-gray-700'>
                     <ListItemText primary='Log Out' />
                   </ListItemButton>
                 </ListItem>
@@ -115,6 +118,7 @@ function AuthModal({ fixedButton = true }) {
           open={view === 'forgotPassword'}
           handleClose={() => setView(null)}
           title='Forgot Password'
+          isDarkMode={isDarkMode}
         >
           <FormInput
             label='Email'
@@ -125,6 +129,7 @@ function AuthModal({ fixedButton = true }) {
               resetPassword(email)
               setView(null)
             }}
+            isDarkMode={isDarkMode}
           />
           <div className='grid grid-cols-2 gap-2'>
             <StyledButton
@@ -149,12 +154,14 @@ function AuthModal({ fixedButton = true }) {
           open={view === 'signup'}
           handleClose={() => setView(null)}
           title='Sign Up'
+          isDarkMode={isDarkMode}
         >
           <FormInput
             label='Email'
             type='email'
             value={email}
             setValue={setEmail}
+            isDarkMode={isDarkMode}
           />
           <FormInput
             label='Password'
@@ -165,6 +172,7 @@ function AuthModal({ fixedButton = true }) {
               signupWithEmail(email, password)
               setView(null)
             }}
+            isDarkMode={isDarkMode}
           />
 
           <div className='grid grid-cols-2 gap-2'>
@@ -190,12 +198,14 @@ function AuthModal({ fixedButton = true }) {
           open={view === 'login'}
           handleClose={() => setView(null)}
           title='Login'
+          isDarkMode={isDarkMode}
         >
           <FormInput
             label='Email'
             type='email'
             value={email}
             setValue={setEmail}
+            isDarkMode={isDarkMode}
           />
           <FormInput
             label='Password'
@@ -203,10 +213,11 @@ function AuthModal({ fixedButton = true }) {
             value={password}
             setValue={setPassword}
             onEnter={handleLoginWithEmail}
+            isDarkMode={isDarkMode}
           />
           <p className='text-right'>
             <a
-              className='text-white hover:underline cursor-pointer text-sm'
+              className='text-white hover:underline cursor-pointer text-sm dark:text-gray-300'
               onClick={() => setView('forgotPassword')}
             >
               Forgot Password?
@@ -225,8 +236,8 @@ function AuthModal({ fixedButton = true }) {
             />
           </div>
 
-          <Divider className='my-4' />
-          <p className='text-center text-white text-sm'>
+          <Divider className='my-4 dark:bg-gray-600' />
+          <p className='text-center text-white text-sm dark:text-gray-300'>
             {' '}
             Don&#39;t have an account?{' '}
           </p>

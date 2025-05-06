@@ -6,12 +6,14 @@ const FormInput = ({
   value,
   setValue,
   onEnter,
+  isDarkMode = false,
 }: {
   label: string
   type: string
   value: string
   setValue: (value: string) => void
   onEnter?: () => void
+  isDarkMode?: boolean
 }) => {
   return (
     <TextField
@@ -29,6 +31,13 @@ const FormInput = ({
             onEnter()
           }
         }
+      }}
+      className='dark:text-gray-200'
+      InputLabelProps={{
+        className: 'dark:text-gray-300',
+      }}
+      InputProps={{
+        className: 'dark:text-gray-200 dark:border-gray-700',
       }}
     />
   )

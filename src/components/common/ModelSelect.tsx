@@ -1,15 +1,20 @@
 import React from 'react'
-
+import cn from 'classnames'
 const ModelSelect = ({
   model,
   setModel,
+  className,
 }: {
   model: string
   setModel: (model: string) => void
+  className?: string
 }) => {
   return (
     <select
-      className='p-3 border-2 rounded-lg max-w-lg text-gray-300 h-14 bg-black border-gray-500 col-span-2'
+      className={cn(
+        'p-3 border-2 rounded-lg max-w-lg text-gray-300 h-14 bg-black border-gray-500 col-span-2',
+        className
+      )}
       name='model'
       value={model}
       placeholder='Select AI model'

@@ -5,11 +5,13 @@ const Modal = ({
   handleClose,
   title,
   children,
+  isDarkMode = false,
 }: {
   open: boolean
   handleClose: () => void
   title: string
   children: React.ReactNode
+  isDarkMode?: boolean
 }) => {
   const container =
     window !== undefined ? () => window.document.body : undefined
@@ -19,9 +21,12 @@ const Modal = ({
       onClose={handleClose}
       container={container}
       disableScrollLock
+      PaperProps={{
+        className: isDarkMode ? 'dark:bg-gray-800 dark:text-white' : '',
+      }}
     >
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent className='p-4'>{children}</DialogContent>
+      <DialogTitle className='dark:text-gray-100'>{title}</DialogTitle>
+      <DialogContent className='p-4 dark:bg-gray-800'>{children}</DialogContent>
     </Dialog>
   )
 }

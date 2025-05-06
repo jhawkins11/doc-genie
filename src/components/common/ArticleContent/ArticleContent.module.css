@@ -14,6 +14,20 @@
   animation: candleFlicker 0.5s infinite;
 }
 
+.darkMode {
+  background-color: transparent;
+  color: #f5f5f5;
+}
+
+.darkMode a {
+  color: #90caf9;
+}
+
+.darkMode code:not([class*='language-']) {
+  background-color: #333;
+  color: #f5f5f5;
+}
+
 @keyframes candleFlicker {
   0% {
     opacity: 1;

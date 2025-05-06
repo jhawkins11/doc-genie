@@ -7,11 +7,13 @@ const ResponsiveDrawer = ({
   mobileOpen,
   setMobileOpen,
   className,
+  isDarkMode = false,
 }: {
   children: React.ReactNode
   mobileOpen: boolean
   setMobileOpen: (bool: boolean) => void
   className?: string
+  isDarkMode?: boolean
 }) => {
   const isSmallScreen = useMediaQuery('(max-width: 900px)')
 
@@ -24,7 +26,13 @@ const ResponsiveDrawer = ({
       }}
       open={!isSmallScreen || mobileOpen}
     >
-      <div className={styles.sidebar}>{children}</div>
+      <div
+        className={`${styles.sidebar} ${
+          isDarkMode ? styles.darkSidebar : styles.lightSidebar
+        }`}
+      >
+        {children}
+      </div>
     </Drawer>
   )
 }

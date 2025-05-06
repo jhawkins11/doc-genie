@@ -1,4 +1,5 @@
 import { Button } from '@mui/material'
+import { ReactNode } from 'react'
 
 const StyledButton = ({
   onClick,
@@ -7,6 +8,8 @@ const StyledButton = ({
   variant,
   sx,
   theme,
+  startIcon,
+  title,
 }: {
   onClick: () => void
   text: string
@@ -14,6 +17,8 @@ const StyledButton = ({
   variant?: 'contained' | 'outlined'
   theme?: 'light' | 'dark' | 'gradient' | 'blue-gradient'
   sx?: object
+  startIcon?: ReactNode
+  title?: string
 }) => {
   const getClassNames = () => {
     let classNames = 'px-4 py-2 rounded mt-2'
@@ -22,12 +27,14 @@ const StyledButton = ({
       classNames += ` ${className}`
     }
     if (theme === 'light') {
-      classNames += ' bg-white text-black'
-      hoverClassNames = 'hover:bg-white hover:bg-opacity-80'
+      classNames += ' bg-white text-black dark:bg-gray-200 dark:text-gray-800'
+      hoverClassNames =
+        'hover:bg-white hover:bg-opacity-80 dark:hover:bg-gray-300'
     }
     if (theme === 'dark') {
-      classNames += ' bg-black text-white'
-      hoverClassNames = 'hover:bg-black hover:bg-opacity-80'
+      classNames += ' bg-black text-white dark:bg-gray-800'
+      hoverClassNames =
+        'hover:bg-black hover:bg-opacity-80 dark:hover:bg-gray-900'
     }
     if (theme === 'gradient') {
       classNames += ' gradient-button'
@@ -48,6 +55,8 @@ const StyledButton = ({
       // make sure tw classes override mui classes
       className={getClassNames()}
       sx={sx}
+      startIcon={startIcon}
+      title={title}
     >
       {text}
     </Button>
