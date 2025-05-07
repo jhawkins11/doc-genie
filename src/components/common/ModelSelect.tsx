@@ -32,14 +32,29 @@ const ModelSelect = ({
         } as React.CSSProperties
       }
     >
-      <option value='gpt-4o' className='bg-gray-900'>
-        GPT-4o (10s)
+      <option value='perplexity/sonar-pro' className='bg-gray-900'>
+        Perplexity Sonar Pro
       </option>
-      <option value='gpt-3.5-turbo' className='bg-gray-900'>
-        GPT-3.5 (10s)
+      <option value='google/gemini-2.5-flash-preview' className='bg-gray-900'>
+        Gemini 2.5 Flash
       </option>
-      <option value='gpt-4-turbo-preview' className='bg-gray-900'>
-        GPT-4.0 (45s)
+      <option value='google/gemini-2.5-pro-exp-03-25' className='bg-gray-900'>
+        Gemini 2.5 Pro
+      </option>
+      <option value='openai/gpt-4.1' className='bg-gray-900'>
+        GPT-4.1
+      </option>
+      <option value='openai/chatgpt-4o-latest' className='bg-gray-900'>
+        GPT-4o Latest
+      </option>
+      <option value='deepseek/deepseek-chat-v3-0324' className='bg-gray-900'>
+        DeepSeek Chat v3
+      </option>
+      <option value='anthropic/claude-3.7-sonnet' className='bg-gray-900'>
+        Claude 3.7 Sonnet
+      </option>
+      <option value='anthropic/claude-3.5-haiku' className='bg-gray-900'>
+        Claude 3.5 Haiku
       </option>
     </select>
   )

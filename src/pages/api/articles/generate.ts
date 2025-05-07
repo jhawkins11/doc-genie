@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import OpenAI from 'openai'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import connectToDb from '@/utils/connectToDb'
 import Article from '@/types/Article'

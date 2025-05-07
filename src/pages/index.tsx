@@ -13,7 +13,10 @@ import { Check } from '@mui/icons-material'
 
 const Home = () => {
   const [topic, setTopic] = useState<string | null>(null)
-  const [model, setModel] = useSyncWithLocalStorage<string>('model', 'gpt-4o')
+  const [model, setModel] = useSyncWithLocalStorage<string>(
+    'model',
+    'perplexity/sonar-pro'
+  )
   const [secondsLeft, setSecondsLeft] = useState(0)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
@@ -24,7 +27,24 @@ const Home = () => {
     const formData = new FormData(e.currentTarget)
     const text = formData.get('topic') as string
     setTopic(text)
-    setSecondsLeft(model === 'gpt-3.5-turbo' || model === 'gpt-4o' ? 10 : 45)
+
+    // Set the seconds left based on the model
+    if (
+      model === 'google/gemini-2.5-flash-preview' ||
+      model === 'anthropic/claude-3.5-haiku'
+    ) {
+      setSecondsLeft(8)
+    } else if (model === 'perplexity/sonar-pro' || model === 'openai/gpt-4.1') {
+      setSecondsLeft(10)
+    } else if (model === 'deepseek/deepseek-chat-v3-0324') {
+      setSecondsLeft(12)
+    } else if (model === 'openai/chatgpt-4o-latest') {
+      setSecondsLeft(15)
+    } else if (model === 'anthropic/claude-3.7-sonnet') {
+      setSecondsLeft(18)
+    } else {
+      setSecondsLeft(20) // Default for larger models like GPT-4.1 and Gemini 2.5 Pro
+    }
   }
 
   const { loading } = useGenerateArticle({
@@ -122,9 +142,31 @@ const Home = () => {
                       value={
                         success
                           ? 100
-                          : model === 'gpt-3.5-turbo' || model === 'gpt-4o'
-                          ? ((10 - secondsLeft) / 5) * 100
-                          : ((45 - secondsLeft) / 30) * 100
+                          : (() => {
+                              if (
+                                model === 'google/gemini-2.5-flash-preview' ||
+                                model === 'anthropic/claude-3.5-haiku'
+                              ) {
+                                return ((8 - secondsLeft) / 8) * 100
+                              } else if (
+                                model === 'perplexity/sonar-pro' ||
+                                model === 'openai/gpt-4.1'
+                              ) {
+                                return ((10 - secondsLeft) / 10) * 100
+                              } else if (
+                                model === 'deepseek/deepseek-chat-v3-0324'
+                              ) {
+                                return ((12 - secondsLeft) / 12) * 100
+                              } else if (model === 'openai/chatgpt-4o-latest') {
+                                return ((15 - secondsLeft) / 15) * 100
+                              } else if (
+                                model === 'anthropic/claude-3.7-sonnet'
+                              ) {
+                                return ((18 - secondsLeft) / 18) * 100
+                              } else {
+                                return ((20 - secondsLeft) / 20) * 100
+                              }
+                            })()
                       }
                       className='absolute top-0 left-0 w-full h-full bg-black opacity-50 rounded-lg'
                       color='inherit'

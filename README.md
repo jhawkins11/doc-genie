@@ -74,6 +74,7 @@ Ideally the next major feature would be the ability to link a code repo directly
 - [Material UI](https://material-ui.com/) - UI framework
 - [Firebase](https://firebase.google.com/) - Authentication
 - [MongoDB](https://www.mongodb.com/) - Database
+- [OpenRouter](https://openrouter.ai/) - AI model provider
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -102,7 +103,6 @@ The following steps will get you a copy of the project up and running on your lo
 
 In the `.env.local` file, add the following:
 
-- `OPENAI_API_KEY` - Get this from your [OpenAI account](https://platform.openai.com/account/api-keys)
 - `NEXT_PUBLIC_FIREBASE_API_KEY` - Get this from your [Firebase project settings](https://firebase.google.com/docs/web/setup#config-object)
 - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
 - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
@@ -110,6 +110,7 @@ In the `.env.local` file, add the following:
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 - `MONGODB_URI` - Follow docs to get MongoDB [connection string](https://docs.mongodb.com/guides/server/drivers/)
+- `OPENROUTER_API_KEY` - Get this from your [OpenRouter dashboard](https://openrouter.ai/keys)
 
 ### Scripts
 
@@ -194,6 +195,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Acknowledgments
 
 - [OpenAI](https://openai.com/)
+- [OpenRouter](https://openrouter.ai/)
 - [Next.js](https://nextjs.org/)
 - [React.js](https://reactjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)

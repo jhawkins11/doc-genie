@@ -11,7 +11,7 @@ export const useGenerateArticle = ({
   enabled = true,
   onSuccess,
   userId = null,
-  model = 'gpt-3.5-turbo',
+  model = 'openai/gpt-3.5-turbo',
 }: {
   topic: string | null
   model?: string

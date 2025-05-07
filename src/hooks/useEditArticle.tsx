@@ -9,7 +9,7 @@ export const useEditArticle = ({
   editPrompt,
   enabled = true,
   onSuccess,
-  model = 'gpt-3.5-turbo',
+  model = 'openai/gpt-3.5-turbo',
 }: {
   _id?: mongoose.Types.ObjectId
   editPrompt?: string

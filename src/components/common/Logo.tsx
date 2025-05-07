@@ -10,7 +10,7 @@ const Logo = forwardRef<HTMLHeadingElement, {}>((props, ref) => {
     <h1
       ref={ref}
       aria-label='logo'
-      className='p-5 logo text-4xl font-bold cursor-pointer transition-all duration-300 hover:scale-105 select-none'
+      className='p-5 logo text-4xl font-bold cursor-pointer transition-all duration-300 hover:opacity-80 select-none'
       onClick={() => {
         router.push('/')
       }}
@@ -20,7 +20,6 @@ const Logo = forwardRef<HTMLHeadingElement, {}>((props, ref) => {
         className={`relative ${isDarkMode ? 'text-white' : 'text-gray-800'}`}
       >
         Doc Genie
-        <span className='absolute inset-0 animate-shimmer opacity-0 hover:opacity-30'></span>
       </span>
     </h1>
   )

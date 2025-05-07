@@ -7,20 +7,39 @@ const createUniqueSlug = async ({
   title: string
   model: Model<any>
 }): Promise<string> => {
-  const slug = title.toLowerCase().replace(/ /g, '-')
+  // Create a base slug by removing special characters and replacing spaces with hyphens
+  const baseSlug = title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .trim()
 
   // find all existing rows with the same base slug
   const existing = await model.find({
-    slug: { $regex: new RegExp(`^${slug}(-[0-9]*)?$`, 'i') },
+    slug: { $regex: new RegExp(`^${baseSlug}(-[0-9]+)?$`, 'i') },
   })
-  // if there are existing rows with the same slug, add a number to the end of the slug
-  // the number will be the number of existing articles with the same slug
-  if (existing.length > 0) {
-    const lastSlug = existing[existing.length - 1].slug
-    const lastSlugNumber = parseInt(lastSlug.split('-').pop())
-    return `${slug}-${lastSlugNumber + 1}`
+
+  // If no duplicates found, return the base slug
+  if (existing.length === 0) {
+    return baseSlug
   }
-  return slug
+
+  // Find the highest number suffix among existing slugs
+  let highestNumber = 0
+
+  for (const item of existing) {
+    const slugParts = item.slug.split('-')
+    const lastPart = slugParts[slugParts.length - 1]
+    const number = parseInt(lastPart)
+
+    // Check if the last part is actually a number
+    if (!isNaN(number)) {
+      highestNumber = Math.max(highestNumber, number)
+    }
+  }
+
+  // Return the slug with incremented number
+  return `${baseSlug}-${highestNumber + 1}`
 }
 
 export default createUniqueSlug
