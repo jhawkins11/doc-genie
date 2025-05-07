@@ -4,12 +4,18 @@
   max-width: 100%;
   max-height: 100%;
   margin-top: 0.1rem;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: drop-shadow(0 0 0 rgba(192, 156, 9, 0));
+  cursor: pointer;
 }
+
 .lampSVG:hover {
   animation: jiggle 0.5s infinite;
+  filter: drop-shadow(0 0 5px rgba(192, 156, 9, 0.5));
+  transform: scale(1.1);
 }
+
 .lampSVG:hover svg {
-  /* hover effect */
   fill: var(--accent-gold);
   animation: candleFlicker 0.5s infinite;
 }
@@ -17,27 +23,201 @@
 .darkMode {
   background-color: transparent;
   color: #f5f5f5;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .darkMode a {
   color: #90caf9;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.darkMode a:hover {
+  color: var(--accent-gold);
+}
+
+.darkMode a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.darkMode a:hover::after {
+  transform: scaleX(1);
 }
 
 .darkMode code:not([class*='language-']) {
   background-color: #333;
   color: #f5f5f5;
+  border-radius: 4px;
+  padding: 2px 5px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-@keyframes candleFlicker {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 1;
-  }
+.darkMode code:not([class*='language-']):hover {
+  background-color: #444;
+  transform: translateY(-1px);
+}
+
+.markdown {
+  display: grid;
+  grid-auto-flow: row;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.markdown p {
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.markdown h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.markdown h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+
+.markdown h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+.markdown ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+  color: #555;
+}
+
+.darkMode .markdown blockquote {
+  border-left: 4px solid #444;
+  color: #bbb;
+}
+
+.markdown code {
+  font-family: monospace;
+  background-color: #f0f0f0;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.9rem;
+}
+
+.markdown a {
+  color: #3182ce;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.markdown a:hover {
+  color: #4299e1;
+  text-decoration: underline;
+}
+
+.darkMode .markdown a {
+  color: #63b3ed;
+}
+
+.darkMode .markdown a:hover {
+  color: #90cdf4;
+}
+
+.markdown img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.darkMode .markdown img {
+  opacity: 0.9;
+}
+
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.darkMode .markdown th,
+.darkMode .markdown td {
+  border-color: #444;
+}
+
+.markdown th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.darkMode .markdown th {
+  background-color: #333;
+}
+
+.darkMode {
+  color: #f5f5f5;
+}
+
+.lampSVG {
+  position: relative;
+  top: 0;
+  margin-left: 0.5rem;
+  opacity: 0.7;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.lampSVG:hover {
+  opacity: 1;
+  animation: jiggle 1s infinite;
+}
+
+/* Animation classes */
+.fadeIn {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.slideIn {
+  animation: slideIn 0.5s ease-out;
 }
 
 @keyframes jiggle {
@@ -49,5 +229,37 @@
   }
   100% {
     transform: rotate(-5deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes candleFlicker {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
   }
 }

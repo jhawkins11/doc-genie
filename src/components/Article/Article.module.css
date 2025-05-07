@@ -8,12 +8,32 @@
   padding: 2rem;
   margin: 0 auto;
   gap: 1rem;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .root h1 {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.root h1::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-gold), transparent);
+  transform: scaleX(0.3);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.root h1:hover::after {
+  transform: scaleX(1);
 }
 
 .root h2 {
@@ -32,6 +52,7 @@
   grid-template-columns: auto 1fr;
   width: 100%;
   background: #ebebeb;
+  transition: background-color 0.5s ease;
 }
 
 .darkContainer {
@@ -42,6 +63,8 @@
   padding: 2rem 4rem;
   max-width: 1300px;
   background: transparent;
+  opacity: 0;
+  animation: slideUp 0.6s ease-out forwards 0.2s;
 }
 
 .darkMode {
@@ -51,11 +74,23 @@
 
 .darkMode a {
   color: #90caf9;
+  transition: color 0.3s ease;
+}
+
+.darkMode a:hover {
+  color: var(--accent-gold);
 }
 
 .darkMode code:not([class*='language-']) {
   background-color: #333;
   color: #f5f5f5;
+  border-radius: 4px;
+  padding: 2px 5px;
+  transition: background-color 0.3s ease;
+}
+
+.darkMode code:not([class*='language-']):hover {
+  background-color: #444;
 }
 
 .mainList {
@@ -68,20 +103,67 @@
   padding: 2rem;
   margin: 0 auto;
   gap: 1rem;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .subList {
   margin: 0rem 0 0 1rem;
   display: grid;
   gap: 0.4rem;
+  transition: transform 0.3s ease;
+}
+
+.subList:hover {
+  transform: translateX(5px);
 }
 
 .topic {
   font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.topic:hover {
+  color: var(--accent-gold);
 }
 
 .mobileNav {
   display: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* responsive queries */
@@ -106,14 +188,32 @@
     align-items: center;
     width: 100%;
     padding: 0.5rem;
-    background-color: #2b2b2b;
+    background-color: rgba(43, 43, 43, 0.9);
     color: #fff;
     position: sticky;
+    top: 0;
+    z-index: 100;
+    animation: slideDown 0.5s ease-out;
   }
 
   .menuIcon {
     margin-right: 1rem;
     cursor: pointer;
-    transition: all 1s ease-in-out;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .menuIcon:hover {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

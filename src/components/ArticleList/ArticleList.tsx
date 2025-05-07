@@ -16,6 +16,7 @@ import {
   TextField,
 } from '@mui/material'
 import { Add, Check, Close, ViewAgenda, Visibility } from '@mui/icons-material'
+import { useDarkMode } from '@/contexts/DarkModeContext'
 
 export default function ArticleList({
   article,
@@ -41,6 +42,7 @@ export default function ArticleList({
   const [open, setOpen] = React.useState<boolean>(true)
   const [customTopic, setCustomTopic] = React.useState<string>('')
   const [isAddingArticle, setIsAddingArticle] = React.useState<boolean>(false)
+  const { isDarkMode } = useDarkMode()
 
   const handleClick = (): void => {
     setSelected(article)
@@ -59,10 +61,11 @@ export default function ArticleList({
   }
 
   return (
-    <span className={cn(styles.root, className)}>
+    <span className={cn(styles.root, className, styles.animate)}>
       <ListItemButton
         onClick={handleClick}
         className={cn(
+          styles.listItemButton,
           selected._id === article._id
             ? `${styles.active} text-accent-gold`
             : ''
@@ -71,12 +74,19 @@ export default function ArticleList({
       >
         {mode === 'edit' && (
           <ListItemIcon
-            sx={{ minWidth: 0, color: 'grey.500', width: 'auto', mr: 1 }}
+            sx={{
+              minWidth: 0,
+              color: isDarkMode ? 'grey.500' : 'grey.700',
+              width: 'auto',
+              mr: 1,
+            }}
             className={cn(styles.icon)}
           >
             <Add
               onClick={() => setIsAddingArticle(true)}
-              className='m-auto dark:text-gray-300'
+              className={`m-auto transition-all duration-300 hover:text-accent-gold ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}
               titleAccess='Add subtopic'
             />
           </ListItemIcon>
@@ -85,7 +95,9 @@ export default function ArticleList({
           primary={article.title}
           className={mode === 'preview' ? 'ml-2' : ''}
           primaryTypographyProps={{
-            className: 'dark:text-gray-200',
+            className: `transition-all duration-300 ${
+              isDarkMode ? 'text-gray-200' : 'text-gray-700'
+            }`,
           }}
         />
         {articleToEdit?._id === article._id && (
@@ -95,18 +107,22 @@ export default function ArticleList({
         {open && article.childArticles?.length ? (
           <ExpandLess
             onClick={(e: React.MouseEvent) => handleDropdownClick(e, false)}
-            className={`${styles.icon} dark:text-gray-300`}
+            className={`${styles.icon} ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}
           />
         ) : article.childArticles?.length ? (
           <ExpandMore
             onClick={(e: React.MouseEvent) => handleDropdownClick(e, true)}
-            className={`${styles.icon} dark:text-gray-300`}
+            className={`${styles.icon} ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}
           />
         ) : null}
       </ListItemButton>
       {mode !== 'preview' && (
-        <Collapse in={open} unmountOnExit>
-          {article.childArticles?.map((childArticle) => (
+        <Collapse in={open} timeout='auto' appear={true}>
+          {article.childArticles?.map((childArticle, index) => (
             <ArticleList
               selected={selected}
               setSelected={setSelected}
@@ -129,32 +145,43 @@ export default function ArticleList({
           sx={{
             width: '100%',
             margin: '0 auto',
-            bgcolor: 'grey.800',
+            bgcolor: isDarkMode ? 'grey.800' : 'grey.200',
           }}
           value={customTopic}
           onChange={(e) => setCustomTopic(e.target.value)}
-          // add check to end of input
           onKeyDown={(e: React.KeyboardEvent) => {
             if (e.key === 'Enter') {
               handleAddArticle()
             }
           }}
-          className='dark:bg-gray-700'
+          className={`transition-all duration-300 ${styles.fadeIn} ${
+            isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+          }`}
           InputLabelProps={{
-            className: 'dark:text-gray-300',
+            className: isDarkMode ? 'text-gray-300' : 'text-gray-700',
           }}
           InputProps={{
-            className: 'dark:text-gray-200',
+            className: isDarkMode ? 'text-gray-200' : 'text-gray-700',
             endAdornment: (
               <InputAdornment position='end'>
                 <Close
                   onClick={() => setIsAddingArticle(false)}
-                  sx={{ color: 'grey.500', cursor: 'pointer' }}
-                  className='dark:text-gray-400'
+                  sx={{
+                    color: isDarkMode ? 'grey.500' : 'grey.700',
+                    cursor: 'pointer',
+                  }}
+                  className={`transition-all duration-300 hover:text-red-500 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}
                 />
                 <Check
-                  sx={{ color: 'white', cursor: 'pointer' }}
-                  className='dark:text-gray-100'
+                  sx={{
+                    color: isDarkMode ? 'white' : 'grey.800',
+                    cursor: 'pointer',
+                  }}
+                  className={`transition-all duration-300 hover:text-green-500 ${
+                    isDarkMode ? 'text-gray-100' : 'text-gray-800'
+                  }`}
                   onClick={() => {
                     handleAddArticle()
                   }}
@@ -169,12 +196,13 @@ export default function ArticleList({
           animation='wave'
           className={styles.topic}
           sx={{
-            bgcolor: 'grey.800',
+            bgcolor: isDarkMode ? 'grey.800' : 'grey.300',
             height: 50,
             width: '90%',
             margin: '0 auto',
             display:
               isGenerating && selected._id === article._id ? 'grid' : 'none',
+            borderRadius: '4px',
           }}
         />
       )}
