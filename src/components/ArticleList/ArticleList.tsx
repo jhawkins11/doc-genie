@@ -1,7 +1,6 @@
 import * as React from 'react'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Collapse from '@mui/material/Collapse'
 import ExpandLess from '@mui/icons-material/ExpandLess'
@@ -14,8 +13,10 @@ import {
   InputAdornment,
   Skeleton,
   TextField,
+  Tooltip,
+  ClickAwayListener,
 } from '@mui/material'
-import { Add, Check, Close, ViewAgenda, Visibility } from '@mui/icons-material'
+import { Add, Check, Close } from '@mui/icons-material'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 
 export default function ArticleList({
@@ -42,7 +43,37 @@ export default function ArticleList({
   const [open, setOpen] = React.useState<boolean>(true)
   const [customTopic, setCustomTopic] = React.useState<string>('')
   const [isAddingArticle, setIsAddingArticle] = React.useState<boolean>(false)
+  const [showInput, setShowInput] = React.useState<boolean>(false)
+  const [animationClass, setAnimationClass] = React.useState<string>('')
   const { isDarkMode } = useDarkMode()
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const [hasAnimatedChildren, setHasAnimatedChildren] = React.useState(false)
+
+  React.useEffect(() => {
+    let timeoutId: NodeJS.Timeout
+    if (isAddingArticle) {
+      setShowInput(true)
+      setAnimationClass(styles.inputAppear)
+      if (inputRef.current) {
+        timeoutId = setTimeout(() => {
+          inputRef.current?.focus()
+        }, 50)
+      }
+    } else if (showInput) {
+      setAnimationClass(styles.inputDisappear)
+      timeoutId = setTimeout(() => {
+        setShowInput(false)
+        setCustomTopic('')
+      }, 350)
+    }
+    return () => clearTimeout(timeoutId)
+  }, [isAddingArticle, showInput])
+
+  React.useEffect(() => {
+    if (open && !hasAnimatedChildren) {
+      setHasAnimatedChildren(true)
+    }
+  }, [open, hasAnimatedChildren])
 
   const handleClick = (): void => {
     setSelected(article)
@@ -54,10 +85,27 @@ export default function ArticleList({
   }
 
   const handleAddArticle = (): void => {
-    setSelected(article)
-    setArticleToGenerate(customTopic)
-    setIsAddingArticle(false)
-    setCustomTopic('')
+    if (customTopic.trim()) {
+      setSelected(article)
+      setArticleToGenerate(customTopic)
+      setIsAddingArticle(false)
+    }
+  }
+
+  const handleAddLineClick = (e: React.MouseEvent): void => {
+    e.stopPropagation()
+    if (!isAddingArticle && !showInput) {
+      setIsAddingArticle(true)
+    }
+    if (!open && article.childArticles?.length) {
+      setOpen(true)
+    }
+  }
+
+  const handleClickAway = (): void => {
+    if (isAddingArticle && !customTopic.trim()) {
+      setIsAddingArticle(false)
+    }
   }
 
   return (
@@ -72,25 +120,6 @@ export default function ArticleList({
         )}
         style={{ paddingLeft: `${level * 1}rem` }}
       >
-        {mode === 'edit' && (
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              color: isDarkMode ? 'grey.500' : 'grey.700',
-              width: 'auto',
-              mr: 1,
-            }}
-            className={cn(styles.icon)}
-          >
-            <Add
-              onClick={() => setIsAddingArticle(true)}
-              className={`m-auto transition-all duration-300 hover:text-accent-gold ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
-              titleAccess='Add subtopic'
-            />
-          </ListItemIcon>
-        )}
         <ListItemText
           primary={article.title}
           className={mode === 'preview' ? 'ml-2' : ''}
@@ -119,16 +148,111 @@ export default function ArticleList({
             }`}
           />
         ) : null}
+
+        {mode === 'edit' && (
+          <div className={styles.addLineContainer} onClick={handleAddLineClick}>
+            <div className={styles.addLine}>
+              <Tooltip title='Add subtopic' arrow placement='top'>
+                <div className={styles.addButton}>
+                  <Add
+                    fontSize='small'
+                    style={{ fontSize: '14px', color: '#fff' }}
+                  />
+                </div>
+              </Tooltip>
+            </div>
+          </div>
+        )}
       </ListItemButton>
+
+      <ClickAwayListener
+        onClickAway={handleClickAway}
+        mouseEvent='onMouseDown'
+        touchEvent='onTouchStart'
+      >
+        <div style={{ position: 'relative' }}>
+          {showInput && (
+            <div className={cn(styles.subtopicInputContainer, animationClass)}>
+              <TextField
+                variant='filled'
+                label='New subtopic'
+                placeholder='Enter topic name...'
+                fullWidth
+                size='small'
+                inputRef={inputRef}
+                value={customTopic}
+                onChange={(e) => setCustomTopic(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter') {
+                    handleAddArticle()
+                  } else if (e.key === 'Escape') {
+                    setIsAddingArticle(false)
+                  }
+                }}
+                className={styles.subtopicInput}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <Tooltip title='Cancel' arrow placement='top'>
+                        <Close
+                          onClick={() => {
+                            setIsAddingArticle(false)
+                          }}
+                          className={`${styles.subtopicInputIcon} ${styles.cancelIcon}`}
+                          sx={{
+                            color: isDarkMode ? 'grey.400' : 'grey.600',
+                            cursor: 'pointer',
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title='Add subtopic' arrow placement='top'>
+                        <span>
+                          <Check
+                            onClick={handleAddArticle}
+                            className={`${styles.subtopicInputIcon} ${styles.confirmIcon}`}
+                            sx={{
+                              color: isDarkMode ? 'grey.300' : 'grey.700',
+                              cursor: customTopic.trim()
+                                ? 'pointer'
+                                : 'default',
+                              opacity: customTopic.trim() ? 1 : 0.4,
+                              pointerEvents: customTopic.trim()
+                                ? 'auto'
+                                : 'none',
+                            }}
+                          />
+                        </span>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </ClickAwayListener>
+
       {mode !== 'preview' && (
-        <Collapse in={open} timeout='auto' appear={true}>
+        <Collapse
+          in={open}
+          timeout='auto'
+          appear={true}
+          mountOnEnter
+          unmountOnExit
+        >
           {article.childArticles?.map((childArticle, index) => (
             <ArticleList
               selected={selected}
               setSelected={setSelected}
               article={childArticle}
               key={childArticle._id as unknown as string}
-              className={styles.child}
+              className={cn(styles.child, {
+                [styles.childAnimate]:
+                  hasAnimatedChildren && open && level === 1,
+              })}
               isGenerating={isGenerating}
               level={level + 1}
               setArticleToGenerate={setArticleToGenerate}
@@ -138,59 +262,7 @@ export default function ArticleList({
           ))}
         </Collapse>
       )}
-      {isAddingArticle && (
-        <TextField
-          variant='filled'
-          label='New subtopic'
-          sx={{
-            width: '100%',
-            margin: '0 auto',
-            bgcolor: isDarkMode ? 'grey.800' : 'grey.200',
-          }}
-          value={customTopic}
-          onChange={(e) => setCustomTopic(e.target.value)}
-          onKeyDown={(e: React.KeyboardEvent) => {
-            if (e.key === 'Enter') {
-              handleAddArticle()
-            }
-          }}
-          className={`transition-all duration-300 ${styles.fadeIn} ${
-            isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
-          }`}
-          InputLabelProps={{
-            className: isDarkMode ? 'text-gray-300' : 'text-gray-700',
-          }}
-          InputProps={{
-            className: isDarkMode ? 'text-gray-200' : 'text-gray-700',
-            endAdornment: (
-              <InputAdornment position='end'>
-                <Close
-                  onClick={() => setIsAddingArticle(false)}
-                  sx={{
-                    color: isDarkMode ? 'grey.500' : 'grey.700',
-                    cursor: 'pointer',
-                  }}
-                  className={`transition-all duration-300 hover:text-red-500 ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                />
-                <Check
-                  sx={{
-                    color: isDarkMode ? 'white' : 'grey.800',
-                    cursor: 'pointer',
-                  }}
-                  className={`transition-all duration-300 hover:text-green-500 ${
-                    isDarkMode ? 'text-gray-100' : 'text-gray-800'
-                  }`}
-                  onClick={() => {
-                    handleAddArticle()
-                  }}
-                />
-              </InputAdornment>
-            ),
-          }}
-        />
-      )}
+
       {isGenerating && (
         <Skeleton
           animation='wave'

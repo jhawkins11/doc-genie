@@ -52,6 +52,9 @@
 
 .child {
   position: relative;
+}
+
+.childAnimate {
   animation: slideDown 0.3s ease-out;
 }
 
@@ -63,7 +66,7 @@
   left: 0;
   width: 1px;
   background: linear-gradient(
-    to bottom,
+    90deg,
     transparent,
     rgba(192, 156, 9, 0.3),
     transparent
@@ -81,11 +84,15 @@
   border-radius: 4px;
   margin: 2px 0;
   color: #333; /* Default text color for light mode */
+  position: relative;
 }
 
 .listItemButton:hover {
   background-color: rgba(255, 255, 255, 0.05);
-  transform: translateX(5px);
+}
+
+.listItemButton:hover .addLineContainer {
+  opacity: 1;
 }
 
 :global(.dark) .listItemButton {
@@ -94,6 +101,152 @@
 
 :global(.dark) .listItemButton:hover {
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+.addLineContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 5;
+  cursor: pointer;
+}
+
+.addLine {
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(192, 156, 9, 0.5),
+    transparent
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addButton {
+  width: 18px;
+  height: 18px;
+  background-color: var(--accent-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.addButton:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.subtopicInputContainer {
+  position: relative;
+  margin: 0;
+  padding: 4px 8px 8px 16px;
+  overflow: hidden;
+  width: 95%;
+  margin-left: auto;
+  transform-origin: top;
+}
+
+.subtopicInputContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(192, 156, 9, 0.3), transparent);
+  opacity: 0.6;
+}
+
+.subtopicInput :global(.MuiFilledInput-root) {
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+:global(.dark) .subtopicInput :global(.MuiFilledInput-root) {
+  background-color: rgba(30, 30, 30, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.subtopicInput :global(.MuiFilledInput-root:hover) {
+  background-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+:global(.dark) .subtopicInput :global(.MuiFilledInput-root:hover) {
+  background-color: rgba(40, 40, 40, 0.9);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+
+.subtopicInput :global(.MuiFilledInput-root.Mui-focused) {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(192, 156, 9, 0.5);
+}
+
+:global(.dark) .subtopicInput :global(.MuiFilledInput-root.Mui-focused) {
+  background-color: rgba(50, 50, 50, 0.9);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(192, 156, 9, 0.5);
+}
+
+.subtopicInput :global(.MuiFormLabel-root) {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.85rem;
+  margin-top: -3px;
+  margin-left: 3px;
+  transition: all 0.2s ease;
+}
+
+:global(.dark) .subtopicInput :global(.MuiFormLabel-root) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.subtopicInput :global(.MuiFormLabel-root.Mui-focused) {
+  color: var(--accent-gold);
+}
+
+.subtopicInput :global(.MuiInputBase-input) {
+  padding-top: 18px;
+  padding-bottom: 8px;
+}
+
+.subtopicInput :global(.MuiFilledInput-underline:before),
+.subtopicInput :global(.MuiFilledInput-underline:after) {
+  display: none;
+}
+
+.subtopicInputIcon {
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.subtopicInputIcon:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+.cancelIcon:hover {
+  color: #f44336 !important;
+}
+
+.confirmIcon:hover {
+  color: var(--accent-gold) !important;
 }
 
 /* Enhanced topic styling for loading */
@@ -115,6 +268,20 @@
   }
 }
 
+@keyframes fadeInAndExpand {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.8) translateY(-10px);
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -124,4 +291,26 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes fadeOutAndCollapse {
+  0% {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+  70% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(0.8) translateY(-10px);
+  }
+}
+
+.inputAppear {
+  animation: fadeInAndExpand 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.inputDisappear {
+  animation: fadeOutAndCollapse 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
