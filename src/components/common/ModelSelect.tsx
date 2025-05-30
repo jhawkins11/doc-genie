@@ -4,10 +4,12 @@ const ModelSelect = ({
   model,
   setModel,
   className,
+  disabled,
 }: {
   model: string
   setModel: (model: string) => void
   className?: string
+  disabled?: boolean
 }) => {
   return (
     <select
@@ -19,6 +21,7 @@ const ModelSelect = ({
       value={model}
       placeholder='Select AI model'
       onChange={(e) => setModel(e.target.value as any)}
+      disabled={disabled}
       style={
         {
           background:

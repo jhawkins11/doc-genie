@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import styles from './Article.module.css'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../common/Logo'
@@ -52,13 +52,25 @@ const Article = React.memo(
     )
     const [model, setModel] = useSyncWithLocalStorage<string>(
       'model',
-      'gpt-3.5-turbo'
+      'perplexity/sonar-pro'
     )
 
     const { isDarkMode, toggleDarkMode } = useDarkMode()
 
     const [user] = useAuthState(auth)
     const isSmallScreen = useMediaQuery('(max-width:900px)')
+
+    const handleGenerateSuccess = useCallback(() => {
+      setArticleToGenerate(null)
+      invalidate()
+    }, [invalidate])
+
+    const handleEditSuccess = useCallback(() => {
+      setArticleToEdit(null)
+      setEditPrompt(null)
+      invalidate()
+    }, [invalidate])
+
     useGenerateArticle({
       topic:
         selected?._id === articles?.[0]?._id
@@ -69,16 +81,13 @@ const Article = React.memo(
       enabled: !!articleToGenerate,
       userId: user?.uid,
       model,
-      onSuccess: () => {
-        invalidate()
-      },
+      onSuccess: handleGenerateSuccess,
     })
+
     useEditArticle({
       _id: articleToEdit?._id,
       editPrompt,
-      onSuccess: () => {
-        invalidate()
-      },
+      onSuccess: handleEditSuccess,
       enabled: !!articleToEdit,
       model,
     })
@@ -192,7 +201,13 @@ const Article = React.memo(
                 setModel={setModel}
                 className='text-gray-600 dark:text-gray-300'
               />
-              <AuthModal fixedButton={!isSmallScreen} isDarkMode={isDarkMode} />
+            </div>
+            <div className='px-4 mb-4 w-full flex justify-center'>
+              <AuthModal
+                fixedButton={false}
+                isDarkMode={isDarkMode}
+                compact={true}
+              />
             </div>
             <div className='px-4 pb-2 w-full'>
               <StyledButton

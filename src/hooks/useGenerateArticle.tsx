@@ -25,6 +25,7 @@ export const useGenerateArticle = ({
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
   const { error, setError } = useErrorContext()
+
   useEffect(() => {
     const generateArticle = async () => {
       setLoading(true)
@@ -57,6 +58,7 @@ export const useGenerateArticle = ({
     if (topic && enabled) {
       generateArticle()
     }
-  }, [topic, subtopic, parentid, enabled])
+  }, [topic, subtopic, parentid, enabled, model, userId, onSuccess, setError])
+
   return { article, loading, success }
 }
