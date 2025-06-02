@@ -1,7 +1,7 @@
 import {
   GoogleAuthProvider,
   getAuth,
-  signInWithRedirect,
+  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -11,7 +11,8 @@ import { auth } from '@/lib/initializeFirebaseApp'
 
 const loginWithGoogle = async () => {
   const googleProvider = new GoogleAuthProvider()
-  const user = await signInWithRedirect(auth, googleProvider)
+  const user = await signInWithPopup(auth, googleProvider)
+  return user
 }
 
 const loginWithEmail = async (email: string, password: string) => {
