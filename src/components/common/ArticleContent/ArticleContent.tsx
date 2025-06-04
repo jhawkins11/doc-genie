@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { docco } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
@@ -187,6 +188,82 @@ const ArticleContent = React.memo(
                 </blockquote>
               )
             },
+            table({ node, className, children, ...props }) {
+              return (
+                <div
+                  className={`${styles.tableWrapper} ${styles.fadeIn} ${
+                    isDarkMode
+                      ? styles.darkTableWrapper
+                      : styles.lightTableWrapper
+                  }`}
+                >
+                  <table
+                    className={`${className || ''} ${styles.table}`}
+                    {...props}
+                  >
+                    {children}
+                  </table>
+                </div>
+              )
+            },
+            thead({ node, className, children, ...props }) {
+              return (
+                <thead
+                  className={`${className || ''} ${styles.tableHead}`}
+                  {...props}
+                >
+                  {children}
+                </thead>
+              )
+            },
+            tbody({ node, className, children, ...props }) {
+              return (
+                <tbody
+                  className={`${className || ''} ${styles.tableBody}`}
+                  {...props}
+                >
+                  {children}
+                </tbody>
+              )
+            },
+            tr({ node, className, children, ...props }) {
+              return (
+                <tr
+                  className={`${className || ''} ${styles.tableRow} ${
+                    isDarkMode ? styles.darkTableRow : styles.lightTableRow
+                  }`}
+                  {...props}
+                >
+                  {children}
+                </tr>
+              )
+            },
+            th({ node, className, children, ...props }) {
+              return (
+                <th
+                  className={`${className || ''} ${styles.tableHeader} ${
+                    isDarkMode
+                      ? styles.darkTableHeader
+                      : styles.lightTableHeader
+                  }`}
+                  {...props}
+                >
+                  {children}
+                </th>
+              )
+            },
+            td({ node, className, children, ...props }) {
+              return (
+                <td
+                  className={`${className || ''} ${styles.tableCell} ${
+                    isDarkMode ? styles.darkTableCell : styles.lightTableCell
+                  }`}
+                  {...props}
+                >
+                  {children}
+                </td>
+              )
+            },
             h1({ node, className, children, ...props }) {
               return (
                 <h1
@@ -201,9 +278,7 @@ const ArticleContent = React.memo(
               )
             },
           }}
-          className={`grid grid-cols-1 gap-4 w-full ${
-            isDarkMode ? styles.darkMode : styles.lightMode
-          }`}
+          remarkPlugins={[remarkGfm]}
         >
           {formatMarkdown(selected.content)}
         </ReactMarkdown>
