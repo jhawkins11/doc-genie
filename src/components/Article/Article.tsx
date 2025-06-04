@@ -28,6 +28,7 @@ import { auth } from '@/lib/initializeFirebaseApp'
 import StyledButton from '../common/StyledButton'
 import AuthModal from '../auth/AuthModal'
 import ArticleContent from '../common/ArticleContent/ArticleContent'
+import OnThisPage from '../common/OnThisPage/OnThisPage'
 import { useSyncWithLocalStorage } from '@/hooks/useSyncWithLocalStorage'
 import ModelSelect from '../common/ModelSelect'
 import { useDarkMode } from '@/contexts/DarkModeContext'
@@ -229,138 +230,164 @@ const Article = React.memo(
           </ResponsiveDrawer>
         </Box>
         <Box
-          component={'article'}
+          component={'main'}
           sx={{
+            flexGrow: 1,
+            display: 'flex',
+            justifyContent: 'center',
             minHeight: '100vh',
-            bgcolor: 'transparent',
             position: 'relative',
             zIndex: 10,
           }}
         >
-          <div
-            className={`${styles.content} ${
-              isDarkMode ? '' : styles.lightContent
-            }`}
+          <Box
+            component={'article'}
+            sx={{
+              width: '100%',
+              // 800-1200px is max recommended line length for readability: https://www.newtarget.com/web-insights-blog/max-content-width/
+              maxWidth: '1000px',
+              padding: '0 2rem',
+              bgcolor: 'transparent',
+            }}
           >
             <div
-              className={`${styles.root} ${
-                isDarkMode ? styles.darkMode : styles.lightMode
+              className={`${styles.content} ${
+                isDarkMode ? '' : styles.lightContent
               }`}
-              id='article'
             >
-              <ArticleContent
-                selected={selected}
-                setArticleToGenerate={setArticleToGenerate}
-                viewOnly={articles.length > 1 || isViewMode}
-                showLink={articles.length > 1}
-                articles={articles}
-              />
-              {isEditing ? (
-                <TextField
-                  variant='filled'
-                  label='Edit prompt'
-                  sx={{
-                    width: '100%',
-                    mt: 4,
-                    display: isEditing ? 'grid' : 'none',
-                    '& .MuiFilledInput-root': {
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 27, 75, 0.6))'
-                        : 'linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.6))',
-                      backdropFilter: 'blur(10px)',
-                      border: `1px solid ${
-                        isDarkMode
-                          ? 'rgba(255, 255, 255, 0.1)'
-                          : 'rgba(0, 0, 0, 0.1)'
-                      }`,
-                      borderRadius: '12px',
-                      '&:hover': {
-                        background: isDarkMode
-                          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.7))'
-                          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.7))',
-                        borderColor: 'rgba(251, 191, 36, 0.3)',
-                      },
-                      '&.Mui-focused': {
-                        background: isDarkMode
-                          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.8))'
-                          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.8))',
-                        borderColor: 'var(--accent-gold)',
-                        boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)',
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: isDarkMode ? '#94a3b8' : '#64748b',
-                      '&.Mui-focused': {
-                        color: 'var(--accent-gold)',
-                      },
-                    },
-                    '& .MuiInputBase-input': {
-                      color: isDarkMode ? '#f1f5f9' : '#1e293b',
-                    },
-                  }}
-                  value={editPrompt}
-                  onChange={(e) => setEditPrompt(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      setIsEditing(false)
-                      setArticleToEdit(selected)
-                    }
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <Close
-                          onClick={() => {
-                            setEditPrompt(null)
-                            setIsEditing(false)
-                          }}
-                          sx={{
-                            color: '#ef4444',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              color: '#dc2626',
-                              filter:
-                                'drop-shadow(0 0 10px rgba(239, 68, 68, 0.6))',
-                            },
-                          }}
-                        />
-                        <Check
-                          sx={{
-                            color: 'var(--accent-gold)',
-                            cursor: 'pointer',
-                            ml: 1,
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              filter:
-                                'drop-shadow(0 0 10px rgba(251, 191, 36, 0.6))',
-                            },
-                          }}
-                          onClick={() => {
-                            setIsEditing(false)
-                            setArticleToEdit(selected)
-                          }}
-                        />
-                      </InputAdornment>
-                    ),
-                  }}
+              <div
+                className={`${styles.root} ${
+                  isDarkMode ? styles.darkMode : styles.lightMode
+                }`}
+                id='article'
+              >
+                <ArticleContent
+                  selected={selected}
+                  setArticleToGenerate={setArticleToGenerate}
+                  viewOnly={articles.length > 1 || isViewMode}
+                  showLink={articles.length > 1}
+                  articles={articles}
                 />
-              ) : selected && !isViewMode ? (
-                <div
-                  className={`${styles.edit} ${
-                    isDarkMode ? '' : styles.lightEdit
-                  }`}
-                >
-                  <StyledButton
-                    onClick={() => setIsEditing(true)}
-                    text='Edit With GPT'
-                    theme='light'
-                    variant='contained'
+                {isEditing ? (
+                  <TextField
+                    variant='filled'
+                    label='Edit prompt'
+                    sx={{
+                      width: '100%',
+                      mt: 4,
+                      display: isEditing ? 'grid' : 'none',
+                      '& .MuiFilledInput-root': {
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 27, 75, 0.6))'
+                          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.6))',
+                        backdropFilter: 'blur(10px)',
+                        border: `1px solid ${
+                          isDarkMode
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.1)'
+                        }`,
+                        borderRadius: '12px',
+                        '&:hover': {
+                          background: isDarkMode
+                            ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.7))'
+                            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.7))',
+                          borderColor: 'rgba(251, 191, 36, 0.3)',
+                        },
+                        '&.Mui-focused': {
+                          background: isDarkMode
+                            ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.8))'
+                            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.8))',
+                          borderColor: 'var(--accent-gold)',
+                          boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: isDarkMode ? '#94a3b8' : '#64748b',
+                        '&.Mui-focused': {
+                          color: 'var(--accent-gold)',
+                        },
+                      },
+                      '& .MuiInputBase-input': {
+                        color: isDarkMode ? '#f1f5f9' : '#1e293b',
+                      },
+                    }}
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setIsEditing(false)
+                        setArticleToEdit(selected)
+                      }
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <Close
+                            onClick={() => {
+                              setEditPrompt(null)
+                              setIsEditing(false)
+                            }}
+                            sx={{
+                              color: '#ef4444',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                color: '#dc2626',
+                                filter:
+                                  'drop-shadow(0 0 10px rgba(239, 68, 68, 0.6))',
+                              },
+                            }}
+                          />
+                          <Check
+                            sx={{
+                              color: 'var(--accent-gold)',
+                              cursor: 'pointer',
+                              ml: 1,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                filter:
+                                  'drop-shadow(0 0 10px rgba(251, 191, 36, 0.6))',
+                              },
+                            }}
+                            onClick={() => {
+                              setIsEditing(false)
+                              setArticleToEdit(selected)
+                            }}
+                          />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
-                </div>
-              ) : null}
+                ) : selected && !isViewMode ? (
+                  <div
+                    className={`${styles.edit} ${
+                      isDarkMode ? '' : styles.lightEdit
+                    }`}
+                  >
+                    <StyledButton
+                      onClick={() => setIsEditing(true)}
+                      text='Edit With GPT'
+                      theme='light'
+                      variant='contained'
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
+          </Box>
+
+          {!isSmallScreen && selected && (
+            <Box
+              sx={{
+                width: '280px',
+                flexShrink: 0,
+                padding: '0 1rem',
+                display: { xs: 'none', lg: 'block' },
+              }}
+            >
+              <OnThisPage content={selected.content} isDarkMode={isDarkMode} />
+            </Box>
+          )}
         </Box>
       </div>
     )

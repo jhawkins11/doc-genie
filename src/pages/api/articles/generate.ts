@@ -46,11 +46,13 @@ export default async function handler(
       Parent Topic for context: ${topic}
       Article Title: ${subtopic}
       Format: 1 h1/2+ h2s
+      h2s should be relevant subtopics to the article being generated.
       `
       : `
         Generate MDL Article in markdown format.
         Article Title: ${topic}
         Format: 1 h1/2+ h2s
+        h2s should be relevant subtopics to the article being generated.
         `
 
     // generate article with GPT
