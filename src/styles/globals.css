@@ -680,18 +680,36 @@ button:focus {
 .smoke-trail {
   position: absolute;
   left: 5%;
-  bottom: 0%;
+  bottom: 10%;
   background: linear-gradient(
     to top,
-    rgba(0, 255, 255, 0.01) 0%,
-    rgba(0, 255, 255, 0.15) 30%,
-    rgba(0, 255, 255, 0.25) 50%,
-    rgba(0, 255, 255, 0.15) 70%,
-    rgba(0, 255, 255, 0.01) 100%
+    rgba(0, 255, 255, 0.02) 0%,
+    rgba(0, 255, 255, 0.25) 20%,
+    rgba(0, 255, 255, 0.4) 40%,
+    rgba(0, 255, 255, 0.35) 60%,
+    rgba(0, 255, 255, 0.2) 80%,
+    rgba(0, 255, 255, 0.05) 100%
   );
-  filter: blur(6px);
-  border-radius: 40%;
+  filter: blur(8px);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
   transform-origin: center bottom;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.2),
+    0 0 60px rgba(0, 255, 255, 0.1);
+  mix-blend-mode: screen;
+}
+
+.smoke-trail::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 255, 255, 0.2) 0%,
+    rgba(0, 255, 255, 0.1) 40%,
+    transparent 70%
+  );
+  filter: blur(10px);
+  opacity: 0.8;
 }
 
 .smoke-trail-1 {
@@ -715,81 +733,72 @@ button:focus {
 @keyframes smokeRise1 {
   0% {
     opacity: 0;
-    transform: translateY(0%) scaleY(0.8) rotate(-5deg);
+    transform: translateY(0%) scaleY(0.8) rotate(-5deg) scaleX(1);
   }
-  15% {
-    opacity: 0.7;
+  10% {
+    opacity: 0.9;
   }
-  80% {
-    opacity: 0.3;
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
   }
   100% {
     opacity: 0;
-    transform: translateY(-120%) scaleY(2.2) scaleX(0.5) rotate(-8deg);
+    transform: translateY(-120%) scaleY(2.5) scaleX(0.4) rotate(-12deg);
   }
 }
 
 @keyframes smokeRise2 {
   0% {
     opacity: 0;
-    transform: translateY(0%) scaleY(0.8);
+    transform: translateY(0%) scaleY(0.8) scaleX(1);
   }
-  15% {
-    opacity: 0.7;
+  10% {
+    opacity: 0.9;
   }
-  80% {
-    opacity: 0.3;
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
   }
   100% {
     opacity: 0;
-    transform: translateY(-120%) scaleY(2) scaleX(0.6);
+    transform: translateY(-120%) scaleY(2.3) scaleX(0.5) rotate(3deg);
   }
 }
 
 @keyframes smokeRise3 {
   0% {
     opacity: 0;
-    transform: translateY(0%) scaleY(0.8) rotate(5deg);
+    transform: translateY(0%) scaleY(0.8) rotate(5deg) scaleX(1);
   }
-  15% {
-    opacity: 0.7;
+  10% {
+    opacity: 0.9;
   }
-  80% {
-    opacity: 0.3;
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
   }
   100% {
     opacity: 0;
-    transform: translateY(-120%) scaleY(2.2) scaleX(0.5) rotate(8deg);
+    transform: translateY(-120%) scaleY(2.5) scaleX(0.4) rotate(10deg);
   }
-}
-
-.lamp-spout-glow {
-  position: absolute;
-  top: 18%;
-  left: 58%;
-  width: 30px;
-  height: 100px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(12, 255, 225, 0.25),
-    rgba(12, 255, 225, 0.18),
-    transparent
-  );
-  filter: blur(15px);
-  transform: translateX(-50%);
-  z-index: 4; /* Lower z-index than smoke and icons */
-  pointer-events: none;
-  animation: spoutGlow 5s infinite alternate ease-in-out;
 }
 
 @keyframes spoutGlow {
   0% {
     opacity: 0.8;
     height: 100px;
+    filter: blur(20px);
   }
   100% {
     opacity: 1;
     height: 130px;
+    filter: blur(22px);
   }
 }

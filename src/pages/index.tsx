@@ -183,21 +183,18 @@ const Home = () => {
 
       <div className='h-16 sm:h-32' />
 
-      <section
-        className='flex flex-col lg:flex-row items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-10'
-        style={{ minHeight: 'calc(100vh - 6rem)' }}
-      >
+      <section className='flex flex-col lg:flex-row items-center justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10'>
         <div className='w-full lg:w-3/5 space-y-6 sm:space-y-8 text-center lg:text-left mb-12 sm:mb-16 lg:mb-0 lg:pr-8 xl:pr-12'>
           <div className='space-y-4 sm:space-y-6'>
-            <h1 className='text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-black leading-tight sm:leading-snug tracking-tight'>
+            <h1 className='text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-6xl 2xl:text-7xl font-black leading-tight sm:leading-snug tracking-tight'>
               <span className='block text-white drop-shadow-lg'>Generate</span>
-              <span className='block bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent drop-shadow-lg'>
+              <span className='inline-block md:block bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent drop-shadow-lg'>
                 expert
-              </span>
-              <span className='block bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-lg'>
+              </span>{' '}
+              <span className='inline-block md:block bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-lg'>
                 documentation
               </span>
-              <span className='block text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl mt-3 sm:mt-4 text-white'>
+              <span className='block text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-5xl 2xl:text-6xl mt-3 sm:mt-4 text-white'>
                 with a wish
                 <span className='text-yellow-400 animate-pulse ml-1 sm:ml-2'>
                   ✨
@@ -317,17 +314,17 @@ const Home = () => {
             <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-8 bg-black/30 rounded-full filter blur-2xl opacity-60'></div>
             <div className='absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/30 to-red-400/20 rounded-full filter blur-2xl animate-pulse-slow'></div>
             <div className='absolute inset-0 z-20 hidden sm:block'>
-              <div className='absolute left-[-8%] sm:left-[-5%] md:left-[-8%] top-[15%] animate-float-slow'>
+              <div className='absolute left-[-17%] top-[19%] animate-float-slow'>
                 <div className='p-2 sm:p-3 bg-gradient-to-br from-blue-400/20 to-purple-400/20 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg text-blue-300'>
                   <DocumentIcon className='w-6 h-6 sm:w-8 sm:h-8 text-blue-300' />
                 </div>
               </div>
-              <div className='absolute left-[-3%] sm:left-[0%] md:left-[-3%] top-[-15%] sm:top-[-12%] md:top-[-15%] animate-float-medium'>
+              <div className='absolute left-[-20%] top-[-15%] animate-float-medium'>
                 <div className='p-2 sm:p-3 bg-gradient-to-br from-green-400/20 to-teal-400/20 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg text-green-300'>
                   <CodeBracketsIcon className='w-6 h-6 sm:w-8 sm:h-8 text-green-300' />
                 </div>
               </div>
-              <div className='absolute left-[17%] sm:left-[20%] md:left-[17%] top-[0%] animate-float-fast'>
+              <div className='absolute left-[5%] top-[0%] animate-float-fast'>
                 <div className='p-2 sm:p-3 bg-gradient-to-br from-purple-400/20 to-pink-400/20 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg text-purple-300'>
                   <MagicWandIcon className='w-6 h-6 sm:w-8 sm:h-8 text-purple-300' />
                 </div>
