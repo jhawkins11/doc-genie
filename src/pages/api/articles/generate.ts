@@ -48,20 +48,27 @@ export default async function handler(
     // Determine user context
     const isGuest = !isAuthenticated
 
-    // Apply rate limiting for guest users only
-    if (isGuest) {
-      const rateLimitResult = rateLimiter.checkLimit(req, 'generate')
-      if (!rateLimitResult.allowed) {
-        console.warn(
-          'Rate limit exceeded for IP:',
-          req.headers['x-forwarded-for'] || req.connection?.remoteAddress
-        )
-        return res.status(429).json({
-          error: 'rate_limit_exceeded',
-          message:
-            'Too many requests from this IP. Guest users are limited to 2 article generations per day.',
-        })
-      }
+    // Apply rate limiting for all users (different limits for guest vs authenticated)
+    const endpoint = isGuest ? 'generate' : 'authenticated'
+    const rateLimitResult = rateLimiter.checkLimit(
+      req,
+      endpoint,
+      undefined,
+      isAuthenticated ? uid : undefined
+    )
+    if (!rateLimitResult.allowed) {
+      const message = isGuest
+        ? 'Too many requests from this IP. Guest users are limited to 2 article generations per day.'
+        : 'Too many requests. Authenticated users are limited to 5 article generations per day.'
+
+      console.warn(
+        'Rate limit exceeded for:',
+        isGuest ? 'guest IP' : 'authenticated user'
+      )
+      return res.status(429).json({
+        error: 'rate_limit_exceeded',
+        message,
+      })
     }
 
     // connect to mongoDb

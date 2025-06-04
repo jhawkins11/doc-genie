@@ -41,6 +41,12 @@ export class RateLimiter {
           1000,
         maxRequests: parseInt(process.env.RATE_LIMIT_GUEST_EDIT_MAX || '3'),
       },
+      authenticated: {
+        windowMs: 24 * 60 * 60 * 1000, // 24 hours
+        maxRequests: parseInt(
+          process.env.RATE_LIMIT_AUTHENTICATED_GENERATE_MAX || '5'
+        ),
+      },
     }
 
     // Clean up expired entries every hour
@@ -68,8 +74,13 @@ export class RateLimiter {
   private generateKey(
     ip: string,
     endpoint: string,
-    articleId?: string
+    articleId?: string,
+    userId?: string
   ): string {
+    // For authenticated users, use userId instead of IP
+    if (endpoint === 'authenticated' && userId) {
+      return `user:${userId}:${endpoint}`
+    }
     // For edit endpoint, include articleId to limit per article
     if (endpoint === 'edit' && articleId) {
       return `${ip}:${endpoint}:${articleId}`
@@ -96,7 +107,8 @@ export class RateLimiter {
   checkLimit(
     req: NextApiRequest,
     endpoint: string,
-    articleId?: string
+    articleId?: string,
+    userId?: string
   ): RateLimitResult {
     const ip = this.getClientIP(req)
     const config = this.configs[endpoint]
@@ -110,7 +122,7 @@ export class RateLimiter {
       }
     }
 
-    const key = this.generateKey(ip, endpoint, articleId)
+    const key = this.generateKey(ip, endpoint, articleId, userId)
     const now = Date.now()
     const resetTime = now + config.windowMs
 
@@ -178,7 +190,8 @@ export class RateLimiter {
   getStatus(
     req: NextApiRequest,
     endpoint: string,
-    articleId?: string
+    articleId?: string,
+    userId?: string
   ): RateLimitResult {
     const ip = this.getClientIP(req)
     const config = this.configs[endpoint]
@@ -192,7 +205,7 @@ export class RateLimiter {
       }
     }
 
-    const key = this.generateKey(ip, endpoint, articleId)
+    const key = this.generateKey(ip, endpoint, articleId, userId)
     const now = Date.now()
     const entry = this.storage.get(key)
 

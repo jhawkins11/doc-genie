@@ -36,6 +36,13 @@ describe('/api/articles/generate', () => {
 
   describe('Guest Article Generation', () => {
     it('should generate article for guest user (no auth header)', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
       const mockCreatedArticle = {
         _id: 'mock-id' as unknown,
         title: 'Test Article',
@@ -78,6 +85,13 @@ describe('/api/articles/generate', () => {
     })
 
     it('should generate subarticle for guest user', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
       const mockCreatedArticle = {
         _id: 'mock-child-id' as unknown,
         title: 'Test Subtopic',
@@ -125,6 +139,13 @@ describe('/api/articles/generate', () => {
 
   describe('Authenticated Article Generation', () => {
     it('should generate article for authenticated user', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 4,
+        resetTime: Date.now() + 86400000,
+      })
+
       const mockCreatedArticle = {
         _id: 'mock-id' as unknown,
         title: 'Test Article',
@@ -257,7 +278,12 @@ describe('/api/articles/generate', () => {
 
       await handler(req, res)
 
-      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(req, 'generate')
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
+        req,
+        'generate',
+        undefined,
+        undefined
+      )
       expect(res._getStatusCode()).toBe(201)
     })
 
@@ -281,7 +307,12 @@ describe('/api/articles/generate', () => {
 
       await handler(req, res)
 
-      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(req, 'generate')
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
+        req,
+        'generate',
+        undefined,
+        undefined
+      )
       expect(res._getStatusCode()).toBe(429)
       expect(JSON.parse(res._getData())).toEqual({
         error: 'rate_limit_exceeded',
@@ -290,7 +321,13 @@ describe('/api/articles/generate', () => {
       })
     })
 
-    it('should bypass rate limiting for authenticated users', async () => {
+    it('should apply rate limiting to authenticated users', async () => {
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 4,
+        resetTime: Date.now() + 86400000,
+      })
+
       const mockCreatedArticle = {
         _id: 'mock-id' as unknown,
         title: 'Test Article',
@@ -319,8 +356,49 @@ describe('/api/articles/generate', () => {
 
       await handler(req, res)
 
-      expect(mockRateLimiter.checkLimit).not.toHaveBeenCalled()
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
+        req,
+        'authenticated',
+        undefined,
+        'user-123'
+      )
       expect(res._getStatusCode()).toBe(201)
+    })
+
+    it('should block authenticated users when rate limit exceeded', async () => {
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 86400000,
+        error: 'Rate limit exceeded',
+      })
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer valid-token',
+          'x-forwarded-for': '192.168.1.1',
+        },
+        body: {
+          topic: 'Test Topic',
+          uid: 'user-123',
+        },
+      })
+
+      await handler(req, res)
+
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
+        req,
+        'authenticated',
+        undefined,
+        'user-123'
+      )
+      expect(res._getStatusCode()).toBe(429)
+      expect(JSON.parse(res._getData())).toEqual({
+        error: 'rate_limit_exceeded',
+        message:
+          'Too many requests. Authenticated users are limited to 5 article generations per day.',
+      })
     })
 
     it('should handle rate limiter errors gracefully', async () => {
@@ -347,6 +425,13 @@ describe('/api/articles/generate', () => {
 
   describe('Error Handling', () => {
     it('should return 400 when AI generation fails', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
       mockGenerateAIArticle.mockResolvedValue('')
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -366,6 +451,13 @@ describe('/api/articles/generate', () => {
     })
 
     it('should return 500 for database errors', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
       mockArticleModel.create.mockRejectedValue(new Error('Database error'))
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -385,6 +477,13 @@ describe('/api/articles/generate', () => {
     })
 
     it('should return 500 for connection errors', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
       mockConnectToDb.mockRejectedValue(new Error('Connection failed'))
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -406,6 +505,13 @@ describe('/api/articles/generate', () => {
 
   describe('Response Schema', () => {
     it('should return proper response schema for guest articles', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
       const mockCreatedArticle = {
         _id: 'mock-id' as unknown,
         title: 'Test Article',
@@ -440,6 +546,13 @@ describe('/api/articles/generate', () => {
     })
 
     it('should return proper response schema for authenticated articles', async () => {
+      // Mock rate limiter to allow request
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 4,
+        resetTime: Date.now() + 86400000,
+      })
+
       const mockCreatedArticle = {
         _id: 'mock-id' as unknown,
         title: 'Test Article',
