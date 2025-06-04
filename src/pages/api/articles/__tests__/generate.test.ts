@@ -5,12 +5,14 @@ import { ArticleModel } from '@/models/ArticleModel'
 import { generateAIArticle } from '@/utils/generateAIArticle'
 import connectToDb from '@/utils/connectToDb'
 import createUniqueSlug from '@/utils/createUniqueSlug'
+import { rateLimiter } from '@/lib/backend/rateLimiter'
 
 // Mock dependencies
 jest.mock('@/models/ArticleModel')
 jest.mock('@/utils/generateAIArticle')
 jest.mock('@/utils/connectToDb')
 jest.mock('@/utils/createUniqueSlug')
+jest.mock('@/lib/backend/rateLimiter')
 
 const mockArticleModel = ArticleModel as jest.Mocked<typeof ArticleModel>
 const mockGenerateAIArticle = generateAIArticle as jest.MockedFunction<
@@ -20,6 +22,7 @@ const mockConnectToDb = connectToDb as jest.MockedFunction<typeof connectToDb>
 const mockCreateUniqueSlug = createUniqueSlug as jest.MockedFunction<
   typeof createUniqueSlug
 >
+const mockRateLimiter = rateLimiter as jest.Mocked<typeof rateLimiter>
 
 describe('/api/articles/generate', () => {
   beforeEach(() => {
@@ -211,6 +214,133 @@ describe('/api/articles/generate', () => {
       expect(JSON.parse(res._getData())).toEqual({
         error: 'method_not_allowed',
         message: 'Only POST method is allowed',
+      })
+    })
+  })
+
+  describe('Rate Limiting', () => {
+    beforeEach(() => {
+      // Reset rate limiter mock
+      mockRateLimiter.checkLimit.mockClear()
+    })
+
+    it('should apply rate limiting to guest users', async () => {
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
+      const mockCreatedArticle = {
+        _id: 'mock-id' as unknown,
+        title: 'Test Article',
+        content: '# Test Article\n\n## Section 1\n\nContent here.',
+        slug: 'test-slug',
+        uid: undefined as string | undefined,
+        isGuest: true,
+        parentid: '',
+      }
+
+      mockArticleModel.create.mockResolvedValue(
+        mockCreatedArticle as unknown as ReturnType<typeof ArticleModel.create>
+      )
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        headers: {
+          'x-forwarded-for': '192.168.1.1',
+        },
+        body: {
+          topic: 'Test Topic',
+        },
+      })
+
+      await handler(req, res)
+
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(req, 'generate')
+      expect(res._getStatusCode()).toBe(201)
+    })
+
+    it('should block guest users when rate limit exceeded', async () => {
+      mockRateLimiter.checkLimit.mockReturnValue({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 86400000,
+        error: 'Rate limit exceeded',
+      })
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        headers: {
+          'x-forwarded-for': '192.168.1.1',
+        },
+        body: {
+          topic: 'Test Topic',
+        },
+      })
+
+      await handler(req, res)
+
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(req, 'generate')
+      expect(res._getStatusCode()).toBe(429)
+      expect(JSON.parse(res._getData())).toEqual({
+        error: 'rate_limit_exceeded',
+        message:
+          'Too many requests from this IP. Guest users are limited to 2 article generations per day.',
+      })
+    })
+
+    it('should bypass rate limiting for authenticated users', async () => {
+      const mockCreatedArticle = {
+        _id: 'mock-id' as unknown,
+        title: 'Test Article',
+        content: '# Test Article\n\n## Section 1\n\nContent here.',
+        slug: 'test-slug',
+        uid: 'user-123',
+        isGuest: false,
+        parentid: '',
+      }
+
+      mockArticleModel.create.mockResolvedValue(
+        mockCreatedArticle as unknown as ReturnType<typeof ArticleModel.create>
+      )
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer valid-token',
+          'x-forwarded-for': '192.168.1.1',
+        },
+        body: {
+          topic: 'Test Topic',
+          uid: 'user-123',
+        },
+      })
+
+      await handler(req, res)
+
+      expect(mockRateLimiter.checkLimit).not.toHaveBeenCalled()
+      expect(res._getStatusCode()).toBe(201)
+    })
+
+    it('should handle rate limiter errors gracefully', async () => {
+      mockRateLimiter.checkLimit.mockImplementation(() => {
+        throw new Error('Rate limiter error')
+      })
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        body: {
+          topic: 'Test Topic',
+        },
+      })
+
+      await handler(req, res)
+
+      expect(res._getStatusCode()).toBe(500)
+      expect(JSON.parse(res._getData())).toEqual({
+        error: 'internal_server_error',
+        message: 'An unexpected error occurred. Please try again later.',
       })
     })
   })

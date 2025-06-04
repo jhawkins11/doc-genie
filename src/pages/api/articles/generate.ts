@@ -6,6 +6,7 @@ import Article from '@/types/Article'
 import { generateAIArticle } from '@/utils/generateAIArticle'
 import { ArticleModel } from '@/models/ArticleModel'
 import createUniqueSlug from '@/utils/createUniqueSlug'
+import { rateLimiter } from '@/lib/backend/rateLimiter'
 
 const requestSchema = z.object({
   topic: z.string().min(1, 'Topic is required'),
@@ -46,6 +47,22 @@ export default async function handler(
 
     // Determine user context
     const isGuest = !isAuthenticated
+
+    // Apply rate limiting for guest users only
+    if (isGuest) {
+      const rateLimitResult = rateLimiter.checkLimit(req, 'generate')
+      if (!rateLimitResult.allowed) {
+        console.warn(
+          'Rate limit exceeded for IP:',
+          req.headers['x-forwarded-for'] || req.connection?.remoteAddress
+        )
+        return res.status(429).json({
+          error: 'rate_limit_exceeded',
+          message:
+            'Too many requests from this IP. Guest users are limited to 2 article generations per day.',
+        })
+      }
+    }
 
     // connect to mongoDb
     await connectToDb()
