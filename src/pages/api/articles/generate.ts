@@ -1,17 +1,52 @@
 import mongoose from 'mongoose'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { z } from 'zod'
 import connectToDb from '@/utils/connectToDb'
 import Article from '@/types/Article'
 import { generateAIArticle } from '@/utils/generateAIArticle'
 import { ArticleModel } from '@/models/ArticleModel'
 import createUniqueSlug from '@/utils/createUniqueSlug'
 
+const requestSchema = z.object({
+  topic: z.string().min(1, 'Topic is required'),
+  subtopic: z.string().optional(),
+  parentid: z.string().optional(),
+  model: z.string().optional(),
+  uid: z.string().optional(),
+})
+
+type ApiResponse = Article | { error: string; message: string }
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Article | { message: string }>
+  res: NextApiResponse<ApiResponse>
 ): Promise<void> {
-  const { parentid, topic, subtopic, uid, model } = req.body
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      error: 'method_not_allowed',
+      message: 'Only POST method is allowed',
+    })
+  }
+
   try {
+    // Validate request body
+    const validationResult = requestSchema.safeParse(req.body)
+    if (!validationResult.success) {
+      return res.status(400).json({
+        error: 'invalid_request',
+        message: 'Invalid request body. Please check your input.',
+      })
+    }
+
+    const { parentid, topic, subtopic, uid, model } = validationResult.data
+
+    // Detect if user is authenticated (has Authorization header)
+    const authHeader = req.headers.authorization
+    const isAuthenticated = authHeader && authHeader.startsWith('Bearer ')
+
+    // Determine user context
+    const isGuest = !isAuthenticated
+
     // connect to mongoDb
     await connectToDb()
 
@@ -25,7 +60,7 @@ export default async function handler(
 
       if (parent && parent.childArticles && parent.childArticles.length > 0) {
         // Look for any similar titles
-        const existingSimilar = parent.childArticles.find((child: any) => {
+        const existingSimilar = parent.childArticles.find((child: Article) => {
           const childTitle = child.title.toLowerCase()
           return (
             childTitle === normalizedSubtopic ||
@@ -35,7 +70,7 @@ export default async function handler(
         })
 
         if (existingSimilar) {
-          return res.status(200).json(existingSimilar as any)
+          return res.status(200).json(existingSimilar)
         }
       }
     }
@@ -61,6 +96,7 @@ export default async function handler(
     // If no content was generated, return an error
     if (!text || text.trim() === '') {
       return res.status(400).json({
+        error: 'generation_failed',
         message: 'Failed to generate article content. Please try again.',
       })
     }
@@ -81,7 +117,8 @@ export default async function handler(
       title,
       content: text,
       slug,
-      uid,
+      uid: isAuthenticated ? uid : undefined,
+      isGuest,
     })
 
     // If this is a subarticle, add it to the parent's childArticles array
@@ -91,11 +128,12 @@ export default async function handler(
       })
     }
 
-    return res.status(200).json(created as any)
+    return res.status(201).json(created)
   } catch (error) {
-    console.log(error)
-    return res
-      .status(500)
-      .json({ message: `Error generating article: ${(error as any).message}` })
+    console.error('Error generating article:', error)
+    return res.status(500).json({
+      error: 'internal_server_error',
+      message: 'An unexpected error occurred. Please try again later.',
+    })
   }
 }

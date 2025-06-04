@@ -9,8 +9,8 @@ const ArticleSchema = new Schema(
     title: String,
     content: String,
     slug: { type: String, unique: true },
-    // this is the uid of the user who created the article
-    uid: String,
+    uid: { type: String, index: true },
+    isGuest: { type: Boolean, default: false, index: true },
     childArticles: [{ type: Schema.Types.ObjectId, ref: 'Article' }],
   },
   {

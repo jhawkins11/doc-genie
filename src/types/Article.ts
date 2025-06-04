@@ -6,8 +6,11 @@ type Article = {
   title: string
   content: string
   slug: string
-  uid: string
+  uid?: string
+  isGuest: boolean
   childArticles?: Article[]
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export default Article
