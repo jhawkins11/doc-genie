@@ -18,6 +18,15 @@ const ArticleSchema = new Schema(
   }
 )
 
+// TTL index for guest articles - automatically delete after 48 hours
+ArticleSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 172800, // 48 hours in seconds
+    partialFilterExpression: { isGuest: true },
+  }
+)
+
 // this is a workaround to avoid the error:
 // "Cannot overwrite `Article` model once compiled.""
 const ArticleModel =
