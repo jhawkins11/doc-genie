@@ -23,7 +23,11 @@ const ResponsiveDrawer = React.memo(
         onClose={() => setMobileOpen(false)}
         variant={isSmallScreen ? 'temporary' : 'permanent'}
         sx={{
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 300 },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: 300,
+            zIndex: 1,
+          },
         }}
         open={!isSmallScreen || mobileOpen}
       >

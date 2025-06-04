@@ -16,11 +16,7 @@ const Logo = forwardRef<HTMLHeadingElement, {}>((props, ref) => {
       }}
     >
       <span className='mr-2 text-4xl transform inline-block'>🧞</span>
-      <span
-        className={`relative ${isDarkMode ? 'text-white' : 'text-gray-800'}`}
-      >
-        Doc Genie
-      </span>
+      <span className='relative text-white'>Doc Genie</span>
     </h1>
   )
 })

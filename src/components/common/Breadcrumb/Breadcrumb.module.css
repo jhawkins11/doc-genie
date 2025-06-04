@@ -1,0 +1,23 @@
+.breadcrumb {
+  padding: 0;
+  background: transparent;
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumbLink {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+
+.breadcrumbLink:hover {
+  color: var(--accent-gold);
+}
+
+.breadcrumbCurrent {
+  color: var(--accent-gold);
+  font-weight: 500;
+  font-size: 0.875rem;
+}

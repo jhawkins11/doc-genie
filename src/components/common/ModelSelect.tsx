@@ -14,7 +14,7 @@ const ModelSelect = ({
   return (
     <select
       className={cn(
-        'p-4 border-2 rounded-lg max-w-lg text-white h-14 bg-black bg-opacity-60 border-gray-600 col-span-2 hover-lift transition-all duration-300 focus:border-accent-gold backdrop-blur-sm shadow-inner',
+        'p-3 border rounded-lg max-w-lg text-white h-14 bg-black bg-opacity-40 border-gray-700 col-span-2 hover-lift transition-all duration-300 focus:border-accent-gold backdrop-blur-sm shadow-inner text-sm',
         className
       )}
       name='model'
@@ -25,10 +25,10 @@ const ModelSelect = ({
       style={
         {
           background:
-            "url(\"data:image/svg+xml;utf8,<svg fill='white' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'><path d='M7 10l5 5 5-5z'/></svg>\") no-repeat",
-          backgroundPosition: 'right 16px top 50%',
-          backgroundSize: '24px',
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            "url(\"data:image/svg+xml;utf8,<svg fill='%236b7280' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20'><path d='M7 10l5 5 5-5z'/></svg>\") no-repeat",
+          backgroundPosition: 'right 12px top 50%',
+          backgroundSize: '20px',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
           // hide original arrow icon
           '-webkit-appearance': 'none',
           appearance: 'none',

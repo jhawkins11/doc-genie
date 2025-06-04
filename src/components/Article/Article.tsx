@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import styles from './Article.module.css'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
 import Logo from '../common/Logo'
@@ -122,11 +122,15 @@ const Article = React.memo(
     return (
       <div
         className={`${styles.container} ${
-          isDarkMode ? styles.darkContainer : ''
+          isDarkMode ? styles.darkContainer : styles.lightContainer
         }`}
       >
         <LoadingBackdrop loading={loading} />
-        <nav className={styles.mobileNav}>
+        <nav
+          className={`${styles.mobileNav} ${
+            isDarkMode ? '' : styles.lightMobileNav
+          }`}
+        >
           <Logo />
           <Menu
             onClick={handleDrawerToggle}
@@ -174,13 +178,15 @@ const Article = React.memo(
                 sx={{
                   margin: '0 auto',
                   borderRadius: '10px',
+                  background: isDarkMode
+                    ? 'linear-gradient(135deg, rgba(51, 51, 51, 0.8), rgba(68, 68, 68, 0.6))'
+                    : 'linear-gradient(135deg, rgba(226, 232, 240, 0.8), rgba(203, 213, 225, 0.6))',
                 }}
               />
             )}
             {articles?.length < 2 && !isViewMode ? (
-              <p className='text-center text-gray-400 dark:text-gray-300 text-xs mt-4 w-4/5 mx-auto'>
-                {/* info icon */}
-                <Info className='inline-block mr-1' />
+              <p className='text-center text-gray-100 dark:text-gray-400 text-xs mt-4 w-4/5 mx-auto opacity-60'>
+                <Info className='inline-block mr-1 w-3 h-3' />
                 Click a lamp or + icon to generate a sub-article
               </p>
             ) : (
@@ -226,12 +232,20 @@ const Article = React.memo(
           component={'article'}
           sx={{
             minHeight: '100vh',
-            bgcolor: isDarkMode ? '#1e1e1e' : 'inherit',
+            bgcolor: 'transparent',
+            position: 'relative',
+            zIndex: 10,
           }}
         >
-          <div className={styles.content}>
+          <div
+            className={`${styles.content} ${
+              isDarkMode ? '' : styles.lightContent
+            }`}
+          >
             <div
-              className={`${styles.root} ${isDarkMode ? styles.darkMode : ''}`}
+              className={`${styles.root} ${
+                isDarkMode ? styles.darkMode : styles.lightMode
+              }`}
               id='article'
             >
               <ArticleContent
@@ -239,6 +253,7 @@ const Article = React.memo(
                 setArticleToGenerate={setArticleToGenerate}
                 viewOnly={articles.length > 1 || isViewMode}
                 showLink={articles.length > 1}
+                articles={articles}
               />
               {isEditing ? (
                 <TextField
@@ -248,11 +263,43 @@ const Article = React.memo(
                     width: '100%',
                     mt: 4,
                     display: isEditing ? 'grid' : 'none',
-                    bgcolor: 'grey.800',
+                    '& .MuiFilledInput-root': {
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 27, 75, 0.6))'
+                        : 'linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.6))',
+                      backdropFilter: 'blur(10px)',
+                      border: `1px solid ${
+                        isDarkMode
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(0, 0, 0, 0.1)'
+                      }`,
+                      borderRadius: '12px',
+                      '&:hover': {
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.7))'
+                          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.7))',
+                        borderColor: 'rgba(251, 191, 36, 0.3)',
+                      },
+                      '&.Mui-focused': {
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.8))'
+                          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.8))',
+                        borderColor: 'var(--accent-gold)',
+                        boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: isDarkMode ? '#94a3b8' : '#64748b',
+                      '&.Mui-focused': {
+                        color: 'var(--accent-gold)',
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      color: isDarkMode ? '#f1f5f9' : '#1e293b',
+                    },
                   }}
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
-                  // add check to end of input
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       setIsEditing(false)
@@ -267,10 +314,28 @@ const Article = React.memo(
                             setEditPrompt(null)
                             setIsEditing(false)
                           }}
-                          sx={{ color: 'grey.500', cursor: 'pointer' }}
+                          sx={{
+                            color: '#ef4444',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              color: '#dc2626',
+                              filter:
+                                'drop-shadow(0 0 10px rgba(239, 68, 68, 0.6))',
+                            },
+                          }}
                         />
                         <Check
-                          sx={{ color: 'white', cursor: 'pointer' }}
+                          sx={{
+                            color: 'var(--accent-gold)',
+                            cursor: 'pointer',
+                            ml: 1,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              filter:
+                                'drop-shadow(0 0 10px rgba(251, 191, 36, 0.6))',
+                            },
+                          }}
                           onClick={() => {
                             setIsEditing(false)
                             setArticleToEdit(selected)
@@ -281,7 +346,11 @@ const Article = React.memo(
                   }}
                 />
               ) : selected && !isViewMode ? (
-                <div className={styles.edit}>
+                <div
+                  className={`${styles.edit} ${
+                    isDarkMode ? '' : styles.lightEdit
+                  }`}
+                >
                   <StyledButton
                     onClick={() => setIsEditing(true)}
                     text='Edit With GPT'

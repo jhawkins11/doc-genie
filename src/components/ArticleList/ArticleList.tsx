@@ -124,9 +124,7 @@ export default function ArticleList({
           primary={article.title}
           className={mode === 'preview' ? 'ml-2' : ''}
           primaryTypographyProps={{
-            className: `transition-all duration-300 ${
-              isDarkMode ? 'text-gray-200' : 'text-gray-700'
-            }`,
+            className: 'transition-all duration-300 text-white font-medium',
           }}
         />
         {articleToEdit?._id === article._id && (
@@ -136,16 +134,12 @@ export default function ArticleList({
         {open && article.childArticles?.length ? (
           <ExpandLess
             onClick={(e: React.MouseEvent) => handleDropdownClick(e, false)}
-            className={`${styles.icon} ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-700'
-            }`}
+            className={`${styles.icon} text-white`}
           />
         ) : article.childArticles?.length ? (
           <ExpandMore
             onClick={(e: React.MouseEvent) => handleDropdownClick(e, true)}
-            className={`${styles.icon} ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-700'
-            }`}
+            className={`${styles.icon} text-white`}
           />
         ) : null}
 

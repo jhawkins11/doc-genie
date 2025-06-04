@@ -9,6 +9,7 @@ import styles from './ArticleContent.module.css'
 import { ArrowRight } from '@mui/icons-material'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 import LampSVG from '../../LampSVG'
+import Breadcrumb from '../Breadcrumb/Breadcrumb'
 
 const ArticleContent = React.memo(
   ({
@@ -16,17 +17,24 @@ const ArticleContent = React.memo(
     setArticleToGenerate,
     viewOnly,
     showLink = false,
+    articles = [],
   }: {
     selected: Article
     setArticleToGenerate: (text: string | null) => void
     viewOnly?: boolean
     showLink?: boolean
+    articles?: Article[]
   }) => {
     const { isDarkMode } = useDarkMode()
 
     if (!selected) return null
     return (
       <>
+        <Breadcrumb
+          selected={selected}
+          articles={articles}
+          isDarkMode={isDarkMode}
+        />
         {showLink && (
           <a
             href={`/${selected.slug}`}
@@ -53,7 +61,11 @@ const ArticleContent = React.memo(
                 </SyntaxHighlighter>
               ) : (
                 <code
-                  className={`${className} dark:bg-gray-700 dark:text-gray-100`}
+                  className={`${className || ''} ${
+                    isDarkMode
+                      ? 'dark:bg-gray-700 dark:text-gray-100'
+                      : 'bg-gray-100 text-gray-900'
+                  }`}
                   {...props}
                 >
                   {children}
@@ -64,7 +76,9 @@ const ArticleContent = React.memo(
               if (viewOnly) {
                 return (
                   <h2
-                    className={`${className} dark:text-gray-100 transition-all duration-300 ${styles.slideIn}`}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${styles.slideIn}`}
                     {...props}
                   >
                     {children}
@@ -72,31 +86,37 @@ const ArticleContent = React.memo(
                 )
               }
               return (
-                <span className='flex flex-row items-start gap-3 w-full mt-4'>
+                <div className='flex flex-row items-center gap-3 w-full mt-4'>
                   <h2
-                    className={`${className} dark:text-gray-100 transition-all duration-300 ${styles.slideIn}`}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${
+                      styles.slideIn
+                    } m-0 leading-tight`}
                     {...props}
                   >
                     {children}
                   </h2>
                   <button
-                    className={styles.lampSVG}
+                    className={`${styles.lampSVG}`}
                     title='Generate sub-article'
                     onClick={(e) => {
                       const text =
-                        e.currentTarget.parentElement.children[0].textContent
+                        e.currentTarget.parentElement?.children[0]?.textContent
                       setArticleToGenerate(text)
                     }}
                   >
                     <LampSVG />
                   </button>
-                </span>
+                </div>
               )
             },
             p({ node, className, children, ...props }) {
               return (
                 <p
-                  className={`${className} dark:text-gray-200 ${styles.fadeIn}`}
+                  className={`${className} ${
+                    isDarkMode ? 'dark:text-gray-200' : 'text-gray-700'
+                  } ${styles.fadeIn}`}
                   {...props}
                 >
                   {children}
@@ -106,9 +126,11 @@ const ArticleContent = React.memo(
             a({ node, className, children, ...props }) {
               return (
                 <a
-                  className={`${
-                    className || ''
-                  } dark:text-blue-400 hover:text-accent-gold dark:hover:text-accent-gold transition-all duration-300`}
+                  className={`${className || ''} ${
+                    isDarkMode
+                      ? 'dark:text-blue-400 hover:text-accent-gold dark:hover:text-accent-gold'
+                      : 'text-blue-600 hover:text-accent-gold'
+                  } transition-all duration-300`}
                   {...props}
                 >
                   {children}
@@ -118,7 +140,9 @@ const ArticleContent = React.memo(
             ul({ node, className, children, ...props }) {
               return (
                 <ul
-                  className={`${className} dark:text-gray-200 ${styles.slideIn}`}
+                  className={`${className} ${
+                    isDarkMode ? 'dark:text-gray-200' : 'text-gray-700'
+                  } ${styles.slideIn}`}
                   {...props}
                 >
                   {children}
@@ -128,7 +152,9 @@ const ArticleContent = React.memo(
             ol({ node, className, children, ...props }) {
               return (
                 <ol
-                  className={`${className} dark:text-gray-200 ${styles.slideIn}`}
+                  className={`${className} ${
+                    isDarkMode ? 'dark:text-gray-200' : 'text-gray-700'
+                  } ${styles.slideIn}`}
                   {...props}
                 >
                   {children}
@@ -138,7 +164,9 @@ const ArticleContent = React.memo(
             li({ node, className, children, ...props }) {
               return (
                 <li
-                  className={`${className} dark:text-gray-200 transition-all duration-300 hover:translate-x-1`}
+                  className={`${className} ${
+                    isDarkMode ? 'dark:text-gray-200' : 'text-gray-700'
+                  }`}
                   {...props}
                 >
                   {children}
@@ -148,7 +176,11 @@ const ArticleContent = React.memo(
             blockquote({ node, className, children, ...props }) {
               return (
                 <blockquote
-                  className={`${className} dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 ${styles.markdown}`}
+                  className={`${className} ${
+                    isDarkMode
+                      ? 'dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300'
+                      : 'bg-gray-50 border-gray-300 text-gray-700'
+                  } ${styles.markdown}`}
                   {...props}
                 >
                   {children}
@@ -158,9 +190,9 @@ const ArticleContent = React.memo(
             h1({ node, className, children, ...props }) {
               return (
                 <h1
-                  className={`${
-                    className || ''
-                  } dark:text-gray-100 relative inline-block ${styles.slideIn}`}
+                  className={`${className || ''} ${
+                    isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                  } relative inline-block ${styles.slideIn}`}
                   {...props}
                 >
                   {children}
@@ -170,7 +202,7 @@ const ArticleContent = React.memo(
             },
           }}
           className={`grid grid-cols-1 gap-4 w-full ${
-            isDarkMode ? styles.darkMode : ''
+            isDarkMode ? styles.darkMode : styles.lightMode
           }`}
         >
           {formatMarkdown(selected.content)}
