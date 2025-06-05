@@ -10,10 +10,10 @@ import { rateLimiter } from '@/lib/backend/rateLimiter'
 
 const requestSchema = z.object({
   topic: z.string().min(1, 'Topic is required'),
-  subtopic: z.string().optional(),
-  parentid: z.string().optional(),
-  model: z.string().optional(),
-  uid: z.string().optional(),
+  subtopic: z.string().optional().nullable(),
+  parentid: z.string().optional().nullable(),
+  model: z.string().optional().nullable(),
+  uid: z.string().optional().nullable(),
 })
 
 type ApiResponse = Article | { error: string; message: string }
@@ -41,20 +41,17 @@ export default async function handler(
 
     const { parentid, topic, subtopic, uid, model } = validationResult.data
 
-    // Detect if user is authenticated (has Authorization header)
-    const authHeader = req.headers.authorization
-    const isAuthenticated = authHeader && authHeader.startsWith('Bearer ')
-
-    // Determine user context
+    // Determine user context based on uid in request body
+    const isAuthenticated = !!uid
     const isGuest = !isAuthenticated
 
     // Apply rate limiting for all users (different limits for guest vs authenticated)
     const endpoint = isGuest ? 'generate' : 'authenticated'
-    const rateLimitResult = rateLimiter.checkLimit(
+    const rateLimitResult = await rateLimiter.checkLimit(
       req,
       endpoint,
       undefined,
-      isAuthenticated ? uid : undefined
+      uid || undefined
     )
     if (!rateLimitResult.allowed) {
       const message = isGuest
@@ -141,7 +138,7 @@ export default async function handler(
       title,
       content: text,
       slug,
-      uid: isAuthenticated ? uid : undefined,
+      uid: uid || undefined,
       isGuest,
     })
 

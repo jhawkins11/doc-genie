@@ -1,4 +1,6 @@
 import type { NextApiRequest } from 'next'
+import { RateLimitModel } from '@/models/RateLimitModel'
+import connectToDb from '@/utils/connectToDb'
 
 export interface RateLimitResult {
   allowed: boolean
@@ -13,13 +15,7 @@ export interface RateLimitConfig {
   keyGenerator?: (req: NextApiRequest) => string // Custom key generation
 }
 
-interface RateLimitEntry {
-  count: number
-  resetTime: number
-}
-
 export class RateLimiter {
-  private storage = new Map<string, RateLimitEntry>()
   private configs: Record<string, RateLimitConfig> = {}
 
   constructor() {
@@ -48,11 +44,6 @@ export class RateLimiter {
         ),
       },
     }
-
-    // Clean up expired entries every hour
-    setInterval(() => {
-      this.cleanupExpiredEntries()
-    }, 60 * 60 * 1000)
   }
 
   /**
@@ -89,138 +80,178 @@ export class RateLimiter {
   }
 
   /**
-   * Clean up expired rate limit entries
-   */
-  private cleanupExpiredEntries(): void {
-    const now = Date.now()
-    const entries = Array.from(this.storage.entries())
-    for (const [key, entry] of entries) {
-      if (entry.resetTime <= now) {
-        this.storage.delete(key)
-      }
-    }
-  }
-
-  /**
    * Check if request is within rate limit
    */
-  checkLimit(
+  async checkLimit(
     req: NextApiRequest,
     endpoint: string,
     articleId?: string,
     userId?: string
-  ): RateLimitResult {
-    const ip = this.getClientIP(req)
-    const config = this.configs[endpoint]
+  ): Promise<RateLimitResult> {
+    try {
+      await connectToDb()
 
-    if (!config) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now(),
-        error: 'Invalid endpoint configuration',
+      const ip = this.getClientIP(req)
+      const config = this.configs[endpoint]
+
+      if (!config) {
+        return {
+          allowed: false,
+          remaining: 0,
+          resetTime: Date.now(),
+          error: 'Invalid endpoint configuration',
+        }
       }
-    }
 
-    const key = this.generateKey(ip, endpoint, articleId, userId)
-    const now = Date.now()
-    const resetTime = now + config.windowMs
+      const key = this.generateKey(ip, endpoint, articleId, userId)
+      const now = new Date()
+      const resetTime = new Date(now.getTime() + config.windowMs)
 
-    // Get or create entry
-    let entry = this.storage.get(key)
+      // Try to find existing rate limit entry
+      const existingEntry = await RateLimitModel.findOne({
+        key,
+        resetTime: { $gt: now }, // Only get non-expired entries
+      })
 
-    if (!entry || entry.resetTime <= now) {
-      // Create new entry or reset expired one
-      entry = {
-        count: 1,
-        resetTime,
+      if (!existingEntry) {
+        // Create new entry
+        await RateLimitModel.create({
+          key,
+          count: 1,
+          resetTime,
+        })
+
+        return {
+          allowed: true,
+          remaining: config.maxRequests - 1,
+          resetTime: resetTime.getTime(),
+        }
       }
-      this.storage.set(key, entry)
+
+      // Check if limit exceeded
+      if (existingEntry.count >= config.maxRequests) {
+        return {
+          allowed: false,
+          remaining: 0,
+          resetTime: existingEntry.resetTime.getTime(),
+          error: 'Rate limit exceeded',
+        }
+      }
+
+      // Increment count
+      existingEntry.count++
+      await existingEntry.save()
 
       return {
         allowed: true,
-        remaining: config.maxRequests - 1,
-        resetTime,
+        remaining: config.maxRequests - existingEntry.count,
+        resetTime: existingEntry.resetTime.getTime(),
       }
-    }
-
-    // Check if limit exceeded
-    if (entry.count >= config.maxRequests) {
+    } catch (error) {
+      console.error('Rate limiter error:', error)
+      // Fail open - allow request if database error occurs
       return {
-        allowed: false,
+        allowed: true,
         remaining: 0,
-        resetTime: entry.resetTime,
-        error: 'Rate limit exceeded',
+        resetTime: Date.now(),
+        error: 'Rate limiter error',
       }
-    }
-
-    // Increment count
-    entry.count++
-    this.storage.set(key, entry)
-
-    return {
-      allowed: true,
-      remaining: config.maxRequests - entry.count,
-      resetTime: entry.resetTime,
     }
   }
 
   /**
    * Reset rate limits for a specific IP and endpoint
    */
-  resetLimits(ip: string, endpoint?: string): void {
-    if (endpoint) {
-      // Reset specific endpoint for IP
-      const keys = Array.from(this.storage.keys()).filter((key) =>
-        key.startsWith(`${ip}:${endpoint}`)
-      )
-      keys.forEach((key) => this.storage.delete(key))
-    } else {
-      // Reset all limits for IP
-      const keys = Array.from(this.storage.keys()).filter((key) =>
-        key.startsWith(`${ip}:`)
-      )
-      keys.forEach((key) => this.storage.delete(key))
+  async resetLimits(ip: string, endpoint?: string): Promise<void> {
+    try {
+      await connectToDb()
+
+      if (endpoint) {
+        // Reset specific endpoint for IP
+        await RateLimitModel.deleteMany({
+          key: { $regex: `^${ip}:${endpoint}` },
+        })
+      } else {
+        // Reset all limits for IP
+        await RateLimitModel.deleteMany({
+          key: { $regex: `^${ip}:` },
+        })
+      }
+    } catch (error) {
+      console.error('Error resetting rate limits:', error)
     }
   }
 
   /**
    * Get current rate limit status without incrementing
    */
-  getStatus(
+  async getStatus(
     req: NextApiRequest,
     endpoint: string,
     articleId?: string,
     userId?: string
-  ): RateLimitResult {
-    const ip = this.getClientIP(req)
-    const config = this.configs[endpoint]
+  ): Promise<RateLimitResult> {
+    try {
+      await connectToDb()
 
-    if (!config) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now(),
-        error: 'Invalid endpoint configuration',
+      const ip = this.getClientIP(req)
+      const config = this.configs[endpoint]
+
+      if (!config) {
+        return {
+          allowed: false,
+          remaining: 0,
+          resetTime: Date.now(),
+          error: 'Invalid endpoint configuration',
+        }
       }
-    }
 
-    const key = this.generateKey(ip, endpoint, articleId, userId)
-    const now = Date.now()
-    const entry = this.storage.get(key)
+      const key = this.generateKey(ip, endpoint, articleId, userId)
+      const now = new Date()
 
-    if (!entry || entry.resetTime <= now) {
+      const existingEntry = await RateLimitModel.findOne({
+        key,
+        resetTime: { $gt: now },
+      })
+
+      if (!existingEntry) {
+        return {
+          allowed: true,
+          remaining: config.maxRequests,
+          resetTime: now.getTime() + config.windowMs,
+        }
+      }
+
+      const remaining = Math.max(0, config.maxRequests - existingEntry.count)
+
+      return {
+        allowed: remaining > 0,
+        remaining,
+        resetTime: existingEntry.resetTime.getTime(),
+      }
+    } catch (error) {
+      console.error('Error getting rate limit status:', error)
       return {
         allowed: true,
-        remaining: config.maxRequests,
-        resetTime: now + config.windowMs,
+        remaining: 0,
+        resetTime: Date.now(),
+        error: 'Rate limiter error',
       }
     }
+  }
 
-    return {
-      allowed: entry.count < config.maxRequests,
-      remaining: Math.max(0, config.maxRequests - entry.count),
-      resetTime: entry.resetTime,
+  /**
+   * Clean up expired entries (optional - TTL index handles this automatically)
+   */
+  async cleanupExpiredEntries(): Promise<void> {
+    try {
+      await connectToDb()
+      const now = new Date()
+      await RateLimitModel.deleteMany({
+        resetTime: { $lte: now },
+      })
+    } catch (error) {
+      console.error('Error cleaning up expired rate limit entries:', error)
     }
   }
 }

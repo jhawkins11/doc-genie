@@ -46,7 +46,7 @@ describe('/api/articles/edit', () => {
         isGuest: true,
       }
 
-      mockRateLimiter.checkLimit.mockReturnValue({
+      mockRateLimiter.checkLimit.mockResolvedValue({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,
@@ -89,7 +89,7 @@ describe('/api/articles/edit', () => {
     })
 
     it('should block guest users when rate limit exceeded', async () => {
-      mockRateLimiter.checkLimit.mockReturnValue({
+      mockRateLimiter.checkLimit.mockResolvedValue({
         allowed: false,
         remaining: 0,
         resetTime: Date.now() + 86400000,
@@ -117,8 +117,7 @@ describe('/api/articles/edit', () => {
       expect(res._getStatusCode()).toBe(429)
       expect(JSON.parse(res._getData())).toEqual({
         error: 'rate_limit_exceeded',
-        message:
-          'Too many requests from this IP. Guest users are limited to 3 edits per article per day.',
+        message: 'Too many edit requests. Please try again later.',
       })
     })
   })
@@ -142,6 +141,12 @@ describe('/api/articles/edit', () => {
         uid: 'user-123',
         isGuest: false,
       }
+
+      mockRateLimiter.checkLimit.mockResolvedValue({
+        allowed: true,
+        remaining: 2,
+        resetTime: Date.now() + 86400000,
+      })
 
       mockArticleModel.findById.mockResolvedValue(
         mockExistingArticle as unknown as ReturnType<
@@ -168,7 +173,11 @@ describe('/api/articles/edit', () => {
 
       await handler(req, res)
 
-      expect(mockRateLimiter.checkLimit).not.toHaveBeenCalled()
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
+        req,
+        'edit',
+        'article-123'
+      )
       expect(res._getStatusCode()).toBe(200)
       expect(JSON.parse(res._getData())).toMatchObject({
         _id: 'article-123',
@@ -230,7 +239,7 @@ describe('/api/articles/edit', () => {
 
   describe('Error Handling', () => {
     it('should return 404 when article not found', async () => {
-      mockRateLimiter.checkLimit.mockReturnValue({
+      mockRateLimiter.checkLimit.mockResolvedValue({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,
@@ -261,7 +270,7 @@ describe('/api/articles/edit', () => {
         content: 'Original content',
       }
 
-      mockRateLimiter.checkLimit.mockReturnValue({
+      mockRateLimiter.checkLimit.mockResolvedValue({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,
@@ -297,7 +306,7 @@ describe('/api/articles/edit', () => {
         content: 'Original content',
       }
 
-      mockRateLimiter.checkLimit.mockReturnValue({
+      mockRateLimiter.checkLimit.mockResolvedValue({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,
@@ -328,7 +337,7 @@ describe('/api/articles/edit', () => {
     })
 
     it('should return 500 for database errors', async () => {
-      mockRateLimiter.checkLimit.mockReturnValue({
+      mockRateLimiter.checkLimit.mockResolvedValue({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,
@@ -377,7 +386,7 @@ describe('/api/articles/edit', () => {
       }
 
       // First article should be allowed
-      mockRateLimiter.checkLimit.mockReturnValueOnce({
+      mockRateLimiter.checkLimit.mockResolvedValueOnce({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,
@@ -418,7 +427,7 @@ describe('/api/articles/edit', () => {
       expect(res1._getStatusCode()).toBe(200)
 
       // Second article should also be allowed (different article)
-      mockRateLimiter.checkLimit.mockReturnValueOnce({
+      mockRateLimiter.checkLimit.mockResolvedValueOnce({
         allowed: true,
         remaining: 2,
         resetTime: Date.now() + 86400000,

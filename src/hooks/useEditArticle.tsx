@@ -25,11 +25,19 @@ export const useEditArticle = ({
       setLoading(true)
       setError(null)
       try {
-        const res = await axios.post('/api/articles/edit', {
-          _id: _id,
+        const requestBody: Record<string, string> = {
           editPrompt,
-          model,
-        })
+        }
+
+        if (_id) {
+          requestBody._id = _id.toString()
+        }
+
+        if (model) {
+          requestBody.model = model
+        }
+
+        const res = await axios.post('/api/articles/edit', requestBody)
         const data = res.data
         if (data.error) {
           throw new Error(data.error)

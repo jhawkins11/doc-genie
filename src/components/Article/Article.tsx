@@ -32,6 +32,10 @@ import OnThisPage from '../common/OnThisPage/OnThisPage'
 import { useSyncWithLocalStorage } from '@/hooks/useSyncWithLocalStorage'
 import ModelSelect from '../common/ModelSelect'
 import { useDarkMode } from '@/contexts/DarkModeContext'
+import GuestPromptBanner from '../guests/GuestPromptBanner'
+import ActionGuidanceModal from '../guests/ActionGuidanceModal'
+import { useGuestDetection } from '@/hooks/useGuestDetection'
+import RateLimitModal from '../common/RateLimitModal'
 
 const Article = React.memo(
   ({
@@ -61,6 +65,42 @@ const Article = React.memo(
     const [user] = useAuthState(auth)
     const isSmallScreen = useMediaQuery('(max-width:900px)')
 
+    // Guest detection and modal state
+    const { isGuest, isGuestArticle } = useGuestDetection()
+    const [showActionModal, setShowActionModal] = useState(false)
+    const [showRateLimitModal, setShowRateLimitModal] = useState(false)
+    const [rateLimitInfo, setRateLimitInfo] = useState<{
+      isGuest: boolean
+      message: string
+    } | null>(null)
+
+    // Helper function to trigger auth modal
+    const triggerAuthModal = useCallback(() => {
+      const authButton = document.getElementById('auth-button')
+      if (authButton) {
+        authButton.click()
+      }
+    }, [])
+
+    // Handle rate limit errors
+    const handleRateLimit = useCallback(
+      (isGuestUser: boolean, message: string) => {
+        setRateLimitInfo({ isGuest: isGuestUser, message })
+        setShowRateLimitModal(true)
+        // Clear the loading state when rate limit is hit
+        setArticleToGenerate(null)
+      },
+      []
+    )
+
+    // Close rate limit modal when guest user signs in
+    useEffect(() => {
+      if (user && showRateLimitModal && rateLimitInfo?.isGuest) {
+        setShowRateLimitModal(false)
+        setRateLimitInfo(null)
+      }
+    }, [user, showRateLimitModal, rateLimitInfo?.isGuest])
+
     const handleGenerateSuccess = useCallback(() => {
       setArticleToGenerate(null)
       invalidate()
@@ -83,6 +123,7 @@ const Article = React.memo(
       userId: user?.uid,
       model,
       onSuccess: handleGenerateSuccess,
+      onRateLimit: handleRateLimit,
     })
 
     useEditArticle({
@@ -268,6 +309,18 @@ const Article = React.memo(
                   showLink={articles.length > 1}
                   articles={articles}
                 />
+
+                {/* Guest Prompt Banner */}
+                {isGuest && selected && isGuestArticle(selected) && (
+                  <GuestPromptBanner
+                    message='Sign up to save your work permanently and unlock more article generations!'
+                    ctaText='Sign Up Now'
+                    onCtaClick={triggerAuthModal}
+                    variant='incentive'
+                    isDarkMode={isDarkMode}
+                  />
+                )}
+
                 {isEditing ? (
                   <TextField
                     variant='filled'
@@ -365,7 +418,13 @@ const Article = React.memo(
                     }`}
                   >
                     <StyledButton
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => {
+                        if (isGuest) {
+                          setShowActionModal(true)
+                        } else {
+                          setIsEditing(true)
+                        }
+                      }}
                       text='Edit With GPT'
                       theme='light'
                       variant='contained'
@@ -389,6 +448,27 @@ const Article = React.memo(
             </Box>
           )}
         </Box>
+
+        <ActionGuidanceModal
+          isOpen={showActionModal}
+          onClose={() => setShowActionModal(false)}
+          title='Account Required'
+          message="Editing requires an account to ensure your changes are saved securely. Please use the 'Sign In' button in the sidebar to create an account or log in."
+          primaryAction={{
+            text: 'Got it',
+            onClick: () => setShowActionModal(false),
+          }}
+          isDarkMode={isDarkMode}
+        />
+
+        {/* Rate Limit Modal */}
+        <RateLimitModal
+          isOpen={showRateLimitModal}
+          onClose={() => setShowRateLimitModal(false)}
+          isGuest={rateLimitInfo?.isGuest ?? true}
+          onSignUp={triggerAuthModal}
+          isDarkMode={isDarkMode}
+        />
       </div>
     )
   }

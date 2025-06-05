@@ -9,7 +9,7 @@ import { rateLimiter } from '@/lib/backend/rateLimiter'
 const requestSchema = z.object({
   editPrompt: z.string().min(1, 'Edit prompt is required'),
   _id: z.string().min(1, 'Article ID is required'),
-  model: z.string().optional(),
+  model: z.string().optional().nullable(),
 })
 
 type ApiResponse = Article | { error: string; message: string }
@@ -44,20 +44,17 @@ export default async function handler(
     // Determine user context
     const isGuest = !isAuthenticated
 
-    // Apply rate limiting for guest users only
-    if (isGuest) {
-      const rateLimitResult = rateLimiter.checkLimit(req, 'edit', _id)
-      if (!rateLimitResult.allowed) {
-        console.warn(
-          'Rate limit exceeded for IP:',
-          req.headers['x-forwarded-for'] || req.connection?.remoteAddress
-        )
-        return res.status(429).json({
-          error: 'rate_limit_exceeded',
-          message:
-            'Too many requests from this IP. Guest users are limited to 3 edits per article per day.',
-        })
-      }
+    // Apply rate limiting
+    const rateLimitResult = await rateLimiter.checkLimit(req, 'edit', _id)
+    if (!rateLimitResult.allowed) {
+      console.warn(
+        'Rate limit exceeded for IP:',
+        req.headers['x-forwarded-for'] || req.connection?.remoteAddress
+      )
+      return res.status(429).json({
+        error: 'rate_limit_exceeded',
+        message: 'Too many edit requests. Please try again later.',
+      })
     }
 
     // connect to mongoDb

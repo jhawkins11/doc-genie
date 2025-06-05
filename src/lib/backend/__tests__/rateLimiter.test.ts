@@ -1,10 +1,26 @@
 import type { NextApiRequest } from 'next'
 import { RateLimiter } from '../rateLimiter'
 
+// Mock the database connection and model
+jest.mock('@/utils/connectToDb', () => jest.fn().mockResolvedValue(undefined))
+jest.mock('@/models/RateLimitModel', () => ({
+  RateLimitModel: {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    deleteMany: jest.fn(),
+    prototype: {
+      save: jest.fn(),
+    },
+  },
+}))
+
+import { RateLimitModel } from '@/models/RateLimitModel'
+
 // Mock environment variables
 const originalEnv = process.env
 beforeEach(() => {
   jest.resetModules()
+  jest.clearAllMocks()
   process.env = {
     ...originalEnv,
     RATE_LIMIT_GUEST_GENERATE_MAX: '2',
@@ -45,242 +61,201 @@ describe('RateLimiter', () => {
   })
 
   describe('IP extraction', () => {
-    it('should extract IP from x-forwarded-for header', () => {
+    it('should extract IP from x-forwarded-for header', async () => {
       const req = createMockRequest('203.0.113.1')
-      const result = rateLimiter.checkLimit(req, 'generate')
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
       expect(result.allowed).toBe(true)
     })
 
-    it('should handle multiple IPs in x-forwarded-for header', () => {
+    it('should handle multiple IPs in x-forwarded-for header', async () => {
       const req = createMockRequest('203.0.113.1, 198.51.100.1, 192.0.2.1')
-      const result = rateLimiter.checkLimit(req, 'generate')
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
       expect(result.allowed).toBe(true)
     })
 
-    it('should fallback to x-real-ip header', () => {
+    it('should fallback to x-real-ip header', async () => {
       const req = createMockRequest(undefined, { 'x-real-ip': '203.0.113.2' })
       delete req.headers['x-forwarded-for']
-      const result = rateLimiter.checkLimit(req, 'generate')
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
       expect(result.allowed).toBe(true)
     })
 
-    it('should fallback to connection.remoteAddress', () => {
+    it('should fallback to connection.remoteAddress', async () => {
       const req = createMockRequest()
       delete req.headers['x-forwarded-for']
       delete req.headers['x-real-ip']
-      const result = rateLimiter.checkLimit(req, 'generate')
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
       expect(result.allowed).toBe(true)
     })
   })
 
   describe('Rate limiting for generate endpoint', () => {
-    it('should allow requests within limit', () => {
+    it('should allow first request when no existing entry', async () => {
       const req = createMockRequest('192.168.1.1')
 
-      const result1 = rateLimiter.checkLimit(req, 'generate')
-      expect(result1.allowed).toBe(true)
-      expect(result1.remaining).toBe(1)
+      // Mock no existing entry
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({
+        key: '192.168.1.1:generate',
+        count: 1,
+        resetTime: new Date(),
+      })
 
-      const result2 = rateLimiter.checkLimit(req, 'generate')
-      expect(result2.allowed).toBe(true)
-      expect(result2.remaining).toBe(0)
+      const result = await rateLimiter.checkLimit(req, 'generate')
+      expect(result.allowed).toBe(true)
+      expect(result.remaining).toBe(1)
+      expect(RateLimitModel.create).toHaveBeenCalledWith({
+        key: '192.168.1.1:generate',
+        count: 1,
+        resetTime: expect.any(Date),
+      })
     })
 
-    it('should block requests exceeding limit', () => {
+    it('should increment count for existing entry within limit', async () => {
       const req = createMockRequest('192.168.1.2')
 
-      // Use up the limit
-      rateLimiter.checkLimit(req, 'generate')
-      rateLimiter.checkLimit(req, 'generate')
+      const mockEntry = {
+        key: '192.168.1.2:generate',
+        count: 1,
+        resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        save: jest.fn().mockResolvedValue(undefined),
+      }
 
-      // This should be blocked
-      const result = rateLimiter.checkLimit(req, 'generate')
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(mockEntry)
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
+      expect(result.allowed).toBe(true)
+      expect(result.remaining).toBe(0)
+      expect(mockEntry.count).toBe(2)
+      expect(mockEntry.save).toHaveBeenCalled()
+    })
+
+    it('should block requests when limit exceeded', async () => {
+      const req = createMockRequest('192.168.1.3')
+
+      const mockEntry = {
+        key: '192.168.1.3:generate',
+        count: 2, // Already at limit
+        resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        save: jest.fn(),
+      }
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(mockEntry)
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
       expect(result.allowed).toBe(false)
       expect(result.remaining).toBe(0)
       expect(result.error).toBe('Rate limit exceeded')
+      expect(mockEntry.save).not.toHaveBeenCalled()
     })
 
-    it('should track different IPs separately', () => {
-      const req1 = createMockRequest('192.168.1.3')
-      const req2 = createMockRequest('192.168.1.4')
+    it('should handle database errors gracefully', async () => {
+      const req = createMockRequest('192.168.1.4')
 
-      // Use up limit for first IP
-      rateLimiter.checkLimit(req1, 'generate')
-      rateLimiter.checkLimit(req1, 'generate')
-      const blocked = rateLimiter.checkLimit(req1, 'generate')
-      expect(blocked.allowed).toBe(false)
+      ;(RateLimitModel.findOne as jest.Mock).mockRejectedValue(
+        new Error('Database error')
+      )
 
-      // Second IP should still be allowed
-      const allowed = rateLimiter.checkLimit(req2, 'generate')
-      expect(allowed.allowed).toBe(true)
+      const result = await rateLimiter.checkLimit(req, 'generate')
+      expect(result.allowed).toBe(true) // Fail open
+      expect(result.error).toBe('Rate limiter error')
+    })
+  })
+
+  describe('Rate limiting for authenticated users', () => {
+    it('should use userId for authenticated users', async () => {
+      const req = createMockRequest('192.168.1.5')
+      const userId = 'user123'
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      await rateLimiter.checkLimit(req, 'authenticated', undefined, userId)
+
+      expect(RateLimitModel.findOne).toHaveBeenCalledWith({
+        key: 'user:user123:authenticated',
+        resetTime: { $gt: expect.any(Date) },
+      })
     })
   })
 
   describe('Rate limiting for edit endpoint', () => {
-    it('should allow requests within limit per article', () => {
-      const req = createMockRequest('192.168.1.5')
+    it('should include articleId in key for edit endpoint', async () => {
+      const req = createMockRequest('192.168.1.6')
       const articleId = 'article123'
 
-      const result1 = rateLimiter.checkLimit(req, 'edit', articleId)
-      expect(result1.allowed).toBe(true)
-      expect(result1.remaining).toBe(2)
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
 
-      const result2 = rateLimiter.checkLimit(req, 'edit', articleId)
-      expect(result2.allowed).toBe(true)
-      expect(result2.remaining).toBe(1)
+      await rateLimiter.checkLimit(req, 'edit', articleId)
 
-      const result3 = rateLimiter.checkLimit(req, 'edit', articleId)
-      expect(result3.allowed).toBe(true)
-      expect(result3.remaining).toBe(0)
-    })
-
-    it('should block requests exceeding limit per article', () => {
-      const req = createMockRequest('192.168.1.6')
-      const articleId = 'article456'
-
-      // Use up the limit
-      rateLimiter.checkLimit(req, 'edit', articleId)
-      rateLimiter.checkLimit(req, 'edit', articleId)
-      rateLimiter.checkLimit(req, 'edit', articleId)
-
-      // This should be blocked
-      const result = rateLimiter.checkLimit(req, 'edit', articleId)
-      expect(result.allowed).toBe(false)
-      expect(result.remaining).toBe(0)
-      expect(result.error).toBe('Rate limit exceeded')
-    })
-
-    it('should track different articles separately for same IP', () => {
-      const req = createMockRequest('192.168.1.7')
-      const articleId1 = 'article789'
-      const articleId2 = 'article101'
-
-      // Use up limit for first article
-      rateLimiter.checkLimit(req, 'edit', articleId1)
-      rateLimiter.checkLimit(req, 'edit', articleId1)
-      rateLimiter.checkLimit(req, 'edit', articleId1)
-      const blocked = rateLimiter.checkLimit(req, 'edit', articleId1)
-      expect(blocked.allowed).toBe(false)
-
-      // Second article should still be allowed
-      const allowed = rateLimiter.checkLimit(req, 'edit', articleId2)
-      expect(allowed.allowed).toBe(true)
+      expect(RateLimitModel.findOne).toHaveBeenCalledWith({
+        key: '192.168.1.6:edit:article123',
+        resetTime: { $gt: expect.any(Date) },
+      })
     })
   })
 
-  describe('Rate limit reset functionality', () => {
-    it('should reset limits for specific IP and endpoint', () => {
-      const req = createMockRequest('192.168.1.8')
+  describe('Reset functionality', () => {
+    it('should reset limits for specific endpoint', async () => {
+      await rateLimiter.resetLimits('192.168.1.7', 'generate')
 
-      // Use up the limit
-      rateLimiter.checkLimit(req, 'generate')
-      rateLimiter.checkLimit(req, 'generate')
-      const blocked = rateLimiter.checkLimit(req, 'generate')
-      expect(blocked.allowed).toBe(false)
-
-      // Reset limits
-      rateLimiter.resetLimits('192.168.1.8', 'generate')
-
-      // Should be allowed again
-      const allowed = rateLimiter.checkLimit(req, 'generate')
-      expect(allowed.allowed).toBe(true)
+      expect(RateLimitModel.deleteMany).toHaveBeenCalledWith({
+        key: { $regex: '^192.168.1.7:generate' },
+      })
     })
 
-    it('should reset all limits for IP when no endpoint specified', () => {
+    it('should reset all limits for IP when no endpoint specified', async () => {
+      await rateLimiter.resetLimits('192.168.1.8')
+
+      expect(RateLimitModel.deleteMany).toHaveBeenCalledWith({
+        key: { $regex: '^192.168.1.8:' },
+      })
+    })
+  })
+
+  describe('Status checking', () => {
+    it('should return status without incrementing count', async () => {
       const req = createMockRequest('192.168.1.9')
 
-      // Use up limits for both endpoints
-      rateLimiter.checkLimit(req, 'generate')
-      rateLimiter.checkLimit(req, 'generate')
-      rateLimiter.checkLimit(req, 'edit', 'article123')
-      rateLimiter.checkLimit(req, 'edit', 'article123')
-      rateLimiter.checkLimit(req, 'edit', 'article123')
+      const mockEntry = {
+        key: '192.168.1.9:generate',
+        count: 1,
+        resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      }
 
-      // Both should be blocked
-      expect(rateLimiter.checkLimit(req, 'generate').allowed).toBe(false)
-      expect(rateLimiter.checkLimit(req, 'edit', 'article123').allowed).toBe(
-        false
-      )
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(mockEntry)
 
-      // Reset all limits for IP
-      rateLimiter.resetLimits('192.168.1.9')
-
-      // Both should be allowed again
-      expect(rateLimiter.checkLimit(req, 'generate').allowed).toBe(true)
-      expect(rateLimiter.checkLimit(req, 'edit', 'article123').allowed).toBe(
-        true
-      )
-    })
-  })
-
-  describe('Status checking without incrementing', () => {
-    it('should return status without incrementing count', () => {
-      const req = createMockRequest('192.168.1.10')
-
-      // Check status - should not increment
-      const status1 = rateLimiter.getStatus(req, 'generate')
-      expect(status1.allowed).toBe(true)
-      expect(status1.remaining).toBe(2)
-
-      // Check again - should be the same
-      const status2 = rateLimiter.getStatus(req, 'generate')
-      expect(status2.allowed).toBe(true)
-      expect(status2.remaining).toBe(2)
-
-      // Now actually use the limit
-      const result = rateLimiter.checkLimit(req, 'generate')
+      const result = await rateLimiter.getStatus(req, 'generate')
       expect(result.allowed).toBe(true)
       expect(result.remaining).toBe(1)
 
-      // Status should reflect the change
-      const status3 = rateLimiter.getStatus(req, 'generate')
-      expect(status3.allowed).toBe(true)
-      expect(status3.remaining).toBe(1)
+      // Should not create or save anything
+      expect(RateLimitModel.create).not.toHaveBeenCalled()
     })
   })
 
-  describe('Invalid endpoint configuration', () => {
-    it('should handle invalid endpoint gracefully', () => {
-      const req = createMockRequest('192.168.1.11')
+  describe('Invalid configuration', () => {
+    it('should handle invalid endpoint', async () => {
+      const req = createMockRequest('192.168.1.10')
 
-      const result = rateLimiter.checkLimit(req, 'invalid_endpoint')
+      const result = await rateLimiter.checkLimit(req, 'invalid-endpoint')
       expect(result.allowed).toBe(false)
       expect(result.error).toBe('Invalid endpoint configuration')
-    })
-  })
-
-  describe('Time window behavior', () => {
-    it('should reset count after time window expires', (done) => {
-      // Create a rate limiter with very short window for testing
-      const testRateLimiter = new RateLimiter()
-      // Override the config for testing
-      testRateLimiter['configs'] = {
-        generate: {
-          windowMs: 100, // 100ms window
-          maxRequests: 1,
-        },
-        edit: {
-          windowMs: 100,
-          maxRequests: 1,
-        },
-      }
-
-      const req = createMockRequest('192.168.1.12')
-
-      // Use up the limit
-      const result1 = testRateLimiter.checkLimit(req, 'generate')
-      expect(result1.allowed).toBe(true)
-
-      // Should be blocked immediately
-      const result2 = testRateLimiter.checkLimit(req, 'generate')
-      expect(result2.allowed).toBe(false)
-
-      // Wait for window to expire
-      setTimeout(() => {
-        const result3 = testRateLimiter.checkLimit(req, 'generate')
-        expect(result3.allowed).toBe(true)
-        done()
-      }, 150)
     })
   })
 })
