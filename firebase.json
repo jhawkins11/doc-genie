@@ -5,11 +5,10 @@
     "frameworksBackend": {
       "region": "us-central1",
       "env": {
-        "MONGODB_URI": "${MONGODB_URI}",
-        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
         "OPENROUTER_HTTP_REFERER": "https://doc-genie.vercel.app",
         "OPENROUTER_X_TITLE": "Doc-Genie"
-      }
+      },
+      "secretEnv": ["MONGODB_URI", "OPENROUTER_API_KEY"]
     }
   }
 }
