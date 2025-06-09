@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
@@ -11,6 +12,7 @@ import { ArrowRight } from '@mui/icons-material'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 import LampSVG from '../../LampSVG'
 import Breadcrumb from '../Breadcrumb/Breadcrumb'
+import { generateHeadingId } from '../OnThisPage/OnThisPage'
 
 const ArticleContent = React.memo(
   ({
@@ -37,14 +39,13 @@ const ArticleContent = React.memo(
           isDarkMode={isDarkMode}
         />
         {showLink && (
-          <a
+          <Link
             href={`/${selected.slug}`}
-            rel='noopener noreferrer'
             className={`text-blue-500 dark:text-blue-400 hover:text-accent-gold dark:hover:text-accent-gold flex flex-row items-center transition-all duration-300 hover:translate-x-1 ${styles.fadeIn}`}
           >
             <span>View article tree</span>
             <ArrowRight className='ml-1 transition-transform duration-300 group-hover:translate-x-1' />
-          </a>
+          </Link>
         )}
         <ReactMarkdown
           components={{
@@ -52,7 +53,7 @@ const ArticleContent = React.memo(
               const match = /language-(\w+)/.exec(className || '')
               return !inline && match ? (
                 <SyntaxHighlighter
-                  style={isDarkMode ? atomOneDark : (docco as any)}
+                  style={isDarkMode ? atomOneDark : docco}
                   language={match[1]}
                   PreTag='div'
                   className='p-15 w-full rounded-sm transition-all duration-300 hover:shadow-lg'
@@ -73,10 +74,29 @@ const ArticleContent = React.memo(
                 </code>
               )
             },
+            h1({ node, className, children, ...props }) {
+              const text = String(children)
+              const id = generateHeadingId(text)
+              return (
+                <h1
+                  id={id}
+                  className={`${className || ''} ${
+                    isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                  } relative inline-block ${styles.slideIn}`}
+                  {...props}
+                >
+                  {children}
+                  <span className='absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 transform-origin-left'></span>
+                </h1>
+              )
+            },
             h2({ node, className, children, ...props }) {
+              const text = String(children)
+              const id = generateHeadingId(text)
               if (viewOnly) {
                 return (
                   <h2
+                    id={id}
                     className={`${className} ${
                       isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
                     } transition-all duration-300 ${styles.slideIn}`}
@@ -89,6 +109,7 @@ const ArticleContent = React.memo(
               return (
                 <div className='flex flex-row items-center gap-3 w-full mt-4'>
                   <h2
+                    id={id}
                     className={`${className} ${
                       isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
                     } transition-all duration-300 ${
@@ -98,6 +119,178 @@ const ArticleContent = React.memo(
                   >
                     {children}
                   </h2>
+                  <button
+                    className={`${styles.lampSVG}`}
+                    title='Generate sub-article'
+                    onClick={(e) => {
+                      const text =
+                        e.currentTarget.parentElement?.children[0]?.textContent
+                      setArticleToGenerate(text)
+                    }}
+                  >
+                    <LampSVG />
+                  </button>
+                </div>
+              )
+            },
+            h3({ node, className, children, ...props }) {
+              const text = String(children)
+              const id = generateHeadingId(text)
+              if (viewOnly) {
+                return (
+                  <h3
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${styles.slideIn}`}
+                    {...props}
+                  >
+                    {children}
+                  </h3>
+                )
+              }
+              return (
+                <div className='flex flex-row items-center gap-3 w-full mt-4'>
+                  <h3
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${
+                      styles.slideIn
+                    } m-0 leading-tight`}
+                    {...props}
+                  >
+                    {children}
+                  </h3>
+                  <button
+                    className={`${styles.lampSVG}`}
+                    title='Generate sub-article'
+                    onClick={(e) => {
+                      const text =
+                        e.currentTarget.parentElement?.children[0]?.textContent
+                      setArticleToGenerate(text)
+                    }}
+                  >
+                    <LampSVG />
+                  </button>
+                </div>
+              )
+            },
+            h4({ node, className, children, ...props }) {
+              const text = String(children)
+              const id = generateHeadingId(text)
+              if (viewOnly) {
+                return (
+                  <h4
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${styles.slideIn}`}
+                    {...props}
+                  >
+                    {children}
+                  </h4>
+                )
+              }
+              return (
+                <div className='flex flex-row items-center gap-3 w-full mt-4'>
+                  <h4
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${
+                      styles.slideIn
+                    } m-0 leading-tight`}
+                    {...props}
+                  >
+                    {children}
+                  </h4>
+                  <button
+                    className={`${styles.lampSVG}`}
+                    title='Generate sub-article'
+                    onClick={(e) => {
+                      const text =
+                        e.currentTarget.parentElement?.children[0]?.textContent
+                      setArticleToGenerate(text)
+                    }}
+                  >
+                    <LampSVG />
+                  </button>
+                </div>
+              )
+            },
+            h5({ node, className, children, ...props }) {
+              const text = String(children)
+              const id = generateHeadingId(text)
+              if (viewOnly) {
+                return (
+                  <h5
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${styles.slideIn}`}
+                    {...props}
+                  >
+                    {children}
+                  </h5>
+                )
+              }
+              return (
+                <div className='flex flex-row items-center gap-3 w-full mt-4'>
+                  <h5
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${
+                      styles.slideIn
+                    } m-0 leading-tight`}
+                    {...props}
+                  >
+                    {children}
+                  </h5>
+                  <button
+                    className={`${styles.lampSVG}`}
+                    title='Generate sub-article'
+                    onClick={(e) => {
+                      const text =
+                        e.currentTarget.parentElement?.children[0]?.textContent
+                      setArticleToGenerate(text)
+                    }}
+                  >
+                    <LampSVG />
+                  </button>
+                </div>
+              )
+            },
+            h6({ node, className, children, ...props }) {
+              const text = String(children)
+              const id = generateHeadingId(text)
+              if (viewOnly) {
+                return (
+                  <h6
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${styles.slideIn}`}
+                    {...props}
+                  >
+                    {children}
+                  </h6>
+                )
+              }
+              return (
+                <div className='flex flex-row items-center gap-3 w-full mt-4'>
+                  <h6
+                    id={id}
+                    className={`${className} ${
+                      isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
+                    } transition-all duration-300 ${
+                      styles.slideIn
+                    } m-0 leading-tight`}
+                    {...props}
+                  >
+                    {children}
+                  </h6>
                   <button
                     className={`${styles.lampSVG}`}
                     title='Generate sub-article'
@@ -262,19 +455,6 @@ const ArticleContent = React.memo(
                 >
                   {children}
                 </td>
-              )
-            },
-            h1({ node, className, children, ...props }) {
-              return (
-                <h1
-                  className={`${className || ''} ${
-                    isDarkMode ? 'dark:text-gray-100' : 'text-gray-900'
-                  } relative inline-block ${styles.slideIn}`}
-                  {...props}
-                >
-                  {children}
-                  <span className='absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 transform-origin-left'></span>
-                </h1>
               )
             },
           }}

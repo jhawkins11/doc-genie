@@ -12,6 +12,13 @@ interface OnThisPageProps {
   isDarkMode: boolean
 }
 
+export const generateHeadingId = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .trim()
+}
 const OnThisPage: React.FC<OnThisPageProps> = ({ content, isDarkMode }) => {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeHeading, setActiveHeading] = useState<string>('')
@@ -25,11 +32,7 @@ const OnThisPage: React.FC<OnThisPageProps> = ({ content, isDarkMode }) => {
     while ((match = headingRegex.exec(content)) !== null) {
       const level = match[1].length
       const text = match[2].trim()
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .trim()
+      const id = generateHeadingId(text)
 
       extractedHeadings.push({ id, text, level })
     }
