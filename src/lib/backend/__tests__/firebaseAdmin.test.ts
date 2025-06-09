@@ -30,10 +30,10 @@ describe('Firebase Admin SDK Initialization', () => {
   describe('initializeFirebaseAdmin', () => {
     it('should initialize Firebase Admin with valid credentials', () => {
       // Set up environment variables
-      process.env.FIREBASE_ADMIN_PROJECT_ID = 'test-project'
-      process.env.FIREBASE_ADMIN_CLIENT_EMAIL =
+      process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID = 'test-project'
+      process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL =
         'test@test-project.iam.gserviceaccount.com'
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY =
+      process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY =
         '-----BEGIN PRIVATE KEY-----\\ntest-key\\n-----END PRIVATE KEY-----'
 
       const mockApp = { name: 'test-app' }
@@ -69,43 +69,43 @@ describe('Firebase Admin SDK Initialization', () => {
       expect(result).toBe(existingApp)
     })
 
-    it('should throw error when FIREBASE_ADMIN_PROJECT_ID is missing', () => {
-      process.env.FIREBASE_ADMIN_CLIENT_EMAIL =
+    it('should throw error when CUSTOM_FIREBASE_ADMIN_PROJECT_ID is missing', () => {
+      process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL =
         'test@test-project.iam.gserviceaccount.com'
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
-      delete process.env.FIREBASE_ADMIN_PROJECT_ID
+      process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
+      delete process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID
 
       expect(() => initializeFirebaseAdmin()).toThrow(
-        'Missing required Firebase Admin SDK environment variables. Please ensure FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY are set.'
+        'Missing required Firebase Admin SDK environment variables. Please ensure CUSTOM_FIREBASE_ADMIN_PROJECT_ID, CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL, and CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY are set.'
       )
     })
 
-    it('should throw error when FIREBASE_ADMIN_CLIENT_EMAIL is missing', () => {
-      process.env.FIREBASE_ADMIN_PROJECT_ID = 'test-project'
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
-      delete process.env.FIREBASE_ADMIN_CLIENT_EMAIL
+    it('should throw error when CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL is missing', () => {
+      process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID = 'test-project'
+      process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
+      delete process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL
 
       expect(() => initializeFirebaseAdmin()).toThrow(
-        'Missing required Firebase Admin SDK environment variables. Please ensure FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY are set.'
+        'Missing required Firebase Admin SDK environment variables. Please ensure CUSTOM_FIREBASE_ADMIN_PROJECT_ID, CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL, and CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY are set.'
       )
     })
 
-    it('should throw error when FIREBASE_ADMIN_PRIVATE_KEY is missing', () => {
-      process.env.FIREBASE_ADMIN_PROJECT_ID = 'test-project'
-      process.env.FIREBASE_ADMIN_CLIENT_EMAIL =
+    it('should throw error when CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY is missing', () => {
+      process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID = 'test-project'
+      process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL =
         'test@test-project.iam.gserviceaccount.com'
-      delete process.env.FIREBASE_ADMIN_PRIVATE_KEY
+      delete process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY
 
       expect(() => initializeFirebaseAdmin()).toThrow(
-        'Missing required Firebase Admin SDK environment variables. Please ensure FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY are set.'
+        'Missing required Firebase Admin SDK environment variables. Please ensure CUSTOM_FIREBASE_ADMIN_PROJECT_ID, CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL, and CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY are set.'
       )
     })
 
     it('should handle Firebase Admin initialization errors', () => {
-      process.env.FIREBASE_ADMIN_PROJECT_ID = 'test-project'
-      process.env.FIREBASE_ADMIN_CLIENT_EMAIL =
+      process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID = 'test-project'
+      process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL =
         'test@test-project.iam.gserviceaccount.com'
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
+      process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
 
       const initError = new Error('Invalid credentials')
       mockAdmin.initializeApp.mockImplementation(() => {
@@ -118,10 +118,10 @@ describe('Firebase Admin SDK Initialization', () => {
     })
 
     it('should handle unknown initialization errors', () => {
-      process.env.FIREBASE_ADMIN_PROJECT_ID = 'test-project'
-      process.env.FIREBASE_ADMIN_CLIENT_EMAIL =
+      process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID = 'test-project'
+      process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL =
         'test@test-project.iam.gserviceaccount.com'
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
+      process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY = 'test-key'
 
       mockAdmin.initializeApp.mockImplementation(() => {
         throw 'Unknown error'
@@ -133,10 +133,10 @@ describe('Firebase Admin SDK Initialization', () => {
     })
 
     it('should properly handle escaped newlines in private key', () => {
-      process.env.FIREBASE_ADMIN_PROJECT_ID = 'test-project'
-      process.env.FIREBASE_ADMIN_CLIENT_EMAIL =
+      process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID = 'test-project'
+      process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL =
         'test@test-project.iam.gserviceaccount.com'
-      process.env.FIREBASE_ADMIN_PRIVATE_KEY =
+      process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY =
         '-----BEGIN PRIVATE KEY-----\\nline1\\nline2\\n-----END PRIVATE KEY-----'
 
       const mockApp = { name: 'test-app' }

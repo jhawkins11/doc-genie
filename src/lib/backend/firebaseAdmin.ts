@@ -16,7 +16,7 @@ export function initializeFirebaseAdmin(): admin.app.App {
   try {
     // Try to initialize with default credentials first (works on Firebase/Google Cloud)
     const app = admin.initializeApp({
-      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+      projectId: process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID,
     })
 
     console.log(
@@ -30,13 +30,13 @@ export function initializeFirebaseAdmin(): admin.app.App {
     )
 
     // Fallback to explicit credentials for local development
-    const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID
-    const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL
-    const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY
+    const projectId = process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID
+    const clientEmail = process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL
+    const privateKey = process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY
 
     if (!projectId || !clientEmail || !privateKey) {
       throw new Error(
-        'Firebase Admin SDK initialization failed. When running locally, please ensure FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY are set.'
+        'Firebase Admin SDK initialization failed. When running locally, please ensure CUSTOM_FIREBASE_ADMIN_PROJECT_ID, CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL, and CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY are set.'
       )
     }
 

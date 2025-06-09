@@ -8,7 +8,13 @@
         "OPENROUTER_HTTP_REFERER": "https://doc-genie.vercel.app",
         "OPENROUTER_X_TITLE": "Doc-Genie"
       },
-      "secretEnv": ["MONGODB_URI", "OPENROUTER_API_KEY"]
+      "secretEnv": [
+        "MONGODB_URI",
+        "OPENROUTER_API_KEY",
+        "CUSTOM_FIREBASE_ADMIN_PROJECT_ID",
+        "CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL",
+        "CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY"
+      ]
     }
   }
 }
