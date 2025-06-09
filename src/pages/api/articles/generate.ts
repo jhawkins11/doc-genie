@@ -7,13 +7,16 @@ import { generateAIArticle } from '@/utils/generateAIArticle'
 import { ArticleModel } from '@/models/ArticleModel'
 import createUniqueSlug from '@/utils/createUniqueSlug'
 import { rateLimiter } from '@/lib/backend/rateLimiter'
+import {
+  verifyOptionalAuthentication,
+  AuthenticationError,
+} from '@/lib/backend/authService'
 
 const requestSchema = z.object({
   topic: z.string().min(1, 'Topic is required'),
   subtopic: z.string().optional().nullable(),
   parentid: z.string().optional().nullable(),
   model: z.string().optional().nullable(),
-  uid: z.string().optional().nullable(),
 })
 
 type ApiResponse = Article | { error: string; message: string }
@@ -30,7 +33,6 @@ export default async function handler(
   }
 
   try {
-    // Validate request body
     const validationResult = requestSchema.safeParse(req.body)
     if (!validationResult.success) {
       return res.status(400).json({
@@ -39,39 +41,34 @@ export default async function handler(
       })
     }
 
-    const { parentid, topic, subtopic, uid, model } = validationResult.data
+    const { parentid, topic, subtopic, model } = validationResult.data
 
-    // Determine user context based on uid in request body
-    const isAuthenticated = !!uid
-    const isGuest = !isAuthenticated
+    const authResult = await verifyOptionalAuthentication(req)
+    const { isAuthenticated, isGuest, user } = authResult
 
-    // Apply rate limiting for all users (different limits for guest vs authenticated)
     const endpoint = isGuest ? 'generate' : 'authenticated'
     const rateLimitResult = await rateLimiter.checkLimit(
       req,
       endpoint,
       undefined,
-      uid || undefined
+      user?.uid
     )
-    if (!rateLimitResult.allowed) {
-      const message = isGuest
-        ? 'Too many requests from this IP. Guest users are limited to 2 article generations per day.'
-        : 'Too many requests. Authenticated users are limited to 5 article generations per day.'
 
+    if (!rateLimitResult.allowed) {
       console.warn(
-        'Rate limit exceeded for:',
-        isGuest ? 'guest IP' : 'authenticated user'
+        'Rate limit exceeded for IP:',
+        req.headers['x-forwarded-for'] || req.connection?.remoteAddress
       )
       return res.status(429).json({
         error: 'rate_limit_exceeded',
-        message,
+        message: isGuest
+          ? 'Too many requests from this IP. Guest users are limited to 2 article generations per day.'
+          : 'Too many requests. Authenticated users are limited to 5 article generations per day.',
       })
     }
 
-    // connect to mongoDb
     await connectToDb()
 
-    // Check if we're generating a subarticle (has parentid and subtopic)
     if (parentid && subtopic) {
       // Check if a similar subarticle already exists under this parent
       const normalizedSubtopic = subtopic.trim().toLowerCase()
@@ -111,10 +108,8 @@ export default async function handler(
         h2s should be relevant subtopics to the article being generated.
         `
 
-    // generate article with GPT
     const text = await generateAIArticle(prompt, model)
 
-    // If no content was generated, return an error
     if (!text || text.trim() === '') {
       return res.status(400).json({
         error: 'generation_failed',
@@ -132,13 +127,12 @@ export default async function handler(
     let slug = ''
     slug = await createUniqueSlug({ title, model: ArticleModel })
 
-    // save article to mongoDb
     const created = await ArticleModel.create({
       parentid: parentid || '',
       title,
       content: text,
       slug,
-      uid: uid || undefined,
+      uid: user?.uid || undefined,
       isGuest,
     })
 
@@ -151,6 +145,13 @@ export default async function handler(
 
     return res.status(201).json(created)
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return res.status(error.statusCode).json({
+        error: error.code,
+        message: error.message,
+      })
+    }
+
     console.error('Error generating article:', error)
     return res.status(500).json({
       error: 'internal_server_error',

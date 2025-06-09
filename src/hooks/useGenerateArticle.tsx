@@ -3,6 +3,8 @@ import Article from '@/types/Article'
 import axios from 'axios'
 import mongoose from 'mongoose'
 import { useState, useEffect } from 'react'
+import { auth } from '@/lib/initializeFirebaseApp'
+import { useAuthState } from 'react-firebase-hooks/auth'
 
 export const useGenerateArticle = ({
   topic,
@@ -11,7 +13,6 @@ export const useGenerateArticle = ({
   enabled = true,
   onSuccess,
   onRateLimit,
-  userId = null,
   model = 'openai/gpt-3.5-turbo',
 }: {
   topic: string | null
@@ -21,12 +22,12 @@ export const useGenerateArticle = ({
   enabled: boolean
   onSuccess?: (article: Article) => void
   onRateLimit?: (isGuest: boolean, message: string) => void
-  userId?: string
 }) => {
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
   const { error, setError } = useErrorContext()
+  const [user] = useAuthState(auth)
 
   useEffect(() => {
     const generateArticle = async () => {
@@ -46,11 +47,23 @@ export const useGenerateArticle = ({
           requestBody.parentid = parentid.toString()
         }
 
-        if (userId) {
-          requestBody.uid = userId
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
         }
 
-        const res = await axios.post('/api/articles/generate', requestBody)
+        if (user) {
+          try {
+            const idToken = await user.getIdToken()
+            headers.Authorization = `Bearer ${idToken}`
+          } catch (error) {
+            console.warn('Failed to get Firebase ID token:', error)
+            // Continue without token - will be treated as guest request
+          }
+        }
+
+        const res = await axios.post('/api/articles/generate', requestBody, {
+          headers,
+        })
         const data = res.data
         if (data.error) {
           throw new Error(data.error)
@@ -77,8 +90,7 @@ export const useGenerateArticle = ({
           error.response?.data?.error === 'rate_limit_exceeded'
         ) {
           const message = error.response.data.message || 'Rate limit exceeded'
-          // Determine if user is guest based on userId parameter
-          const isGuest = !userId
+          const isGuest = !user
 
           if (onRateLimit) {
             onRateLimit(isGuest, message)
@@ -100,7 +112,7 @@ export const useGenerateArticle = ({
     parentid,
     enabled,
     model,
-    userId,
+    user,
     onSuccess,
     onRateLimit,
     setError,

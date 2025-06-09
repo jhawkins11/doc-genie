@@ -120,7 +120,6 @@ const Article = React.memo(
       subtopic: articleToGenerate,
       parentid: selected?._id,
       enabled: !!articleToGenerate,
-      userId: user?.uid,
       model,
       onSuccess: handleGenerateSuccess,
       onRateLimit: handleRateLimit,
@@ -130,6 +129,7 @@ const Article = React.memo(
       _id: articleToEdit?._id,
       editPrompt,
       onSuccess: handleEditSuccess,
+      onRateLimit: handleRateLimit,
       enabled: !!articleToEdit,
       model,
     })

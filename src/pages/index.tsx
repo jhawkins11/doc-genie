@@ -21,6 +21,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '@/lib/initializeFirebaseApp'
 import { useSyncWithLocalStorage } from '@/hooks/useSyncWithLocalStorage'
 import { useGenerateArticle } from '@/hooks/useGenerateArticle'
+import RateLimitModal from '@/components/common/RateLimitModal'
 
 /**
  * Home page component featuring a documentation generator interface.
@@ -37,8 +38,39 @@ const Home = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
   const [topicToGenerate, setTopicToGenerate] = useState<string | null>(null)
+  const [showRateLimitModal, setShowRateLimitModal] = useState(false)
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    isGuest: boolean
+    message: string
+  } | null>(null)
   const router = useRouter()
   const [user] = useAuthState(auth)
+
+  // Helper function to trigger auth modal
+  const triggerAuthModal = useCallback(() => {
+    const authButton = document.getElementById('auth-button')
+    if (authButton) {
+      authButton.click()
+    }
+  }, [])
+
+  const handleRateLimit = useCallback(
+    (isGuestUser: boolean, message: string) => {
+      setRateLimitInfo({ isGuest: isGuestUser, message })
+      setShowRateLimitModal(true)
+      setTopicToGenerate(null)
+      setIsLoading(false)
+    },
+    []
+  )
+
+  // Close rate limit modal when guest user signs in
+  useEffect(() => {
+    if (user && showRateLimitModal && rateLimitInfo?.isGuest) {
+      setShowRateLimitModal(false)
+      setRateLimitInfo(null)
+    }
+  }, [user, showRateLimitModal, rateLimitInfo?.isGuest])
 
   const particleData = useMemo(
     () =>
@@ -74,9 +106,9 @@ const Home = () => {
   const { article, loading: generatingArticle } = useGenerateArticle({
     topic: topicToGenerate,
     enabled: !!topicToGenerate,
-    userId: user?.uid,
     model,
     onSuccess: handleSuccess,
+    onRateLimit: handleRateLimit,
   })
 
   /**
@@ -424,6 +456,16 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {showRateLimitModal && (
+        <RateLimitModal
+          isOpen={showRateLimitModal}
+          isGuest={rateLimitInfo?.isGuest ?? true}
+          onClose={() => setShowRateLimitModal(false)}
+          onSignUp={triggerAuthModal}
+          isDarkMode={false}
+        />
+      )}
     </main>
   )
 }
