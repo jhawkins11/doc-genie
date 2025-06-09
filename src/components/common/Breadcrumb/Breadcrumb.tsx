@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import Article from '@/types/Article'
 import styles from './Breadcrumb.module.css'
 
@@ -22,9 +23,34 @@ const Breadcrumb = React.memo(
 
       if (!articles || articles.length === 0) return path
 
-      const rootArticle = articles[0]
+      const findRootArticle = (): Article | null => {
+        // If selected article has no parentid, it is a root article
+        if (!selected.parentid) {
+          return selected
+        }
 
-      // Add root article
+        // Search through all articles to find the one that contains the selected article
+        for (const article of articles) {
+          const findInTree = (current: Article): boolean => {
+            if (current._id.toString() === selected._id.toString()) {
+              return true
+            }
+            if (current.childArticles && current.childArticles.length > 0) {
+              return current.childArticles.some((child) => findInTree(child))
+            }
+            return false
+          }
+
+          if (findInTree(article)) {
+            return article
+          }
+        }
+
+        return articles[0] || null
+      }
+
+      const rootArticle = findRootArticle()
+
       if (rootArticle) {
         path.push({
           label: rootArticle.title,
@@ -34,7 +60,10 @@ const Breadcrumb = React.memo(
       }
 
       // If selected is not the root, find the path to it
-      if (selected._id.toString() !== rootArticle._id.toString()) {
+      if (
+        rootArticle &&
+        selected._id.toString() !== rootArticle._id.toString()
+      ) {
         const findPath = (
           article: Article,
           targetId: string,
@@ -100,12 +129,12 @@ const Breadcrumb = React.memo(
                   {item.label}
                 </span>
               ) : (
-                <a
+                <Link
                   href={item.href}
                   className={`${styles.breadcrumbLink} text-sm`}
                 >
                   {item.label}
-                </a>
+                </Link>
               )}
             </li>
           ))}
