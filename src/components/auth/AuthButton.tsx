@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '@/lib/initializeFirebaseApp'
+import Image from 'next/image'
 
 interface AuthButtonProps {
   onClick: (e: React.MouseEvent<HTMLButtonElement> | null) => void
@@ -45,9 +46,11 @@ const AuthButton = ({
           className={`${dimensions} rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold overflow-hidden`}
         >
           {user?.photoURL ? (
-            <img
+            <Image
               src={user.photoURL}
               alt='Avatar'
+              width={24}
+              height={24}
               className='w-full h-full object-cover'
             />
           ) : (

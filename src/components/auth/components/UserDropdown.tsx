@@ -1,6 +1,7 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { User } from 'firebase/auth'
+import Image from 'next/image'
 
 interface UserDropdownProps {
   user: User
@@ -36,9 +37,11 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
           <div className='relative'>
             <div className='w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold overflow-hidden'>
               {user.photoURL ? (
-                <img
+                <Image
                   src={user.photoURL}
                   alt='Avatar'
+                  width={40}
+                  height={40}
                   className='w-full h-full object-cover'
                 />
               ) : (

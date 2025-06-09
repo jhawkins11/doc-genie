@@ -55,7 +55,7 @@ export const useFetchArticles = (
     if (!fetched && (slug || userid)) {
       fetchArticle()
     }
-  }, [slug, fetched, userid, user])
+  }, [slug, fetched, userid, user, setError])
 
   return { articles, loading, error, invalidate: () => setFetched(false) }
 }

@@ -3,7 +3,7 @@ import Article from '@/types/Article'
 import { Document } from 'mongoose'
 
 const buildArticleTree = async (
-  article: Document<any, any, Article>
+  article: Document<unknown, unknown, Article> & Article
 ): Promise<Article> => {
   // create a new article object to contain childArticles
   const updatedArticle = { ...article.toObject() }

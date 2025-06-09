@@ -20,7 +20,7 @@ const ModelSelect = ({
       name='model'
       value={model}
       placeholder='Select AI model'
-      onChange={(e) => setModel(e.target.value as any)}
+      onChange={(e) => setModel(e.target.value)}
       disabled={disabled}
       style={
         {

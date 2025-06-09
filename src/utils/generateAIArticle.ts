@@ -71,6 +71,8 @@ export const generateAIArticle = async (
     return text
   } catch (error) {
     console.log('Error generating completions:', error)
-    throw new Error((error as any).message || 'Error generating article')
+    const errorMessage =
+      error instanceof Error ? error.message : 'Error generating article'
+    throw new Error(errorMessage)
   }
 }

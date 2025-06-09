@@ -17,7 +17,7 @@ export const useAuthActions = () => {
   }, [])
 
   const handleAuthAction = useCallback(
-    async (action: () => Promise<any>, onSuccess?: () => void) => {
+    async <T>(action: () => Promise<T>, onSuccess?: () => void) => {
       setIsLoading(true)
       await tryCatch(async () => {
         await action()

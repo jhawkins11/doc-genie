@@ -89,7 +89,7 @@ export const useDropdownPosition = (
       )
       setDropdownPosition(position)
     }
-  }, [anchorEl, compact, fixedButton, determineDropdownPosition])
+  }, [anchorEl, compact, fixedButton, determineDropdownPosition, dropdownRef])
 
   return dropdownPosition
 }

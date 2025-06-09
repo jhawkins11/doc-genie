@@ -1,11 +1,15 @@
-import { Model } from 'mongoose'
+import { Model, Document } from 'mongoose'
 
-const createUniqueSlug = async ({
+interface HasSlug {
+  slug: string
+}
+
+const createUniqueSlug = async <T extends Document & HasSlug>({
   title,
   model,
 }: {
   title: string
-  model: Model<any>
+  model: Model<T>
 }): Promise<string> => {
   // Create a base slug by removing special characters and replacing spaces with hyphens
   const baseSlug = title
