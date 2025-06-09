@@ -7,6 +7,11 @@ env:
   NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
   FIREBASE_SERVICE_ACCOUNT_DOC_GENIE_6B615: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DOC_GENIE_6B615 }}
   FIREBASE_CLI_EXPERIMENTS: webframeworks
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  FIREBASE_ADMIN_PROJECT_ID: ${{ secrets.FIREBASE_ADMIN_PROJECT_ID }}
+  FIREBASE_ADMIN_CLIENT_EMAIL: ${{ secrets.FIREBASE_ADMIN_CLIENT_EMAIL }}
+  FIREBASE_ADMIN_PRIVATE_KEY: ${{ secrets.FIREBASE_ADMIN_PRIVATE_KEY }}
 jobs:
   build_and_preview:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
