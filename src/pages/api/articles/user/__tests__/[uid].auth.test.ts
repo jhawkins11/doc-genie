@@ -12,7 +12,10 @@ import type Article from '@/types/Article'
 
 jest.mock('@/models/ArticleModel')
 jest.mock('@/utils/connectToDb')
-jest.mock('@/lib/backend/authService')
+jest.mock('@/lib/backend/authService', () => ({
+  ...jest.requireActual('@/lib/backend/authService'),
+  requireAuthentication: jest.fn(),
+}))
 jest.mock('@/utils/buildArticleTree')
 
 const mockArticleModel = ArticleModel as jest.Mocked<typeof ArticleModel>
