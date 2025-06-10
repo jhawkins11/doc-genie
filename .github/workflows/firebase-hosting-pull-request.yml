@@ -18,6 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}" >> .env
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
+          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
+          echo "CUSTOM_FIREBASE_ADMIN_PROJECT_ID=${{ secrets.CUSTOM_FIREBASE_ADMIN_PROJECT_ID }}" >> .env
+          echo "CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL=${{ secrets.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL }}" >> .env
+          echo "CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY='${{ secrets.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY }}'" >> .env
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
