@@ -13,57 +13,64 @@ export function initializeFirebaseAdmin(): admin.app.App {
     return admin.app()
   }
 
-  try {
-    // Try to initialize with default credentials first (works on Firebase/Google Cloud)
-    const app = admin.initializeApp({
-      projectId: process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID,
-    })
-
+  // For local development, use service account keys from env vars.
+  const privateKey = process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY
+  if (privateKey) {
     console.log(
-      'Firebase Admin SDK initialized successfully with default credentials'
+      'Found private key. Attempting to initialize Firebase Admin with explicit credentials...'
     )
-    return app
-  } catch (error) {
-    console.log(
-      'Default credentials failed, trying explicit credentials...',
-      error
-    )
-
-    // Fallback to explicit credentials for local development
     const projectId = process.env.CUSTOM_FIREBASE_ADMIN_PROJECT_ID
     const clientEmail = process.env.CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL
-    const privateKey = process.env.CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY
 
-    if (!projectId || !clientEmail || !privateKey) {
+    if (!projectId || !clientEmail) {
       throw new Error(
-        'Firebase Admin SDK initialization failed. When running locally, please ensure CUSTOM_FIREBASE_ADMIN_PROJECT_ID, CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL, and CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY are set.'
+        'When using CUSTOM_FIREBASE_ADMIN_PRIVATE_KEY, you must also provide CUSTOM_FIREBASE_ADMIN_PROJECT_ID and CUSTOM_FIREBASE_ADMIN_CLIENT_EMAIL.'
       )
     }
 
     try {
-      // Initialize Firebase Admin with service account credentials
       const app = admin.initializeApp({
         credential: admin.credential.cert({
           projectId,
           clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n'), // Handle escaped newlines
+          privateKey: privateKey.replace(/\\n/g, '\n'),
         }),
       })
-
       console.log(
-        'Firebase Admin SDK initialized successfully with explicit credentials'
+        'Firebase Admin SDK initialized successfully with explicit credentials.'
       )
       return app
-    } catch (explicitError) {
-      console.error('Failed to initialize Firebase Admin SDK:', explicitError)
+    } catch (error) {
+      console.error(
+        'Failed to initialize Firebase Admin SDK with explicit credentials:',
+        error
+      )
       throw new Error(
         `Firebase Admin SDK initialization failed: ${
-          explicitError instanceof Error
-            ? explicitError.message
-            : 'Unknown error'
+          error instanceof Error ? error.message : 'Unknown error'
         }`
       )
     }
+  }
+
+  // For production on Google Cloud, use Application Default Credentials.
+  console.log(
+    'Attempting to initialize Firebase Admin with default credentials...'
+  )
+  try {
+    const app = admin.initializeApp()
+    console.log(
+      'Firebase Admin SDK initialized successfully with default credentials.'
+    )
+    return app
+  } catch (error) {
+    console.error(
+      'Failed to initialize Firebase Admin SDK with default credentials:',
+      error
+    )
+    throw new Error(
+      'Firebase Admin SDK initialization failed. Ensure you have set up Application Default Credentials correctly for your environment, or provide service account details via environment variables for local development.'
+    )
   }
 }
 
