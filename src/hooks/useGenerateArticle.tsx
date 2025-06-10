@@ -34,9 +34,11 @@ export const useGenerateArticle = ({
       setLoading(true)
       setError(null)
       try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
         const requestBody: Record<string, string> = {
           topic,
           model,
+          timezone,
         }
 
         if (subtopic) {

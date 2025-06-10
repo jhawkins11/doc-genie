@@ -14,6 +14,7 @@ const requestSchema = z.object({
   editPrompt: z.string().min(1, 'Edit prompt is required'),
   _id: z.string().min(1, 'Article ID is required'),
   model: z.string().optional().nullable(),
+  timezone: z.string().optional(),
 })
 
 type ApiResponse = Article | { error: string; message: string }
@@ -38,7 +39,7 @@ export default async function handler(
       })
     }
 
-    const { editPrompt, _id, model } = validationResult.data
+    const { editPrompt, _id, model, timezone } = validationResult.data
 
     const authResult = await verifyOptionalAuthentication(req)
     const { isAuthenticated, isGuest, user } = authResult
@@ -48,7 +49,8 @@ export default async function handler(
       req,
       endpoint,
       _id,
-      user?.uid
+      user?.uid,
+      timezone
     )
 
     if (!rateLimitResult.allowed) {

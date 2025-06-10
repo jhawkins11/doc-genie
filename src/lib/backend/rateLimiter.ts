@@ -1,6 +1,7 @@
 import type { NextApiRequest } from 'next'
 import { RateLimitModel } from '@/models/RateLimitModel'
 import connectToDb from '@/utils/connectToDb'
+import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 
 export interface RateLimitResult {
   allowed: boolean
@@ -79,6 +80,21 @@ export class RateLimiter {
     return `${ip}:${endpoint}`
   }
 
+  private _getResetTime(timezone = 'UTC'): Date {
+    // Get the current time in the specified timezone
+    const now = new Date()
+    const zonedNow = toZonedTime(now, timezone)
+
+    // Get the start of the next day in the specified timezone
+    const nextDay = new Date(zonedNow)
+    nextDay.setDate(nextDay.getDate() + 1)
+    nextDay.setHours(0, 0, 0, 0)
+
+    // Convert the start of the next day back to a UTC date
+    const resetTime = fromZonedTime(nextDay, timezone)
+    return resetTime
+  }
+
   /**
    * Check if request is within rate limit
    */
@@ -86,7 +102,8 @@ export class RateLimiter {
     req: NextApiRequest,
     endpoint: string,
     articleId?: string,
-    userId?: string
+    userId?: string,
+    timezone?: string
   ): Promise<RateLimitResult> {
     try {
       await connectToDb()
@@ -105,7 +122,9 @@ export class RateLimiter {
 
       const key = this.generateKey(ip, endpoint, articleId, userId)
       const now = new Date()
-      const resetTime = new Date(now.getTime() + config.windowMs)
+
+      // Calculate reset time as the next midnight in the user's timezone (or UTC)
+      const resetTime = this._getResetTime(timezone)
 
       // Try to find existing rate limit entry
       const existingEntry = await RateLimitModel.findOne({
@@ -189,7 +208,8 @@ export class RateLimiter {
     req: NextApiRequest,
     endpoint: string,
     articleId?: string,
-    userId?: string
+    userId?: string,
+    timezone?: string
   ): Promise<RateLimitResult> {
     try {
       await connectToDb()
@@ -215,10 +235,13 @@ export class RateLimiter {
       })
 
       if (!existingEntry) {
+        // Calculate reset time as the next midnight in the user's timezone (or UTC)
+        const resetTime = this._getResetTime(timezone)
+
         return {
           allowed: true,
           remaining: config.maxRequests,
-          resetTime: now.getTime() + config.windowMs,
+          resetTime: resetTime.getTime(),
         }
       }
 

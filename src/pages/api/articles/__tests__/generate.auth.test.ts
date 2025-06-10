@@ -95,6 +95,7 @@ describe('/api/articles/generate - Authentication', () => {
         req,
         'generate',
         undefined,
+        undefined,
         undefined
       )
       expect(mockArticleModel.create).toHaveBeenCalledWith({
@@ -143,6 +144,7 @@ describe('/api/articles/generate - Authentication', () => {
       expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
         req,
         'generate',
+        undefined,
         undefined,
         undefined
       )
@@ -210,7 +212,8 @@ describe('/api/articles/generate - Authentication', () => {
         req,
         'authenticated',
         undefined,
-        'user-123'
+        'user-123',
+        undefined
       )
       expect(mockArticleModel.create).toHaveBeenCalledWith({
         parentid: '',
@@ -266,7 +269,8 @@ describe('/api/articles/generate - Authentication', () => {
         req,
         'authenticated',
         undefined,
-        'user-123'
+        'user-123',
+        undefined
       )
     })
   })
@@ -352,6 +356,7 @@ describe('/api/articles/generate - Authentication', () => {
       expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
         req,
         'generate',
+        undefined,
         undefined,
         undefined
       )

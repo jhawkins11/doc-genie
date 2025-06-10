@@ -14,7 +14,14 @@ jest.mock('@/models/RateLimitModel', () => ({
   },
 }))
 
+// Mock date-fns-tz functions
+jest.mock('date-fns-tz', () => ({
+  toZonedTime: jest.fn((date) => date),
+  fromZonedTime: jest.fn((date) => date),
+}))
+
 import { RateLimitModel } from '@/models/RateLimitModel'
+import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 
 // Mock environment variables
 const originalEnv = process.env
@@ -246,6 +253,63 @@ describe('RateLimiter', () => {
 
       // Should not create or save anything
       expect(RateLimitModel.create).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('Timezone functionality', () => {
+    it('should use UTC timezone by default', async () => {
+      const req = createMockRequest('192.168.1.11')
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      const result = await rateLimiter.checkLimit(req, 'generate')
+      expect(result.allowed).toBe(true)
+
+      // Should use default UTC timezone
+      expect(toZonedTime).toHaveBeenCalledWith(expect.any(Date), 'UTC')
+      expect(fromZonedTime).toHaveBeenCalledWith(expect.any(Date), 'UTC')
+    })
+
+    it('should use provided timezone for reset time calculation', async () => {
+      const req = createMockRequest('192.168.1.12')
+      const timezone = 'America/New_York'
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+      ;(RateLimitModel.create as jest.Mock).mockResolvedValue({})
+
+      const result = await rateLimiter.checkLimit(
+        req,
+        'generate',
+        undefined,
+        undefined,
+        timezone
+      )
+      expect(result.allowed).toBe(true)
+
+      // Should use provided timezone
+      expect(toZonedTime).toHaveBeenCalledWith(expect.any(Date), timezone)
+      expect(fromZonedTime).toHaveBeenCalledWith(expect.any(Date), timezone)
+    })
+
+    it('should use timezone in getStatus method', async () => {
+      const req = createMockRequest('192.168.1.13')
+      const timezone = 'Europe/London'
+
+      ;(RateLimitModel.findOne as jest.Mock).mockResolvedValue(null)
+
+      const result = await rateLimiter.getStatus(
+        req,
+        'generate',
+        undefined,
+        undefined,
+        timezone
+      )
+      expect(result.allowed).toBe(true)
+
+      // Should use provided timezone
+      expect(toZonedTime).toHaveBeenCalledWith(expect.any(Date), timezone)
+      expect(fromZonedTime).toHaveBeenCalledWith(expect.any(Date), timezone)
     })
   })
 

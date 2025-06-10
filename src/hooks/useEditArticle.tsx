@@ -30,8 +30,10 @@ export const useEditArticle = ({
       setLoading(true)
       setError(null)
       try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
         const requestBody: Record<string, string> = {
           editPrompt,
+          timezone,
         }
 
         if (_id) {

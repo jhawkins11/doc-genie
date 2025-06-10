@@ -303,6 +303,7 @@ describe('/api/articles/generate', () => {
         req,
         'generate',
         undefined,
+        undefined,
         undefined
       )
       expect(res._getStatusCode()).toBe(201)
@@ -331,6 +332,7 @@ describe('/api/articles/generate', () => {
       expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
         req,
         'generate',
+        undefined,
         undefined,
         undefined
       )
@@ -388,7 +390,8 @@ describe('/api/articles/generate', () => {
         req,
         'authenticated',
         undefined,
-        'user-123'
+        'user-123',
+        undefined
       )
       expect(res._getStatusCode()).toBe(201)
     })
@@ -426,7 +429,8 @@ describe('/api/articles/generate', () => {
         req,
         'authenticated',
         undefined,
-        'user-123'
+        'user-123',
+        undefined
       )
       expect(res._getStatusCode()).toBe(429)
       expect(JSON.parse(res._getData())).toEqual({
@@ -586,6 +590,49 @@ describe('/api/articles/generate', () => {
       expect(responseData).toHaveProperty('uid')
       expect(responseData.isGuest).toBe(false)
       expect(responseData.uid).toBe('user-123')
+    })
+  })
+
+  describe('Timezone functionality', () => {
+    it('should pass timezone to rate limiter when provided', async () => {
+      mockRateLimiter.checkLimit.mockResolvedValue({
+        allowed: true,
+        remaining: 1,
+        resetTime: Date.now() + 86400000,
+      })
+
+      const mockCreatedArticle = {
+        _id: 'mock-id' as unknown,
+        title: 'Test Article',
+        content: '# Test Article\n\n## Section 1\n\nContent here.',
+        slug: 'test-slug',
+        uid: undefined as string | undefined,
+        isGuest: true,
+        parentid: '',
+      }
+
+      mockArticleModel.create.mockResolvedValue(
+        mockCreatedArticle as unknown as ReturnType<typeof ArticleModel.create>
+      )
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        body: {
+          topic: 'Test Topic',
+          timezone: 'America/New_York',
+        },
+      })
+
+      await handler(req, res)
+
+      expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
+        req,
+        'generate',
+        undefined,
+        undefined,
+        'America/New_York'
+      )
+      expect(res._getStatusCode()).toBe(201)
     })
   })
 })

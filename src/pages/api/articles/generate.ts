@@ -17,6 +17,7 @@ const requestSchema = z.object({
   subtopic: z.string().optional().nullable(),
   parentid: z.string().optional().nullable(),
   model: z.string().optional().nullable(),
+  timezone: z.string().optional(),
 })
 
 type ApiResponse = Article | { error: string; message: string }
@@ -41,7 +42,7 @@ export default async function handler(
       })
     }
 
-    const { parentid, topic, subtopic, model } = validationResult.data
+    const { parentid, topic, subtopic, model, timezone } = validationResult.data
 
     const authResult = await verifyOptionalAuthentication(req)
     const { isAuthenticated, isGuest, user } = authResult
@@ -51,7 +52,8 @@ export default async function handler(
       req,
       endpoint,
       undefined,
-      user?.uid
+      user?.uid,
+      timezone
     )
 
     if (!rateLimitResult.allowed) {

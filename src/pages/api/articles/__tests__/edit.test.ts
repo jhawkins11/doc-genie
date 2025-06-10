@@ -94,6 +94,7 @@ describe('/api/articles/edit', () => {
         req,
         'edit',
         'article-123',
+        undefined,
         undefined
       )
       expect(res._getStatusCode()).toBe(200)
@@ -135,6 +136,7 @@ describe('/api/articles/edit', () => {
         req,
         'edit',
         'article-123',
+        undefined,
         undefined
       )
       expect(res._getStatusCode()).toBe(429)
@@ -208,7 +210,8 @@ describe('/api/articles/edit', () => {
         req,
         'authenticated',
         'article-123',
-        'user-123'
+        'user-123',
+        undefined
       )
       expect(res._getStatusCode()).toBe(200)
       expect(JSON.parse(res._getData())).toMatchObject({
@@ -251,7 +254,8 @@ describe('/api/articles/edit', () => {
         req,
         'authenticated',
         'article-123',
-        'user-123'
+        'user-123',
+        undefined
       )
       expect(res._getStatusCode()).toBe(429)
       expect(JSON.parse(res._getData())).toEqual({
@@ -537,6 +541,7 @@ describe('/api/articles/edit', () => {
         req1,
         'edit',
         'article-123',
+        undefined,
         undefined
       )
       expect(res1._getStatusCode()).toBe(200)
@@ -579,6 +584,7 @@ describe('/api/articles/edit', () => {
         req2,
         'edit',
         'article-456',
+        undefined,
         undefined
       )
       expect(res2._getStatusCode()).toBe(200)
