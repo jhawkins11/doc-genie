@@ -387,6 +387,7 @@ const Home = () => {
                 height={480}
                 className='w-full h-auto object-contain relative z-10 filter drop-shadow-2xl'
                 priority
+                sizes='(max-width: 639px) 280px, (max-width: 767px) 384px, (max-width: 1279px) 448px, 512px'
                 style={{
                   filter:
                     'drop-shadow(0 25px 50px rgba(0, 0, 0, 0.8)) drop-shadow(0 10px 25px rgba(255, 165, 0, 0.4))',
